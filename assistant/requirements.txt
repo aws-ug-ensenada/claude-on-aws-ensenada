@@ -1,0 +1,4 @@
+# Tested versions (2026-10-31). Python 3.11+.
+strands-agents[a2a,anthropic]==1.63.0
+bedrock-agentcore==1.25.2
+PyYAML==6.0.3

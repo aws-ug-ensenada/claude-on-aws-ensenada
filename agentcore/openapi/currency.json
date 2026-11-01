@@ -1,0 +1,35 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Frankfurter exchange rates",
+    "version": "1.0.0",
+    "description": "Currency conversion with European Central Bank reference rates (free, no API key)."
+  },
+  "servers": [{ "url": "https://api.frankfurter.dev/v1" }],
+  "paths": {
+    "/latest": {
+      "get": {
+        "operationId": "convertCurrency",
+        "summary": "Convert an amount between currencies at today's rate",
+        "description": "The response's rates object holds the converted total (not the per-unit rate) for each target currency.",
+        "parameters": [
+          { "name": "amount", "in": "query", "required": true, "description": "How much money to convert", "schema": { "type": "number" } },
+          { "name": "from", "in": "query", "required": true, "description": "ISO code to convert from, e.g. USD", "schema": { "type": "string" } },
+          { "name": "to", "in": "query", "required": true, "description": "ISO code to convert to, e.g. MXN", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Converted amount",
+            "content": { "application/json": { "schema": { "type": "object", "properties": {
+              "amount": { "type": "number" },
+              "base": { "type": "string" },
+              "date": { "type": "string" },
+              "rates": { "type": "object" }
+            } } } }
+          },
+          "404": { "description": "Unknown currency" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Open-Meteo forecast",
+    "version": "1.0.0",
+    "description": "Daily weather forecast from Open-Meteo (free for non-commercial use, no API key)."
+  },
+  "servers": [
+    {
+      "url": "https://api.open-meteo.com/v1"
+    }
+  ],
+  "paths": {
+    "/forecast": {
+      "get": {
+        "operationId": "getForecast",
+        "summary": "Daily weather forecast for a place",
+        "description": "Daily highs and lows (°C), chance of rain (%), maximum wind (km/h) and UV index. Pass the latitude and longitude of the place; you know them for well-known cities (Ensenada is 31.87, -116.60).",
+        "parameters": [
+          {
+            "name": "latitude",
+            "in": "query",
+            "required": true,
+            "description": "Latitude in decimal degrees",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "required": true,
+            "description": "Longitude in decimal degrees",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "daily",
+            "in": "query",
+            "required": true,
+            "description": "Which daily values to return (only one choice)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,uv_index_max"
+              ]
+            }
+          },
+          {
+            "name": "timezone",
+            "in": "query",
+            "required": true,
+            "description": "Local time zone of the place (only one choice)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "auto"
+              ]
+            }
+          },
+          {
+            "name": "forecast_days",
+            "in": "query",
+            "required": false,
+            "description": "Number of days, 1 to 7",
+            "schema": {
+              "type": "integer",
+              "default": 3
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Forecast",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "timezone": {
+                      "type": "string"
+                    },
+                    "daily_units": {
+                      "type": "object"
+                    },
+                    "daily": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters"
+          }
+        }
+      }
+    }
+  }
+}

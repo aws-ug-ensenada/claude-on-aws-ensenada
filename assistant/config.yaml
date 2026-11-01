@@ -1,0 +1,144 @@
+# ─────────────────────────────────────────────────────────────
+#  Your assistant. Edit anything here — no code changes needed.
+#  Override one value without editing:  --set assistant.personality=funny
+#  Start from a ready-made profile:       --preset student
+# ─────────────────────────────────────────────────────────────
+
+# solo   → one assistant with tools                      (level 1)
+# agency → a Director agent gives orders to specialists  (level 6)
+# fleet  → same agency, each specialist is its own A2A service (level 7)
+mode: solo
+
+assistant:
+  name: Luna
+  personality: friendly and practical   # anything: "funny", "formal", "like a coach"...
+  language: auto                        # auto = reply in the language you write in; or "Spanish", "English"
+  answer_length: short                  # short | medium | detailed
+  extra_instructions: |
+    When the weather matters, suggest what to wear or bring.
+    Keep money in the user's currency unless asked otherwise.
+
+user:
+  name: Friend
+  city: Ensenada, Baja California, Mexico
+  currency: MXN
+  about: ""                             # e.g. "Student at UABC, I bike to class"
+
+# The brain: which Claude model.
+#   provider: bedrock   → Amazon Bedrock with your AWS credentials (default)
+#   provider: anthropic → Claude API; export ANTHROPIC_API_KEY first
+# Models (pricing.yaml has the prices):
+#   global.anthropic.claude-haiku-4-5-20251001-v1:0  → fast, good with tools (default)
+#   global.anthropic.claude-sonnet-4-6               → balanced
+#   global.anthropic.claude-haiku-5-5 / -sonnet-5-5 / -opus-5-5
+#       → newest, and Haiku 5.5 is 10× cheaper, but many accounts start with a 0 quota for them.
+#         Check yours first: docs/bedrock-access.md
+#   Use "us." instead of "global." to keep processing in the US (+10% price).
+model:
+  provider: bedrock
+  id: global.anthropic.claude-haiku-4-5-20251001-v1:0
+  region: us-east-1
+  temperature: 0.3                      # 0 = predictable, 1 = creative; Claude 5.x ignores it
+  max_tokens: 1024
+
+# The hands: which tools the assistant may use (files in tools/).
+tools:
+  - weather
+  - todo
+  - currency
+  - documents                           # level 5; stays off until the knowledge base exists
+
+# Level 4 — tools from MCP servers (an open standard: "USB-C for AI tools"). Each entry is one server.
+# Solo mode gets every enabled server; in the agency, each agent lists the ones it may use.
+# Switch one on:  --set mcp_servers.fetch.enabled=true   (the business presets switch on time, fetch and files)
+# Add your own: any MCP server that runs as a command (stdio) or at a URL. Keys:
+#   command + args   start it locally (uvx for Python servers, npx for Node.js ones)
+#   root             files only: the one folder it may read and write (relative to assistant/)
+#   pass_env         environment variables it may see, e.g. its API key. Nothing else is passed:
+#                    your AWS credentials and other keys stay out of third-party code.
+#   url + headers_env  a remote server; headers_env maps a header to an environment variable
+mcp_servers:
+  time:                                 # current time, time-zone conversion. No login.
+    enabled: false
+    command: uvx
+    args: ["mcp-server-time", "--local-timezone=America/Tijuana"]
+  fetch:                                # read any public web page as text. No login.
+    enabled: false
+    command: uvx
+    args: ["mcp-server-fetch"]
+  files:                                # read and write files in ONE folder (official server). No login. Needs Node.js.
+    enabled: false
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-filesystem@2.1.0"]
+    root: business/winery
+  aws_docs:                             # search and read the AWS documentation. No login.
+    enabled: false
+    command: uvx
+    args: ["awslabs.aws-documentation-mcp-server@latest"]
+    env: {FASTMCP_LOG_LEVEL: ERROR}
+  gmail:                                # read your Gmail (community server, read-only). NOT tested in this repo:
+    enabled: false                      # needs your own Google OAuth client, see docs/customize.md#gmail
+    command: uvx
+    args: ["workspace-mcp", "--tools", "gmail", "--read-only"]
+    pass_env: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]
+
+# Level 8 — on AgentCore Runtime these tool groups come from the project's AgentCore Gateway
+# (agentcore/agentcore.json, one Gateway target per group with the same name) instead of tools/.
+# On your laptop nothing changes: the gateway is only used when AgentCore provides its URL.
+gateway:
+  name: lunatools
+  tools: [weather, currency]
+
+# Level 2 — Amazon Bedrock Guardrails. Create one with: python setup/create_guardrail.py
+guardrail:
+  enabled: false
+  id: ""
+  version: DRAFT
+
+# Level 3 — Amazon Bedrock AgentCore Memory. Create one with: python setup/create_memory.py
+memory:
+  enabled: false
+  id: ""
+
+# Level 5 — your documents (RAG): Amazon Bedrock Knowledge Bases on Amazon S3 Vectors.
+# Put files in my_documents/, then: python setup/create_knowledge_base.py
+knowledge_base:
+  enabled: false
+  id: ""
+  results: 4                            # passages returned per search
+
+# Levels 6–7 — the agency. Add, remove or rewrite agents freely.
+# An agent whose tools aren't switched on yet (MCP disabled, no knowledge base) sits out.
+agency:
+  director:
+    model: global.anthropic.claude-sonnet-4-6   # the boss gets the stronger brain
+    instructions: ""
+  agents:
+    - name: planner
+      role: Plans the day around the weather — what to wear, best time to go out.
+      tools: [weather]
+      url: http://127.0.0.1:9001                # used in fleet mode
+    - name: finance
+      role: Converts currencies and answers money questions.
+      tools: [currency]
+      url: http://127.0.0.1:9002
+    - name: organizer
+      role: Manages the user's to-do list.
+      tools: [todo]
+      mcp: [time]
+      url: http://127.0.0.1:9003
+    - name: researcher
+      role: Looks things up on the web and in the AWS documentation.
+      mcp: [fetch, aws_docs]
+      url: http://127.0.0.1:9004
+    - name: office
+      role: Works with the business's files - sales, reservations, inventory - and saves reports.
+      mcp: [files]
+      url: http://127.0.0.1:9006
+    - name: librarian
+      role: Finds answers in the user's own documents (contracts, policies, recipes).
+      tools: [documents]
+      url: http://127.0.0.1:9005
+
+# Print tokens and estimated cost after every answer.
+show_cost: true

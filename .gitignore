@@ -1,0 +1,24 @@
+.env
+.env.*
+*.pem
+.venv/
+__pycache__/
+node_modules/
+.terraform/
+.terragrunt-cache/
+*.tfstate*
+.DS_Store
+data/
+config.local.yaml
+
+# AgentCore CLI (level 8). Deploy state and targets name your account, and people clone this repo
+# into theirs, so they stay local: the CLI creates them on the first deploy.
+agentcore/.cli/
+agentcore/aws-targets.json
+agentcore/.cache/
+agentcore/cdk/cdk.out/
+agentcore/*.policy.json
+assistant/uv.lock
+
+# Reports Luna saves for the sample businesses
+assistant/business/*/reports/*.md

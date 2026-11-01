@@ -1,0 +1,65 @@
+# Demo runbook
+
+How to rehearse, record and run the live demo for the talk. The scenes follow [agenda.md](agenda.md). Every command runs from `assistant/` with the virtual environment active and your AWS account's credentials loaded (us-east-1).
+
+## The day before
+
+1. **Check access and resources:**
+   ```bash
+   python rehearse.py            # every scene once, with checks; about 3 minutes and $0.10
+   ```
+   It ends with `✅ Ready for the talk`, or names the scenes that failed and shows their output. `python rehearse.py agent rag` runs only those scenes; `--list` shows them all.
+2. **Seed the memory scene.** Memory needs a few minutes to learn a preference, so do this at least 5 minutes before you show it:
+   ```bash
+   python luna.py --ask "Remember this about me: I'm vegetarian and I hate cold weather."
+   ```
+3. **Clear what the audience should see appear on stage:** `rm -f data/todo.json business/*/reports/*.md`.
+4. **Check the model.** The presenter's machine runs Claude 5.5 through the **Claude API** (`model` and `agency.director.model` in `config.local.yaml`, with `ANTHROPIC_API_KEY` set), because Bedrock holds Claude 5.x back on the presenter's account ([bedrock-access.md](bedrock-access.md)). The guardrail still applies to what you type. The cloud scene runs Claude 4.x on Bedrock.
+5. **Check the AgentCore CLI** for the cloud scene: `agentcore --version` (install it once with `npm install -g @aws/agentcore`; everything else the demo needs is in [prerequisites.md](prerequisites.md)).
+6. **Record the fallback video** (next section).
+
+## Record the demo
+
+A recording replaces the live demo if the venue network fails. It can also *be* the demo: play the clips and narrate over them.
+
+- **One clip per scene,** not one long take, so a bad take only costs that scene and the clips can sit on their slides.
+- **Terminal:** dark theme, font size 20 or larger, about 100 × 30 characters, a short prompt (`PS1='❯ '`). Run `clear` between scenes.
+- **Tools:** [asciinema](https://asciinema.org) records the terminal as text (small files, sharp at any size, the text can be copied). OBS Studio records the screen and your voice if you want a narrated video. Either works for a fallback.
+- **Answers vary** a little from run to run. Keep the take where the answer reads best.
+
+## Scenes
+
+Each scene has a slide in [the deck](slides/claude-on-aws-ensenada.pptx) with the command, what to watch for, and the clip name below (`clips/01-chatbot` and so on). Name the recordings to match. `rehearse.py` runs every scene except 3 (the approval needs someone at the keyboard) with the same questions.
+
+| # | Minute | Scene | Command | What the audience should see | If it fails |
+|---|---|---|---|---|---|
+| 1 | 10–14 | Chatbot | `python luna.py --no-tools`, then *"What should I wear today?"* | It guesses: no tools, no real weather | It only needs the model |
+| 2 | 14–20 | Agent | `python luna.py`, then *"What should I wear today, and how much is 85 dollars in pesos? Add 'buy sunscreen' to my list."* | `get_weather`, `convert_currency`, `add_task`; real numbers; the cost line | Weather or rates API down → play the clip |
+| 3 | 14–20 | Human in the loop | *"Delete the sunscreen task"* | Luna asks for approval before deleting | — |
+| 4 | 20–23 | Make it yours | `python luna.py --preset family`, or `--set assistant.personality=pirate`, or a suggestion from the room | Same agent, new name, voice and model | — |
+| 5 | 23–27 | Agency | `python luna.py --mode agency`, then *"Plan my Saturday at the beach, budget 50 USD"* | The Director's orders (📨) and the specialists' replies (✅), cost per agent | Slow (about 20 s): talk over the orders |
+| 6 | 27–30 | Many sources (MCP) | `python luna.py --preset winery`, then *"What time is it in Los Angeles right now? Then read https://en.wikipedia.org/wiki/Valle_de_Guadalupe and give me two facts I can tell my US guests."* | `get_current_time` and `fetch`: two MCP servers, one answer | Site slow → any other public page |
+| 7 | 30–32 | Your business | `python luna.py --preset coffee-shop`, then *"What do I need to reorder this week, and from which supplier is espresso cheaper?"* | The `files` server reads `inventory.csv`; RAG finds the supplier prices; one answer from both | — |
+| 8 | 32–35 | Monday briefing (advanced) | `python luna.py --preset winery --mode agency`, then *"Prepare my Monday briefing: will the patio be usable this weekend, how this weekend's sales compared with the weekend before, Saturday's reservations and allergies, what 100 dollars is in pesos for US guests, and which cork supplier to use. Save it as a report."* | Orders to six specialists; then open `business/winery/reports/` and show the saved file | About 45 s: narrate the orders; or show a report saved in rehearsal |
+| 9 | 38–42 | Guardrail | *"Should I buy bitcoin with my savings?"* | The guardrail's refusal, before Claude sees it | — |
+| 10 | 38–42 | Memory | *"Suggest a dinner for tonight based on what you know about me."* | It knows you're vegetarian, from an earlier session | Not seeded → skip, or show the clip |
+| 11 | 38–42 | Your documents | *"According to my lease, when is the rent due and how much is it?"* | `search_my_documents`, then 9,500 MXN by the 5th: an English question answered from a Spanish contract | — |
+| 12 | 38–42 | Cloud | From the repo root: `agentcore invoke --runtime luna --payload '{"prompt": "What should I wear today in Ensenada?"}'` | The same agent answering from AgentCore Runtime, with weather through the Gateway | Show the clip or the CloudWatch trace |
+
+Scenes 6–8 are the business block: the part most people will want to copy, so give it time. Scenes 9–12 are about 30 seconds each; pick the ones the room cares about most.
+
+Explaining the concepts to a non-technical room: [plain-words.md](plain-words.md).
+
+## Plan B for the model
+
+- **The Claude API is slow or failing:** run the same scene on Bedrock with `--set model.provider=bedrock --set model.id=global.anthropic.claude-haiku-4-5-20251001-v1:0 --set agency.director.model=global.anthropic.claude-sonnet-4-6`.
+- **Bedrock is failing (guardrail, memory, documents):** those scenes need AWS; play their clips.
+- **No network at all:** play the recorded clips.
+
+## After the talk
+
+```bash
+python setup/cleanup.py                                  # guardrail, memory, knowledge base
+cd .. && agentcore remove all --yes && agentcore deploy --yes   # runtime, gateway, placeholder key
+aws xray update-indexing-rule --name Default --rule '{"Probabilistic":{"DesiredSamplingPercentage":1}}'
+```

@@ -1,0 +1,30 @@
+# USD per 1 million tokens, on-demand, standard tier.
+# Source: AWS Price List API (service AmazonBedrockFoundationModels, us-east-1) and
+# https://platform.claude.com/docs/en/about-claude/pricing — checked 2026-10-31.
+#   global    → global.anthropic.* profiles (cheapest, may run in any AWS region)
+#   regional  → us.anthropic.* profiles (stays in the US, +10%)
+#   anthropic → Claude API with your own key (provider: anthropic)
+# Haiku 5.5 prices are for prompts up to 100k tokens.
+# Keys are the model id without the "global."/"us." prefix, "anthropic." and Bedrock's "-v1:0" suffix.
+
+models:
+  claude-haiku-4-5-20251001:
+    global:    {input: 1.00, output: 5.00}
+    regional:  {input: 1.10, output: 5.50}
+    anthropic: {input: 1.00, output: 5.00}
+  claude-sonnet-4-6:
+    global:    {input: 3.00, output: 15.00}
+    regional:  {input: 3.30, output: 16.50}
+    anthropic: {input: 3.00, output: 15.00}
+  claude-haiku-5-5:
+    global:    {input: 0.10, output: 0.50}
+    regional:  {input: 0.11, output: 0.55}
+    anthropic: {input: 0.10, output: 0.50}
+  claude-sonnet-5-5:
+    global:    {input: 2.00, output: 10.00}
+    regional:  {input: 2.20, output: 11.00}
+    anthropic: {input: 2.00, output: 10.00}
+  claude-opus-5-5:
+    global:    {input: 4.00, output: 20.00}
+    regional:  {input: 4.40, output: 22.00}
+    anthropic: {input: 4.00, output: 20.00}
