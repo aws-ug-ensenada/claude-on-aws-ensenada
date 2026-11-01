@@ -135,14 +135,18 @@ Give an agency member access by adding the server's name to its `mcp:` list, as 
 Luna's config has a `gmail` entry for the community server [`workspace-mcp`](https://github.com/taylorwilsdon/google_workspace_mcp) in read-only mode. It isn't tested in this repo, because it needs your own Google credentials:
 
 1. In the [Google Cloud console](https://console.cloud.google.com/), create a project, enable the **Gmail API**, configure the **OAuth consent screen** (add yourself as a test user) and create an **OAuth client ID** of type *Desktop app*.
-2. Export the client's ID and secret (never put them in `config.yaml`):
+2. Export the client's ID and secret (never put them in `config.yaml`), and your Gmail address so the agent never has to ask for it:
    ```bash
    export GOOGLE_OAUTH_CLIENT_ID=...  GOOGLE_OAUTH_CLIENT_SECRET=...
+   export USER_GOOGLE_EMAIL=you@gmail.com
    ```
-3. Run Luna with it switched on. The first call opens a browser for you to sign in:
+3. Run Luna **interactively** with it switched on. The first Gmail question prints a Google sign-in link; open it, allow access, then ask again in the same session (the sign-in needs the server still running, so `--ask` alone can't finish it):
    ```bash
-   python luna.py --set mcp_servers.gmail.enabled=true --ask "Summarise the unread emails from suppliers this week"
+   python luna.py --set mcp_servers.gmail.enabled=true
    ```
+   Then: *"Summarise the unread emails from suppliers this week."* After that first sign-in, `--ask` works too.
+
+The sign-in is saved in `~/.google_workspace_mcp/credentials`, one per Google account. If another tool on your machine also uses `workspace-mcp` with different services, give each its own folder with `WORKSPACE_MCP_CREDENTIALS_DIR`, or each sign-in replaces the other's permissions.
 
 Google also offers an [official Gmail MCP server](https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server) at `https://gmailmcp.googleapis.com/mcp/v1`. It is in developer preview and needs enrolment in Google's Workspace Developer Preview Program, plus an OAuth flow per user.
 

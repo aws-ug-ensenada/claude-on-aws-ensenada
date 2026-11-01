@@ -76,11 +76,11 @@ mcp_servers:
     command: uvx
     args: ["awslabs.aws-documentation-mcp-server@latest"]
     env: {FASTMCP_LOG_LEVEL: ERROR}
-  gmail:                                # read your Gmail (community server, read-only). NOT tested in this repo:
+  gmail:                                # read your Gmail (community server, read-only, one signed-in account).
     enabled: false                      # needs your own Google OAuth client, see docs/customize.md#gmail
     command: uvx
-    args: ["workspace-mcp", "--tools", "gmail", "--read-only"]
-    pass_env: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]
+    args: ["workspace-mcp@2.3.0", "--single-user", "--tools", "gmail", "--tool-tier", "core", "--read-only"]
+    pass_env: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, USER_GOOGLE_EMAIL]  # the last one: your Gmail address, so the agent never asks for it
 
 # Level 8 — on AgentCore Runtime these tool groups come from the project's AgentCore Gateway
 # (agentcore/agentcore.json, one Gateway target per group with the same name) instead of tools/.
