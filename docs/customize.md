@@ -109,7 +109,7 @@ MCP servers are listed in `mcp_servers` in `config.yaml`. Switch one on for a si
 | `fetch` | Read any public web page | None | ✅ tested |
 | `files` | Read and write files in **one** folder | None | ✅ tested |
 | `aws_docs` | Search the AWS documentation | None | ✅ tested |
-| `gmail` | Read your Gmail | Your Google OAuth client | Configured, **not tested here** |
+| `gmail` | Read your Gmail | Your Google OAuth client | ✅ tested (read-only) |
 
 Add any other server the same way. The [MCP server list](https://github.com/modelcontextprotocol/servers) and [AWS MCP servers](https://awslabs.github.io/mcp/) have hundreds: GitHub, Slack, Google Drive, Notion, databases, CRMs, calendars.
 

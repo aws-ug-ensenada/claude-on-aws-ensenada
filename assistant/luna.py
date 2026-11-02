@@ -12,6 +12,8 @@
 import argparse
 import uuid
 
+from strands.types.exceptions import MaxTokensReachedException
+
 from core import active_agents, build_agency, build_solo, cost, load_config, usage_of
 
 EXIT_WORDS = {"", "exit", "quit", "salir", "adios", "adiós"}
@@ -47,7 +49,12 @@ def main() -> None:
         if question is None or question.strip().lower() in EXIT_WORDS:
             break
         before = {label: usage_of(a) for label, a, _ in billed}
-        result = agent(question)
+        try:
+            result = agent(question)
+        except MaxTokensReachedException:
+            # The answer outgrew model.max_tokens: keep the session, say why, and let them ask for less.
+            print(f"\n(answer cut off at model.max_tokens = {cfg['model']['max_tokens']}: ask for a shorter answer, or raise it)\n")
+            continue
         if all(usage_of(a) == before[label] for label, a, _ in billed):
             print(str(result).strip())  # nothing was streamed: e.g. the guardrail stopped it before Claude
         print()

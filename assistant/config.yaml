@@ -39,7 +39,7 @@ model:
   id: global.anthropic.claude-haiku-4-5-20251001-v1:0
   region: us-east-1
   temperature: 0.3                      # 0 = predictable, 1 = creative; Claude 5.x ignores it
-  max_tokens: 1024
+  max_tokens: 4096                      # the longest answer; Gmail summaries need more than 1024
 
 # The hands: which tools the assistant may use (files in tools/).
 tools:

@@ -64,7 +64,7 @@ MCP (Model Context Protocol) is an open standard for connecting AI to tools: thi
 | `fetch` | Reads any public web page as text | None |
 | `files` | Reads and writes files in **one** folder (the official filesystem server) | None |
 | `aws_docs` | Searches and reads the AWS documentation | None |
-| `gmail` | Reads your Gmail (opt-in, not tested here) | Your Google OAuth client |
+| `gmail` | Reads your Gmail (opt-in, read-only) | Your Google OAuth client |
 
 ```bash
 python setup/check_mcp.py      # starts each server and lists its tools, without calling Claude
