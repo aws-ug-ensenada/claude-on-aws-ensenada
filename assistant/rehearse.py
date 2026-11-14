@@ -53,6 +53,9 @@ SCENES = [
     ("clinic", "Any business: a third example, a clinic, with no change to the agent: files plus policies",
      ["--preset", "clinic"], "A patient cancelled tomorrow's cleaning with 5 hours' notice. Is there a fee? And which patient on Monday "
      "has an allergy the dentists should know about?", r"(?i)20 ?%(?s:.*)penicillin|penicillin(?s:.*)20 ?%", None),
+    ("spanish", "Any language: the same clinic agent, asked in Spanish",
+     ["--preset", "clinic"], "¿Cobran por cancelar una cita con 5 horas de aviso? ¿Cuánto cuesta una corona?",
+     r"(?i)20 ?%(?s:.*)7,?500|7,?500(?s:.*)20 ?%", None),
     ("briefing", "Advanced: the agency prepares the owner's Monday briefing and saves it as a file",
      ["--preset", "winery", "--mode", "agency"], "Prepare my Monday briefing: will the patio be usable this weekend, how this "
      "weekend's sales compared with the weekend before, Saturday's reservations and allergies, what 100 dollars is in pesos "
@@ -70,11 +73,11 @@ def needs(name: str, cfg: dict) -> str | None:
         return "no memory (python setup/create_memory.py)"
     if name == "rag" and not (cfg.get("knowledge_base") or {}).get("enabled"):
         return "no knowledge base (python setup/create_knowledge_base.py)"
-    if name in ("mcp", "business", "clinic", "briefing") and not shutil.which("uvx"):
+    if name in ("mcp", "business", "clinic", "spanish", "briefing") and not shutil.which("uvx"):
         return "uvx not installed"
-    if name in ("business", "clinic", "briefing") and not shutil.which("npx"):
+    if name in ("business", "clinic", "spanish", "briefing") and not shutil.which("npx"):
         return "npx not installed (Node.js), needed by the files server"
-    if name in ("business", "clinic", "briefing") and not (cfg.get("knowledge_base") or {}).get("enabled"):
+    if name in ("business", "clinic", "spanish", "briefing") and not (cfg.get("knowledge_base") or {}).get("enabled"):
         return "no knowledge base (python setup/create_knowledge_base.py)"
     if name == "cloud" and not shutil.which("agentcore"):
         return "agentcore CLI not installed (npm install -g @aws/agentcore)"

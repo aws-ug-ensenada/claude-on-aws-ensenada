@@ -125,3 +125,30 @@ def test_checker_finds_the_usual_mistakes(bad_preset):
 def test_checker_suggests_the_closest_preset_name():
     messages = [m for _level, m in check.problems("clinc")]
     assert any("did you mean clinic" in m for m in messages)
+
+
+# ── setup/new_preset.py ──────────────────────────────────────
+
+
+def test_new_preset_scaffold_passes_the_checker():
+    import shutil
+    import subprocess
+
+    slug = "zz-scaffold-test"
+    try:
+        out = subprocess.run([sys.executable, str(HERE / "setup" / "new_preset.py"), slug, "--business", "Test Shop"], capture_output=True, text=True, cwd=HERE)
+        assert out.returncode == 0, out.stdout + out.stderr
+        assert (HERE / "presets" / f"{slug}.yaml").exists() and (HERE / "business" / slug / "data.csv").exists()
+        assert not [m for level, m in check.problems(slug) if level == "error"]
+        again = subprocess.run([sys.executable, str(HERE / "setup" / "new_preset.py"), slug], capture_output=True, text=True, cwd=HERE)
+        assert again.returncode == 1 and "already exists" in again.stdout
+    finally:
+        (HERE / "presets" / f"{slug}.yaml").unlink(missing_ok=True)
+        shutil.rmtree(HERE / "business" / slug, ignore_errors=True)
+
+
+def test_new_preset_rejects_bad_names():
+    import subprocess
+
+    out = subprocess.run([sys.executable, str(HERE / "setup" / "new_preset.py"), "Bad Name"], capture_output=True, text=True, cwd=HERE)
+    assert out.returncode == 1

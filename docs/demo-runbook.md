@@ -4,6 +4,8 @@ How to rehearse, record and run the live demo for the talk. The scenes follow [a
 
 ## The day before
 
+The full list, with the checks and a log to fill in, is in [talk-checklist.md](talk-checklist.md). In short:
+
 1. **Check access and resources:**
    ```bash
    python rehearse.py            # every scene once, with checks; about 3 minutes and $0.10
@@ -66,6 +68,47 @@ Checked on a Raspberry Pi on 2026-11-14 (Claude 4.x on Bedrock, no Claude API ke
     --cli-binary-format raw-in-base64-out out.json && cat out.json
   ```
 - **Memory can trip the guardrail.** With the memory switched on, scene 6's prompt was refused by the guardrail before Claude saw it (no tool calls, $0.00), after memory had collected preferences from earlier scenes. The same prompt works with memory off or the guardrail off, and the prompt alone passes `apply-guardrail`. On 2026-11-14 the fix was to delete the stray records (a budget, an email-summary rule, a briefing preference) and keep only *vegetarian* and *hates cold*; scene 6 then passed with everything on. Memory re-learns preferences from every conversation, so before the talk list the records with `python setup/clean_memory.py`, delete the extras with `python setup/clean_memory.py --keep vegetarian --keep cold --yes` (without `--yes` it only shows what would go), and run scene 6 once more. `rehearse.py` also warns at the start when the memory holds more than 3 records. If it is refused on the day, run it with `--set memory.enabled=false`.
+
+## Time budget
+
+The talk is 45 minutes plus questions. The demo is about 20 of them, so not every scene fits live. Machine times below were measured on 2026-11-14 on a Raspberry Pi with Claude 4.x (`python rehearse.py`); add 30 to 60 seconds of talking per scene.
+
+| Group | Scene | Machine time | Role |
+|---|---|---|---|
+| **Must show** | 1 Chatbot | 9 s | the "before" |
+| | 2 Agent | 12 s | tools, the main idea |
+| | 5 Agency | 19 s | a team of agents |
+| | 7 Business (coffee shop) | 38 s | files plus documents |
+| | 7b Clinic, or **an audience-built business** | 23 s | "any business" |
+| | 9 Guardrail | 5 s | rules |
+| | 12 Cloud | about 15 s | the same agent on AWS |
+| If time allows | 3 Approval, 4 Make it yours | 7 to 15 s | |
+| | 6 MCP (time and web page) | 40 s warm | |
+| | 10 Memory, 11 Your documents | 5 to 8 s | |
+| | 8 Monday briefing | 58 s | the long one: clip is fine |
+| | Spanish question | 50 s | shows language is not a barrier |
+
+Add these up with your own talking time in the first full rehearsal, and write the total in [talk-checklist.md](talk-checklist.md). The must-show set is what you run if you are over time.
+
+## Audience builds a business
+
+The best proof that Luna works for any business is to build one for someone in the room, live. Ask *"What business do you have or work in?"* and take the first answer that has files and rules (a bakery, a gym, a repair shop, a school).
+
+1. `python setup/new_preset.py bakery --business "Panadería Sol" --about "Owns a bakery; busiest on weekends"` (seconds; it creates the preset and a folder, then checks it).
+2. Open `business/bakery/data.csv` and type or paste 4 to 6 rows the audience gives you (item, quantity, what they sell).
+3. `python luna.py --preset bakery --check`, then `python luna.py --preset bakery` and ask one question about those rows.
+
+Keep it to one question. If anything goes wrong, say *"this is why we check it"*, show the `--check` output, and switch to one of the two spare presets (see [talk-checklist.md](talk-checklist.md#2-the-day-before)). Small models can miscount rows, so ask for a list or a lookup, not a total.
+
+## AWS console tour
+
+If the room has time, a 3-minute tour of the console makes the cloud part concrete. All of these exist in the personal account, us-east-1, and were checked READY or ACTIVE on 2026-11-14.
+
+1. **Bedrock → Guardrails → `luna-assistant`:** the denied topic and the prompt-attack filter. Goes with scene 9.
+2. **AgentCore → Memory → `luna_assistant`:** the records it learned (*vegetarian*, *hates cold*). Goes with scene 10.
+3. **Bedrock → Knowledge Bases:** the data source and its sync status. Goes with scenes 7 and 11.
+4. **AgentCore → Runtime and Gateway:** the targets `weather` and `currency`, and the runtime's CloudWatch logs and traces. Goes with scene 12.
+5. **Billing or Budgets:** the monthly budget, to answer "what does it cost".
 
 ## Plan B for the model
 

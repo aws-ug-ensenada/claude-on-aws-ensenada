@@ -25,6 +25,8 @@ To preview without PowerPoint: `soffice --headless --convert-to pdf claude-on-aw
 
 ## Prep
 
+The checklist to tick: [talk-checklist.md](talk-checklist.md). Time budget and the must-show scenes: [demo-runbook.md](demo-runbook.md#time-budget). A one-page handout in English and Spanish: [cheatsheet.md](cheatsheet.md).
+
 Step by step in [demo-runbook.md](demo-runbook.md).
 
 - [x] Claude access: the presenter runs Claude 5.5 through the Claude API (Bedrock holds 5.x back on the presenter's account); attendees' default is Claude 4.x on Bedrock ([bedrock-access.md](bedrock-access.md))

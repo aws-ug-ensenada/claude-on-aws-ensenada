@@ -11,6 +11,7 @@ const React = require("react");
 const ReactDOMServer = require("react-dom/server");
 const sharp = require("sharp");
 const fa = require("react-icons/fa");
+const QRCode = require("qrcode");
 
 const OUT = path.join(__dirname, "claude-on-aws-ensenada.pptx");
 const REPO = "github.com/aws-ug-ensenada/claude-on-aws-ensenada";
@@ -292,6 +293,31 @@ async function build() {
   text(s, [{ text: "Luna is this, grown up: ", options: { bold: true } }, { text: "assistant/core.py is about 300 lines. Read it, then change it." }],
     { x: 0.95, y: 6.2, w: 11.5, h: 0.6, fontSize: 15, valign: "middle" });
   s.addNotes("In plain words: Strands is the kitchen that cooks the loop so you only write the recipe. You give it a model, a prompt and tools, and it handles the back-and-forth. The docstring is the instruction the model reads to decide when to use a tool. Use it for any agent, not just Luna: the Luna code is a worked example of the same ten lines with memory, guardrails, MCP and a team of agents added. docs/extend.md explains each piece.");
+
+  // The whole picture
+  s = addSlide("The idea", "Content");
+  s.addText("The whole picture", { placeholder: "title" });
+  card(s, 0.6, 1.75, 2.7, 4.6, COLOR.white, "you card");
+  await badge(s, fa.FaLaptop, 1.45, 2.05, 1.0, COLOR.teal, "you");
+  text(s, "You", { x: 0.8, y: 3.25, w: 2.3, h: 0.5, fontFace: FONT.head, fontSize: 24, bold: true, align: "center" });
+  text(s, "A terminal today; a chat app or Slack later", { x: 0.85, y: 3.85, w: 2.2, h: 0.9, fontSize: 14, color: COLOR.muted, align: "center" });
+  text(s, "Your files and documents", { x: 0.85, y: 5.0, w: 2.2, h: 0.9, fontSize: 14, color: COLOR.muted, align: "center" });
+  s.addShape(pres.shapes.RIGHT_ARROW, { x: 3.4, y: 3.8, w: 0.4, h: 0.35, fill: { color: COLOR.coral }, line: { color: COLOR.coral }, objectName: "arrow" });
+  card(s, 3.9, 1.75, 4.1, 4.6, COLOR.mist, "luna card");
+  text(s, "Luna, built with Strands Agents", { x: 4.15, y: 1.95, w: 3.6, h: 0.5, fontSize: 18, bold: true, color: COLOR.teal });
+  const inner = [["Your tools", "Python functions with @tool"], ["MCP servers", "web, files, time, Gmail, Slack…"], ["The agency", "Director + specialists"], ["Rules", "approval, guardrails, a preset"]];
+  inner.forEach(([head, body], i) => {
+    card(s, 4.15, 2.6 + i * 0.92, 3.6, 0.8, COLOR.white, `${head} box`);
+    text(s, [{ text: head, options: { bold: true, breakLine: true } }, { text: body, options: { fontSize: 12, color: COLOR.muted } }], { x: 4.3, y: 2.6 + i * 0.92, w: 3.35, h: 0.8, fontSize: 15, valign: "middle" });
+  });
+  s.addShape(pres.shapes.RIGHT_ARROW, { x: 8.1, y: 3.8, w: 0.4, h: 0.35, fill: { color: COLOR.coral }, line: { color: COLOR.coral }, objectName: "arrow" });
+  card(s, 8.6, 1.75, 4.13, 4.6, COLOR.white, "aws card");
+  text(s, "AWS", { x: 8.85, y: 1.95, w: 3.6, h: 0.5, fontSize: 18, bold: true, color: COLOR.teal });
+  const aws = [["Amazon Bedrock", "Claude, the brain"], ["Bedrock Guardrails", "rules outside the prompt"], ["AgentCore Memory", "remembers you"], ["Knowledge Base + S3 Vectors", "your documents (RAG)"], ["AgentCore Runtime + Gateway", "the same agent in the cloud"]];
+  aws.forEach(([head, body], i) => {
+    text(s, [{ text: head, options: { bold: true, breakLine: true } }, { text: body, options: { fontSize: 12, color: COLOR.muted } }], { x: 8.85, y: 2.55 + i * 0.75, w: 3.7, h: 0.68, fontSize: 14, valign: "middle" });
+  });
+  s.addNotes("The one picture to come back to. On the left, you. In the middle, Luna: a Strands agent with tools, MCP servers, optionally a team, and a preset that says whose business it is. On the right, the AWS services that each add one thing: the model, the rules, memory, your documents and, at the end, the cloud. Every demo scene lights up one box of this picture; point at it as you go. Nothing here is specific to wine or coffee.");
 
   // Words you'll hear tonight
   s = addSlide("The idea", "Content");
@@ -680,13 +706,35 @@ async function build() {
   ], { x: 0.95, y: 5.3, w: 11.5, h: 1.25, fontSize: 16, valign: "middle" });
   s.addNotes("docs/production.md has the checklist. Stage 2 is already deployed for this talk. For the winery, stage 3 is the shift leads asking Luna in Slack for tonight's reservations and allergies.");
 
+  // Safe with real data
+  s = addSlide("The rest of the stack", "Content");
+  s.addText("Safe to point at real data?", { placeholder: "title" });
+  const safe = [
+    [fa.FaFolderOpen, "Small doors", "Each connector gets one folder, read-only mail, its own key. Your AWS keys never reach a third-party server."],
+    [fa.FaUserCheck, "A person decides", "Anything that deletes, sends or pays asks first. The agent proposes; you approve."],
+    [fa.FaExclamationTriangle, "Text is not trusted", "A web page or a document can contain instructions. Guardrails and approval sit outside the prompt, so the text can't switch them off."],
+  ];
+  x = 0.6;
+  for (let i = 0; i < safe.length; i++) {
+    const [Ic, head, body] = safe[i];
+    card(s, x, 1.75, 3.85, 3.9, COLOR.white, `${head} card`);
+    await badge(s, Ic, x + 0.4, 2.05, 0.85, i === 2 ? COLOR.coral : COLOR.teal);
+    text(s, head, { x: x + 0.4, y: 3.1, w: 3.1, h: 0.55, fontFace: FONT.head, fontSize: 22, bold: true });
+    text(s, body, { x: x + 0.4, y: 3.75, w: 3.1, h: 1.8, fontSize: 15, color: COLOR.muted });
+    x += 4.14;
+  }
+  card(s, 0.6, 5.85, 12.13, 0.8, COLOR.mist, "safety note");
+  text(s, [{ text: "Start read-only. ", options: { bold: true } }, { text: "Give write access one tool at a time, after you have watched it work. More in docs/production.md." }],
+    { x: 0.95, y: 5.85, w: 11.5, h: 0.8, fontSize: 16, valign: "middle" });
+  s.addNotes("In plain words: a new employee gets one key, not the master key, and a manager signs off anything risky. The one thing that is new with agents: they read text from the outside world (a web page, a customer's email, a document), and that text can try to give them orders. That is called prompt injection. You can't fully prevent it, so you limit what a fooled agent could do: read-only access, one folder, approval for anything that changes something, and guardrails that live outside the prompt. docs/production.md has the checklist for real use.");
+
   // 19 · Lessons
   s = addSlide("The rest of the stack", "Content");
   s.addText("What broke while building it", { placeholder: "title" });
   const lessons = [
     [fa.FaLock, "Quota of 0", "New account, newest models: Claude 5.5 tokens-per-minute was 0. Fix: Claude 4.x on Bedrock, or the Claude API."],
     [fa.FaThermometerHalf, "\"temperature is deprecated\"", "Claude 5.x rejects the temperature setting. Fix: only send it to older models."],
-    [fa.FaShieldAlt, "Guardrail vs memory", "The prompt-attack filter at HIGH flagged memory's own context. Fix: MEDIUM; real attacks still blocked."],
+    [fa.FaShieldAlt, "Guardrail vs memory", "Memory text joins the prompt, so stray records made the guardrail refuse a fair question. Fix: MEDIUM, and tidy the records."],
     [fa.FaExchangeAlt, "A header sent us to a paid API", "The gateway's x-api-key made Open-Meteo redirect to its commercial API. Fix: a neutral header name."],
     [fa.FaListUl, "daily=daily", "A default wasn't enough: Claude sent the parameter's name as its value. Fix: a one-value enum."],
     [fa.FaMapMarkerAlt, "Seven Valle de Guadalupes", "The weather tool picked the one in Jalisco. Fix: match the state the user gave."],
@@ -700,7 +748,7 @@ async function build() {
     text(s, head, { x: cx + 1.1, y: cy + 0.3, w: 2.55, h: 0.62, fontSize: 17, bold: true, valign: "middle" });
     text(s, body, { x: cx + 0.3, y: cy + 1.02, w: 3.3, h: 1.15, fontSize: 15, color: COLOR.muted });
   }
-  s.addNotes("The honest slide. Each of these cost real time and each is documented in the repo (docs/bedrock-access.md, levels.md). The lesson: every layer you add (memory, guardrails, gateway, cloud) changes how the others behave, so test them together. A one-command rehearsal (python rehearse.py) catches these before the talk.");
+  s.addNotes("The honest slide. Each of these cost real time and each is documented in the repo (docs/bedrock-access.md, levels.md). The lesson: every layer you add (memory, guardrails, gateway, cloud) changes how the others behave, so test them together. A one-command rehearsal (python rehearse.py) catches these before the talk. The memory one hit twice: once as the filter level, once as leftover records from earlier rehearsals (setup/clean_memory.py lists and removes them).");
 
   // 20 · Built with Claude Code
   s = addSlide("The rest of the stack", "Content");
@@ -775,7 +823,10 @@ async function build() {
     { text: "Gracias · AWS User Group Ensenada", options: { fontSize: 18 } },
   ], { placeholder: "body" });
   await badge(s, fa.FaGithub, 0.8, 5.75, 0.75, COLOR.coral, "repo icon");
-  s.addNotes("Leave the repo link on screen during Q&A.");
+  const qr = await QRCode.toDataURL(`https://${REPO}`, { margin: 1, width: 480, color: { dark: "#0F2A36", light: "#FFFFFF" } });
+  s.addImage({ data: qr.replace("data:", ""), x: 10.4, y: 3.7, w: 2.3, h: 2.3, altText: "QR code for the repository", objectName: "repo qr" });
+  s.addText("Scan for the repo\nthen: python luna.py", { x: 10.0, y: 6.1, w: 3.1, h: 0.6, fontFace: FONT.code, fontSize: 11, color: COLOR.quote, align: "center", margin: 0 });
+  s.addNotes("Leave this slide up during Q&A. The QR code opens the repo; the first command after the quickstart is python luna.py. The README quickstart takes about 15 minutes, and docs/extend.md shows how to make it work for your own business. A one-page English and Spanish cheat sheet is in docs/cheatsheet.md.");
 
   await pres.writeFile({ fileName: OUT });
   console.log(`✅ ${path.relative(process.cwd(), OUT)}`);
