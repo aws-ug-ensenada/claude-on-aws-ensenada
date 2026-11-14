@@ -77,7 +77,9 @@ mcp_servers:
   files: {enabled: true, root: business/my-business}
 ```
 
-Run it with `python luna.py --preset my-business`. Nothing else is required to try it.
+Check it before you run it: `python luna.py --preset my-business --check` makes no calls to AWS or Claude. It catches a misspelt setting (with a "did you mean"), a folder that doesn't exist, a tool or agent that isn't there, and a feature switched on without its ID.
+
+Then run it with `python luna.py --preset my-business`.
 
 ### 2. Give it your data (a folder, no code)
 

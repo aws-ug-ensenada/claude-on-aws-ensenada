@@ -88,3 +88,40 @@ def test_markdown_links_point_to_files_that_exist():
             if not (md.parent / target).exists():
                 broken.append(f"{md.relative_to(REPO)} -> {target}")
     assert not broken, "\n".join(broken)
+
+
+# ── luna.py --check ──────────────────────────────────────────
+
+import check  # noqa: E402
+
+
+@pytest.mark.parametrize("preset", PRESETS)
+def test_shipped_presets_pass_the_checker(preset):
+    errors = [m for level, m in check.problems(preset) if level == "error"]
+    assert not errors, errors
+
+
+@pytest.fixture
+def bad_preset():
+    path = HERE / "presets" / "zz-bad-test.yaml"
+    path.write_text(
+        "assistant: {personalty: calm}\n"
+        "tools: [weather, hammer]\n"
+        "mcp_servers: {files: {enabled: true, root: business/nope}}\n"
+        "agency: {agents: [{name: chef, role: cooks, tools: [spoon], mcp: [pantry]}]}\n"
+    )
+    yield "zz-bad-test"
+    path.unlink()
+
+
+def test_checker_finds_the_usual_mistakes(bad_preset):
+    messages = " | ".join(m for level, m in check.problems(bad_preset) if level == "error")
+    assert "personalty" in messages and "did you mean 'assistant.personality'" in messages
+    assert "hammer" in messages
+    assert "business/nope" in messages
+    assert "spoon" in messages and "pantry" in messages
+
+
+def test_checker_suggests_the_closest_preset_name():
+    messages = [m for _level, m in check.problems("clinc")]
+    assert any("did you mean clinic" in m for m in messages)
