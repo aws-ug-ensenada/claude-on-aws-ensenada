@@ -60,7 +60,9 @@ Five changes, from easiest to most involved. Do the first three and you already 
 
 ### 1. Say who it works for (a preset, no code)
 
-Copy `presets/coffee-shop.yaml` to `presets/my-business.yaml` and rewrite the text:
+Copy `presets/coffee-shop.yaml` to `presets/my-business.yaml` and rewrite the text. A third, non-demo example ships ready to try: `python luna.py --preset clinic` (a small dental clinic with fictional appointments, supplies, policies and prices). It was built by changing only the preset and the data, with no change to the agent.
+
+The rewrite looks like this:
 
 ```yaml
 assistant:
@@ -105,7 +107,7 @@ Two ways, depending on whether someone already built it:
 |---|---|---|---|
 | Winery or restaurant (the demo) | sales, reservations | handbook, supplier prices | web for guest questions |
 | Coffee shop (the demo) | sales, inventory | recipes, supplier prices | exchange rates for tourists |
-| Dental or medical clinic | appointments export | policies, price list | calendar, reminders |
+| Dental or medical clinic (`--preset clinic`, tested on the files) | appointments, supplies | policies, price list | calendar, reminders |
 | Law or accounting office | matter or invoice list | templates, client terms | email drafts, deadline calendar |
 | School or academy | attendance, grades export | handbook, syllabi | messaging to parents |
 | Farm or food producer | harvest and orders | certifications, buyer terms | weather, market prices |
