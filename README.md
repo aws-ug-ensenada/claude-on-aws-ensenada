@@ -108,7 +108,7 @@ Everything is a parameter in [`assistant/config.yaml`](assistant/config.yaml). S
 
 ## Tests
 
-Offline smoke tests (no AWS account, no model calls) check that every preset loads, every business folder exists, tool docstrings are clear, and every link in the docs points to a file. They run on every pull request.
+Offline smoke tests (no AWS account, no model calls) check that every preset loads, every business folder exists, tool docstrings are clear, and every link in the docs points to a file. A CI workflow to run them on every pull request is drafted but not yet committed.
 
 ```bash
 cd assistant && pip install -r requirements-dev.txt && python -m pytest tests
