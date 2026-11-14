@@ -47,6 +47,7 @@ tools:
   - todo
   - currency
   - documents                           # level 5; stays off until the knowledge base exists
+  - tables                              # counts and adds up CSV rows exactly; on only with the files server (business presets)
 
 # Level 4 — tools from MCP servers (an open standard: "USB-C for AI tools"). Each entry is one server.
 # Solo mode gets every enabled server; in the agency, each agent lists the ones it may use.
@@ -133,6 +134,7 @@ agency:
       url: http://127.0.0.1:9004
     - name: office
       role: Works with the business's files - sales, reservations, inventory - and saves reports.
+      tools: [tables]                       # exact counts and sums over the same folder
       mcp: [files]
       url: http://127.0.0.1:9006
     - name: librarian

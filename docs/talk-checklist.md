@@ -9,8 +9,11 @@ Tick each box when the check passes; write the date next to it. Commands run fro
   - Claude 4.x on Bedrock: tested. `python luna.py --no-tools --ask "ok"` answers.
   - Claude 5.5 through the Claude API: set `ANTHROPIC_API_KEY`, then `python luna.py --set model.provider=anthropic --set model.id=claude-haiku-5-5 --ask "ok"`. Not yet rehearsed on any machine in this repo's notes; rehearse it before relying on it.
   - Claude 5.5 on Bedrock: quota was 0 on 2026-11-14. Re-check with the commands in [bedrock-access.md](bedrock-access.md).
-- [ ] **Offline tests green:** `python -m pytest tests -q` (29 tests) and the `smoke` check on the pull request.
+- [ ] **Offline tests green:** `python -m pytest tests -q` (31 tests) and the `smoke` check on the pull request.
 - [ ] **A full rehearsal passes:** `python rehearse.py` ends with `✅ Ready for the talk`. Note the time and cost.
+- [ ] **The deck checks pass:** `cd docs/slides && python3 check_deck.py` (text size, colour contrast, a timed speaker note on every slide). `node build.js` prints the planned time: 49.5 minutes with every slide, 37.5 without the optional ones, so plan to skip about 5 minutes of them.
+- [ ] **PDF backup regenerated** after any slide change: `cd docs/slides && npm run pdf`, and open it once. The PDF is committed next to the deck.
+- [ ] **The QR code opens the repo** when scanned with a phone (it decodes correctly from the rendered slide).
 - [ ] **Time the talk once**, out loud, with the real slides and the demo. Write the total here: ____ min. If it is over 40 minutes, drop scenes from the "if time allows" list in [demo-runbook.md](demo-runbook.md#time-budget).
 - [ ] **Clips recorded**, one per scene that is live, named as on the slides (`clips/01-chatbot` … `clips/07b-clinic` …), and they play from the presenting laptop with no network.
 - [ ] **Prices re-checked** ([costs.md](costs.md)) and the budget alarm is set.
@@ -39,6 +42,7 @@ Tick each box when the check passes; write the date next to it. Commands run fro
 - [ ] Each live scene has a clip ready; if an answer takes more than 20 seconds more than the plan, say what it is doing and switch to the clip.
 - [ ] If the guardrail refuses a scene it shouldn't (memory is the usual cause), rerun it with `--set memory.enabled=false`.
 - [ ] Keep one minute of slack for the audience's question.
+- [ ] Follow [presenter-script.md](presenter-script.md); if you run long, skip in the order it gives.
 - [ ] Leave the final slide (the repo QR code and the first command) on screen during Q&A.
 
 ## 5. After the talk
@@ -52,4 +56,5 @@ Tick each box when the check passes; write the date next to it. Commands run fro
 | Date | Where | What was checked | Result |
 |---|---|---|---|
 | 2026-11-14 | Low-power Linux machine, Claude 4.x on Bedrock | `rehearse.py` (11 scenes plus the new Spanish one), `setup/prewarm.py` (all steps, MCP first run 125 s), clean checkout, clinic, tests, CI | all passed after the memory cleanup; first MCP run takes about 3 minutes; the Claude 5.5 path was not run |
+| 2026-11-16 | Same machine, Claude 4.x on Bedrock | full `rehearse.py` after the counting tool, deck checks, QR decode; `clinic`, `spanish` and `cloud` repeated 3 times | first full run failed 3 scenes (date-dependent question, a misread policy, no deployment state for the CLI); all fixed, then 9 of 9 passed |
 | | | | |

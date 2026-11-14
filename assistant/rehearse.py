@@ -51,7 +51,7 @@ SCENES = [
      ["--preset", "coffee-shop"], "What do I need to reorder this week, and from which supplier is espresso cheaper?",
      r"(?i)oat milk(?s:.*)Tostadores|Tostadores(?s:.*)(?i:oat milk)", None),
     ("clinic", "Any business: a third example, a clinic, with no change to the agent: files plus policies",
-     ["--preset", "clinic"], "A patient cancelled tomorrow's cleaning with 5 hours' notice. Is there a fee? And which patient on Monday "
+     ["--preset", "clinic"], "A patient cancelled a cleaning with only 5 hours' notice. Is there a fee? And which patient on 16 November "
      "has an allergy the dentists should know about?", r"(?i)20 ?%(?s:.*)penicillin|penicillin(?s:.*)20 ?%", None),
     ("spanish", "Any language: the same clinic agent, asked in Spanish",
      ["--preset", "clinic"], "¿Cobran por cancelar una cita con 5 horas de aviso? ¿Cuánto cuesta una corona?",
@@ -92,7 +92,23 @@ def run(args: list[str] | None, question: str, env: dict) -> str:
         cmd = [sys.executable, "luna.py", *args, "--ask", question]
         cwd = HERE
     out = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True, timeout=300)
-    return out.stdout + out.stderr
+    text = out.stdout + out.stderr
+    if args is None and "No deployment targets" in text:  # the CLI's deployment state is git-ignored: this machine never ran `agentcore deploy`
+        return invoke_runtime_directly(question)
+    return text
+
+
+def invoke_runtime_directly(question: str) -> str:
+    """The same call `agentcore invoke` makes, without the project's deployment state (see docs/demo-runbook.md)."""
+    import boto3
+
+    region = load_config()["model"]["region"]
+    runtimes = boto3.client("bedrock-agentcore-control", region_name=region).list_agent_runtimes()["agentRuntimes"]
+    arn = next(r["agentRuntimeArn"] for r in runtimes if r["agentRuntimeName"].startswith("luna"))
+    reply = boto3.client("bedrock-agentcore", region_name=region).invoke_agent_runtime(
+        agentRuntimeArn=arn, runtimeSessionId="rehearsal-" + "0" * 30, payload=json.dumps({"prompt": question}).encode()
+    )
+    return "(called the runtime directly) " + reply["response"].read().decode()
 
 
 def warn_stray_memory(cfg: dict) -> None:

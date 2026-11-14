@@ -3,7 +3,9 @@
   "private": true,
   "description": "Generator for the talk's slides: npm install && node build.js",
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "pdf": "node build.js && soffice --headless --convert-to pdf claude-on-aws-ensenada.pptx",
+    "check": "python3 check_deck.py"
   },
   "dependencies": {
     "pptxgenjs": "3.12.0",

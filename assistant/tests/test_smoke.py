@@ -152,3 +152,35 @@ def test_new_preset_rejects_bad_names():
 
     out = subprocess.run([sys.executable, str(HERE / "setup" / "new_preset.py"), "Bad Name"], capture_output=True, text=True, cwd=HERE)
     assert out.returncode == 1
+
+
+# ── tools/tables.py ──────────────────────────────────────────
+
+
+def test_tables_tool_counts_and_sums_exactly(tmp_path):
+    from tools import tables
+
+    folder = HERE / "business" / "zz-tables-test"
+    folder.mkdir()
+    try:
+        (folder / "d.csv").write_text("status,amount\nunconfirmed,10\nconfirmed,5.5\nUnconfirmed,2,000\n".replace("2,000", "2"))
+        cfg = {"mcp_servers": {"files": {"enabled": True, "root": "business/zz-tables-test"}}}
+        count_rows, sum_column = tables.tools(cfg)
+        assert count_rows(file="d.csv", column="status", equals="unconfirmed")["count"] == 2
+        assert count_rows(file="d.csv")["count"] == 3
+        assert sum_column(file="d.csv", column="amount")["total"] == 17.5
+        assert sum_column(file="d.csv", column="amount", filter_column="status", equals="confirmed")["total"] == 5.5
+        with pytest.raises(ValueError):
+            count_rows(file="../../config.yaml")
+        with pytest.raises(ValueError):
+            count_rows(file="d.csv", column="nope", equals="x")
+    finally:
+        import shutil
+
+        shutil.rmtree(folder)
+
+
+def test_tables_tool_is_off_without_the_files_server():
+    from tools import tables
+
+    assert tables.tools({"mcp_servers": {"files": {"enabled": False}}}) == []

@@ -4,7 +4,7 @@
 
 ## Appointments
 - Reminders go out 48 hours and 4 hours before the visit. A patient who has not confirmed 4 hours before is called by reception.
-- Cancellations with less than 24 hours' notice are charged 20% of the treatment price. Whitening deposits (500 MXN) are not refundable inside 24 hours.
+- Cancellations with less than 24 hours' notice are charged 20% of the treatment price. For example, a patient who cancels 5 hours before the visit is inside the 24-hour window and is charged 20%; one who cancels 2 days before is not charged. Whitening deposits (500 MXN) are not refundable inside 24 hours.
 - New patients arrive 15 minutes early to fill in the medical history form.
 
 ## Medical alerts

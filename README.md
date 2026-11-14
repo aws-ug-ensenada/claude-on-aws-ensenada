@@ -102,6 +102,7 @@ Everything is a parameter in [`assistant/config.yaml`](assistant/config.yaml). S
 | [docs/bedrock-access.md](docs/bedrock-access.md) | Turning on Claude in an account: use-case form, agreement, and the quotas to request |
 | [docs/slides/](docs/slides/) | The talk's deck (`claude-on-aws-ensenada.pptx`, 31 slides) and its generator (`npm install && node build.js`) |
 | [docs/talk-checklist.md](docs/talk-checklist.md) | The validation checklist for the talk: a week before, the day before, ten minutes before, during, after |
+| [docs/presenter-script.md](docs/presenter-script.md) | What to say and do, slide by slide, with transitions and what to skip when running long |
 | [docs/cheatsheet.md](docs/cheatsheet.md) | One page, in English and Spanish: run it, then make it your business |
 | [docs/demo-runbook.md](docs/demo-runbook.md) | Rehearse (`python rehearse.py`), record and run the talk's demo, scene by scene |
 | [docs/plain-words.md](docs/plain-words.md) | Every concept in plain words, with everyday comparisons, for explaining it to anyone |

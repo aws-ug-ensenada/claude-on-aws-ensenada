@@ -21,10 +21,10 @@ const COLOR = {
   ocean: "0F2A36", // dark slides, code blocks
   ink: "1B2B33", // text on light
   teal: "1F7A80", // secondary
-  coral: "F2734B", // accent
+  coral: "E8663D", // accent
   mist: "EEF6F6", // demo slide background
   foam: "CFE3E3", // text on dark
-  muted: "5F7681",
+  muted: "5A707B",
   line: "D5E3E4",
   white: "FFFFFF",
   code: "E6F1F0",
@@ -133,13 +133,30 @@ function terminal(slide, { command, question }, x, y, w, h) {
   text(slide, runs, { x: x + 0.3, y: y + 0.25, w: w - 0.6, h: h - 0.5, fontFace: FONT.code, fontSize: 15, objectName: "command" });
 }
 
+
+// Planned minutes per slide, in deck order: [minutes, optional]. Optional slides are the ones to skip when the talk runs long.
+// The build prints the totals and fails if this list and the deck get out of step. Replace these estimates with your timed run.
+const TIMING = [
+  [0.5], [1], [1.5], // 1-3 opening
+  [0.2], [1.5], [1.5], [1.5], [1.5], [1], // 4-9 the idea
+  [0.2], [1.5], [3], [2, true], [3], [1, true], [1.5], // 10-16 meet Luna
+  [0.2], [1], [1.5, true], [2.5], [2], [2, true], [1, true], [1], [1.5], // 17-25 any business
+  [0.2], [1.5], [1.5, true], [1.5, true], [1, true], [2.5], [1.5], [1], [1.5], [0.5, true], [1], [0.7], [0], // 26-38 the rest
+];
+let slideCount = 0;
 const sections = {};
 function addSlide(section, masterName) {
   if (!sections[section]) {
     pres.addSection({ title: section });
     sections[section] = true;
   }
-  return pres.addSlide({ masterName, sectionTitle: section });
+  const slide = pres.addSlide({ masterName, sectionTitle: section });
+  const [minutes, optional] = TIMING[slideCount++] || [];
+  if (minutes !== undefined) {
+    const notes = slide.addNotes.bind(slide);
+    slide.addNotes = (text) => notes(`⏱ ~${minutes} min${optional ? " · optional: skip if you are short on time" : ""}.\n\n${text}`);
+  }
+  return slide;
 }
 
 // One demo scene: what to run, what to watch for, why it matters, and the fallback clip.
@@ -459,7 +476,7 @@ async function build() {
     text(s, name, { x: x + 1.3, y: 1.98, w: 2.4, h: 0.5, fontFace: FONT.head, fontSize: 19, bold: true });
     text(s, what, { x: x + 1.3, y: 2.48, w: 2.4, h: 0.55, fontSize: 13, color: COLOR.muted });
     bullets(s, items, { x: x + 0.3, y: 3.2, w: 3.35, h: 1.5, fontSize: 14 });
-    text(s, `python luna.py ${preset}`, { x: x + 0.3, y: 4.85, w: 3.4, h: 0.45, fontSize: 10.5, fontFace: FONT.code, color: COLOR.teal, bold: true });
+    text(s, `luna.py ${preset}`, { x: x + 0.3, y: 4.85, w: 3.4, h: 0.45, fontSize: 12, fontFace: FONT.code, color: COLOR.teal, bold: true });
     x += 4.14;
   }
   card(s, 0.6, 5.7, 12.13, 0.9, COLOR.mist, "make it yours");
@@ -491,7 +508,7 @@ async function build() {
     title: "A third business, no new code",
     level: "Any business · example: a dental clinic · files + your documents",
     command: "python luna.py --preset clinic",
-    question: "A patient cancelled tomorrow's cleaning with 5 hours' notice. Is there a fee? And which patient on Monday has an allergy?",
+    question: "A patient cancelled a cleaning with only 5 hours' notice. Is there a fee? And which patient on 16 November has an allergy?",
     watch: ["Same agent, new preset and new data", "search_my_documents finds the 20% fee", "appointments.csv shows the penicillin allergy"],
     why: "Winery, coffee shop, clinic: only the preset and the data change. Yours is next.",
     clip: "clips/07b-clinic",
@@ -825,9 +842,13 @@ async function build() {
   await badge(s, fa.FaGithub, 0.8, 5.75, 0.75, COLOR.coral, "repo icon");
   const qr = await QRCode.toDataURL(`https://${REPO}`, { margin: 1, width: 480, color: { dark: "#0F2A36", light: "#FFFFFF" } });
   s.addImage({ data: qr.replace("data:", ""), x: 10.4, y: 3.7, w: 2.3, h: 2.3, altText: "QR code for the repository", objectName: "repo qr" });
-  s.addText("Scan for the repo\nthen: python luna.py", { x: 10.0, y: 6.1, w: 3.1, h: 0.6, fontFace: FONT.code, fontSize: 11, color: COLOR.quote, align: "center", margin: 0 });
+  s.addText("Scan for the repo\nthen: python luna.py", { x: 9.9, y: 6.1, w: 3.3, h: 0.6, fontFace: FONT.code, fontSize: 12, color: COLOR.quote, align: "center", margin: 0 });
   s.addNotes("Leave this slide up during Q&A. The QR code opens the repo; the first command after the quickstart is python luna.py. The README quickstart takes about 15 minutes, and docs/extend.md shows how to make it work for your own business. A one-page English and Spanish cheat sheet is in docs/cheatsheet.md.");
 
+  if (slideCount !== TIMING.length) throw new Error(`TIMING has ${TIMING.length} entries but the deck has ${slideCount} slides: update TIMING in build.js`);
+  const total = TIMING.reduce((sum, [m]) => sum + m, 0);
+  const core = TIMING.reduce((sum, [m, optional]) => sum + (optional ? 0 : m), 0);
+  console.log(`⏱ planned ${total.toFixed(1)} min with every slide; ${core.toFixed(1)} min without the optional ones (talk time, before the live demo's own waiting)`);
   await pres.writeFile({ fileName: OUT });
   console.log(`✅ ${path.relative(process.cwd(), OUT)}`);
 }
