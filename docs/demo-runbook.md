@@ -57,7 +57,7 @@ Explaining the concepts to a non-technical room: [plain-words.md](plain-words.md
 
 Checked on a second, low-power Linux machine on 2026-11-14 (Claude 4.x on Bedrock, no Claude API key). Things that only show up on a fresh machine:
 
-- **`config.local.yaml` is git-ignored,** so copy it across or recreate it from the IDs in [next-steps.md](next-steps.md). Without it the guardrail, memory and documents scenes silently run without those features.
+- **`config.local.yaml` is git-ignored,** so rebuild it on the new machine from the account: `python setup/_discover.py --write` (it finds the guardrail, memory and knowledge base by name, read-only, and writes the file; run it with the personal AWS credentials loaded). Or copy the file across. Without it the guardrail, memory and documents scenes silently run without those features.
 - **The first run of scene 6 (MCP) is slow, about 3 minutes.** `uvx` downloads the `time` and `fetch` servers, and `fetch` runs `npm install` for its Readability dependencies on first use. Run the scene once the day before; killing it half-way throws the install away. Later runs take about 40 seconds.
 - **`agentcore invoke` needs the project's deployment state,** which is git-ignored and lives on the machine that ran `agentcore deploy`. On another machine it says *No deployment targets are configured*. Do not run `agentcore deploy` to fix that; call the runtime directly instead:
   ```bash

@@ -69,3 +69,27 @@ def discover() -> dict:
     if kb := knowledge_base():
         found["knowledge_base"] = kb
     return found
+
+
+def main() -> None:
+    """python setup/_discover.py [--write]: show what exists in the account; --write saves it to config.local.yaml."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description=main.__doc__)
+    parser.add_argument("--write", action="store_true", help="write config.local.yaml (merged with what is already there)")
+    args = parser.parse_args()
+    found = discover()
+    for section, value in found.items():
+        print(f"{section}: {value}")
+    if not found:
+        print("Nothing found by name in this account and region.")
+    if args.write and found:
+        local = _local.read()
+        for section, value in found.items():
+            local[section] = {**value, **(local.get(section) or {}), "enabled": True}
+        _local.write(local)
+        print("✅ config.local.yaml written")
+
+
+if __name__ == "__main__":
+    main()

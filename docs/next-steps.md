@@ -49,7 +49,7 @@ export AWS_PROFILE=<your-profile> AWS_REGION=us-east-1   # or however you load y
 aws sts get-caller-identity                              # confirm it's the right account
 ```
 
-`config.local.yaml` (the IDs written by the setup scripts) and `data/todo.json` are git-ignored, so a new machine starts clean. If the resources already exist, copy `config.local.yaml` across by hand, or the new machine won't know their IDs.
+`config.local.yaml` (the IDs written by the setup scripts) and `data/todo.json` are git-ignored, so a new machine starts clean. To get the IDs back without copying the file, run `python setup/_discover.py --write` with the personal AWS credentials loaded: it finds the resources by name. If the resources already exist, copy `config.local.yaml` across by hand, or the new machine won't know their IDs.
 
 ## Next steps, in order
 
