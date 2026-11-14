@@ -244,6 +244,36 @@ async function build() {
   ], { x: 2.0, y: 5.2, w: 10.4, h: 1.05, fontSize: 17, valign: "middle" });
   s.addNotes("In plain words: like asking an assistant a question; they check their phone, read what they find, and only then answer. This loop is the whole trick. The model never touches the internet itself: it asks for a tool call, our code runs the tool, and the result goes back to the model. Strands Agents is AWS's open-source framework that runs this loop for us.");
 
+  // Strands Agents
+  s = addSlide("The idea", "Content");
+  s.addText("Strands Agents runs the loop", { placeholder: "title" });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: 1.7, w: 7.3, h: 4.35, rectRadius: 0.12, fill: { color: COLOR.ocean }, line: { color: COLOR.ocean }, objectName: "code block" });
+  const code = [
+    "from strands import Agent, tool",
+    "",
+    "@tool",
+    "def get_stock(item: str) -> dict:",
+    "    \"\"\"Units of an item on the shelf.\"\"\"",
+    "    return {\"item\": item, \"units\": 12}",
+    "",
+    "agent = Agent(",
+    "    model=BedrockModel(model_id=...),",
+    "    system_prompt=\"You help run a shop.\",",
+    "    tools=[get_stock],",
+    ")",
+    "agent(\"Do we need to reorder beans?\")",
+  ];
+  text(s, code.map((l, i) => ({ text: l, options: { color: l.startsWith("@") ? COLOR.coral : COLOR.code, breakLine: i < code.length - 1 } })),
+    { x: 0.9, y: 1.95, w: 6.8, h: 3.9, fontFace: FONT.code, fontSize: 15, objectName: "code" });
+  card(s, 8.25, 1.7, 4.48, 4.35, COLOR.white, "strands card");
+  text(s, "What it gives you", { x: 8.55, y: 1.92, w: 3.9, h: 0.45, fontSize: 19, bold: true, color: COLOR.teal });
+  bullets(s, ["Open source, from AWS: strandsagents.com", "Runs the ask-call-read loop for you", "A tool is a Python function with a docstring", "Any model: Bedrock, Claude API, others", "MCP servers plug in as tools", "Memory and guardrails attach as options"],
+    { x: 8.55, y: 2.5, w: 3.95, h: 3.4, fontSize: 15 });
+  card(s, 0.6, 6.2, 12.13, 0.6, COLOR.mist, "strands note");
+  text(s, [{ text: "Luna is this, grown up: ", options: { bold: true } }, { text: "assistant/core.py is about 300 lines. Read it, then change it." }],
+    { x: 0.95, y: 6.2, w: 11.5, h: 0.6, fontSize: 15, valign: "middle" });
+  s.addNotes("In plain words: Strands is the kitchen that cooks the loop so you only write the recipe. You give it a model, a prompt and tools, and it handles the back-and-forth. The docstring is the instruction the model reads to decide when to use a tool. Use it for any agent, not just Luna: the Luna code is a worked example of the same ten lines with memory, guardrails, MCP and a team of agents added. docs/extend.md explains each piece.");
+
   // Words you'll hear tonight
   s = addSlide("The idea", "Content");
   s.addText("Words you'll hear tonight", { placeholder: "title" });
@@ -363,36 +393,38 @@ async function build() {
   // Part 3 · Luna for your business
   s = addSlide("Luna for your business", "Section");
   s.addText("Part 3", { placeholder: "body" });
-  s.addText("Luna for your business: a winery and a coffee shop", { placeholder: "title" });
-  s.addNotes("The part most people will copy. Same agent, now working for a business owner: their files, their documents and the web.");
+  s.addText("Luna for any business: yours, not just ours", { placeholder: "title" });
+  s.addNotes("The part most people will copy. The winery and the coffee shop are only examples: the same agent works for any business, because what changes is who it works for, what it can see and what it can do. Say this out loud: pick the business closest to your own.");
 
   s = addSlide("Luna for your business", "Content");
-  s.addText("Two sample businesses, swap in yours", { placeholder: "title" });
+  s.addText("Two examples. Yours is the third.", { placeholder: "title" });
   const shops = [
-    [fa.FaWineGlassAlt, "Bodega Cielo Alto", "Winery & restaurant, Valle de Guadalupe", "--preset winery",
-     ["Files: sales.csv, reservations.csv, reports/", "Documents: handbook, supplier prices", "Web + time: US guests, wine facts"]],
-    [fa.FaCoffee, "Café Brisa", "Coffee shop on the Ensenada malecón", "--preset coffee-shop",
-     ["Files: sales.csv, inventory.csv, reports/", "Documents: recipes, supplier prices", "Web + time: cruise days, suppliers"]],
+    [fa.FaWineGlassAlt, "Winery", "Example: Valle de Guadalupe", "--preset winery",
+     ["Files: sales, reservations", "Documents: handbook, suppliers", "Web + time: guests abroad"]],
+    [fa.FaCoffee, "Coffee shop", "Example: Ensenada malecón", "--preset coffee-shop",
+     ["Files: sales, inventory", "Documents: recipes, suppliers", "Web + time: cruise days"]],
+    [fa.FaBriefcase, "Your business", "A clinic, school, farm, office, shop…", "--preset my-business",
+     ["Files: your CSV exports", "Documents: your policies, prices", "Tools: your APIs and MCP servers"]],
   ];
   x = 0.6;
   for (let i = 0; i < shops.length; i++) {
     const [Ic, name, what, preset, items] = shops[i];
-    card(s, x, 1.7, 5.9, 3.75, COLOR.white, `${name} card`);
-    await badge(s, Ic, x + 0.4, 2.0, 0.85, i ? COLOR.teal : COLOR.coral);
-    text(s, name, { x: x + 1.45, y: 1.98, w: 4.2, h: 0.5, fontFace: FONT.head, fontSize: 22, bold: true });
-    text(s, what, { x: x + 1.45, y: 2.48, w: 4.2, h: 0.4, fontSize: 15, color: COLOR.muted });
-    bullets(s, items, { x: x + 0.4, y: 3.15, w: 5.2, h: 1.4, fontSize: 16 });
-    text(s, `python luna.py ${preset}`, { x: x + 0.4, y: 4.75, w: 5.2, h: 0.45, fontSize: 14, fontFace: FONT.code, color: COLOR.teal, bold: true });
-    x += 6.23;
+    card(s, x, 1.7, 3.85, 3.75, i === 2 ? COLOR.mist : COLOR.white, `${name} card`);
+    await badge(s, Ic, x + 0.3, 2.0, 0.8, i === 2 ? COLOR.teal : COLOR.coral);
+    text(s, name, { x: x + 1.3, y: 1.98, w: 2.4, h: 0.5, fontFace: FONT.head, fontSize: 19, bold: true });
+    text(s, what, { x: x + 1.3, y: 2.48, w: 2.4, h: 0.55, fontSize: 13, color: COLOR.muted });
+    bullets(s, items, { x: x + 0.3, y: 3.2, w: 3.35, h: 1.5, fontSize: 14 });
+    text(s, `python luna.py ${preset}`, { x: x + 0.3, y: 4.85, w: 3.4, h: 0.45, fontSize: 10.5, fontFace: FONT.code, color: COLOR.teal, bold: true });
+    x += 4.14;
   }
   card(s, 0.6, 5.7, 12.13, 0.9, COLOR.mist, "make it yours");
-  text(s, [{ text: "Make it yours: ", options: { bold: true } }, { text: "copy one preset and one folder, drop in your own CSV exports and documents. No new database, no new app." }],
+  text(s, [{ text: "Nothing in the agent is specific to wine or coffee. ", options: { bold: true } }, { text: "Copy one preset and one folder, drop in your own CSV exports and documents. No new database, no new app." }],
     { x: 0.95, y: 5.7, w: 11.5, h: 0.9, fontSize: 17, valign: "middle" });
-  s.addNotes("In plain words: Luna is the same assistant; a preset tells it whose business it works for, and a folder holds that business's files. Both businesses are fictional. customize.md section 6 has the four steps.");
+  s.addNotes("In plain words: Luna is the same assistant; a preset tells it whose business it works for, and a folder holds that business's files. Both examples are fictional and picked because they are local. The third card is the point: yours. docs/extend.md has the five steps and an industry table.");
 
   await demo("Luna for your business", {
     title: "Many sources, one answer",
-    level: "Level 4 · two MCP servers: the time and a web page",
+    level: "Level 4 · two MCP servers: the time and a web page · example: a winery",
     command: "python luna.py --preset winery",
     question: "What time is it in Los Angeles? Then read the Valle de Guadalupe page on Wikipedia and give me two facts for my US guests.",
     watch: ["get_current_time from the time server", "fetch reads the web page", "Nobody wrote code for either: they plug in"],
@@ -402,7 +434,7 @@ async function build() {
   });
   await demo("Luna for your business", {
     title: "Your files and your documents",
-    level: "The files MCP server + your documents (RAG) in one answer",
+    level: "The files MCP server + your documents (RAG) in one answer · example: a coffee shop",
     command: "python luna.py --preset coffee-shop",
     question: "What do I need to reorder this week, and from which supplier is espresso cheaper?",
     watch: ["read_text_file opens inventory.csv", "search_my_documents finds the price list", "Five items under their reorder point"],
@@ -441,6 +473,54 @@ async function build() {
   text(s, [{ text: "Each connector gets only what it needs: ", options: { bold: true } }, { text: "one folder, read-only mail, its own key. Your AWS keys never reach a third-party server." }],
     { x: 0.95, y: 5.85, w: 11.5, h: 0.85, fontSize: 16, valign: "middle" });
   s.addNotes("In plain words: the cashier has the till key, not the safe. The first row runs today with no accounts; the second needs your own login (Gmail setup is in customize.md section 7). Hundreds more servers exist: CRMs, calendars, databases.");
+
+  s = addSlide("Luna for your business", "Content");
+  s.addText("Not just wineries: any business", { placeholder: "title" });
+  const kinds = [
+    [fa.FaClinicMedical, "Clinic", "appointments · policies · reminders"],
+    [fa.FaBalanceScale, "Law or accounting", "matters · templates · deadlines"],
+    [fa.FaGraduationCap, "School", "attendance · syllabi · parent messages"],
+    [fa.FaTractor, "Farm or producer", "harvest · certifications · market prices"],
+    [fa.FaWrench, "Repair shop", "jobs · manuals · parts lookup"],
+    [fa.FaTruck, "Delivery team", "shipments · carrier rules · tracking"],
+  ];
+  for (let i = 0; i < kinds.length; i++) {
+    const [Ic, name, body] = kinds[i];
+    const cx = 0.6 + (i % 3) * 4.14, cy = 1.7 + Math.floor(i / 3) * 2.15;
+    card(s, cx, cy, 3.85, 1.95, COLOR.white, `${name} card`);
+    await badge(s, Ic, cx + 0.3, cy + 0.55, 0.85, i % 2 ? COLOR.teal : COLOR.coral, name);
+    text(s, name, { x: cx + 1.4, y: cy + 0.45, w: 2.3, h: 0.5, fontFace: FONT.head, fontSize: 19, bold: true });
+    text(s, body, { x: cx + 1.4, y: cy + 0.98, w: 2.3, h: 0.8, fontSize: 13, color: COLOR.muted });
+  }
+  card(s, 0.6, 6.05, 12.13, 0.65, COLOR.mist, "same three");
+  text(s, [{ text: "Same three changes every time: ", options: { bold: true } }, { text: "who it works for · the files and documents it can see · the tools it can use." }],
+    { x: 0.95, y: 6.05, w: 11.5, h: 0.65, fontSize: 16, valign: "middle" });
+  s.addNotes("In plain words: any small business has the same shape: some spreadsheets, a binder of rules, and a few systems to talk to. These are starting points, not tested presets. Ask the room which one is closest to theirs. The table with files, documents and tools for each is in docs/extend.md.");
+
+  s = addSlide("Luna for your business", "Content");
+  s.addText("Make it yours in five steps", { placeholder: "title" });
+  const five = [
+    [fa.FaIdBadge, "1 · Preset", "Who it works for: a YAML file, no code"],
+    [fa.FaFileCsv, "2 · Files", "Your CSV exports in one folder"],
+    [fa.FaBook, "3 · Documents", "Policies and price lists, searched by RAG"],
+    [fa.FaPlug, "4 · Tools", "An MCP server, or one @tool function"],
+    [fa.FaShieldAlt, "5 · Rules and team", "Approval, guardrails, specialists"],
+  ];
+  x = 0.6;
+  for (let i = 0; i < five.length; i++) {
+    const [Ic, head, body] = five[i];
+    card(s, x, 1.75, 2.3, 3.2, COLOR.white, `${head} card`);
+    await badge(s, Ic, x + 0.7, 2.05, 0.9, i < 3 ? COLOR.teal : COLOR.coral);
+    text(s, head, { x: x + 0.15, y: 3.15, w: 2.0, h: 0.5, fontSize: 16, bold: true, align: "center" });
+    text(s, body, { x: x + 0.15, y: 3.7, w: 2.0, h: 1.1, fontSize: 13, color: COLOR.muted, align: "center" });
+    x += 2.46;
+  }
+  card(s, 0.6, 5.2, 12.13, 1.4, COLOR.mist, "steps note");
+  text(s, [
+    { text: "Steps 1 to 3 need no code: ", options: { bold: true } },
+    { text: "you can have your own business running in an afternoon. Steps 4 and 5 add a little Python or more YAML. A coding assistant can write the tool for you. Walkthrough: docs/extend.md in the repo.", options: { breakLine: false } },
+  ], { x: 0.95, y: 5.2, w: 11.5, h: 1.4, fontSize: 16, valign: "middle" });
+  s.addNotes("This is the slide to leave up while taking questions about 'can I use this for my business'. Steps one to three are configuration: copy the coffee-shop preset, replace the CSV files, drop documents in my_documents and sync the knowledge base. Step four is either an existing MCP server (Gmail, Slack, Drive, a database) or one Python function with the @tool decorator. Step five is the safety layer: ask a person first, a guardrail for topics to refuse, and specialists when one agent has too many jobs.");
 
   // 13 · Section: the rest of the stack
   s = addSlide("The rest of the stack", "Section");
@@ -642,7 +722,7 @@ async function build() {
   const path3 = [
     [fa.FaMagic, "PartyRock", "No code, no AWS account: build an AI app in your browser", "partyrock.aws"],
     [fa.FaGraduationCap, "Skill Builder", "AWS's free courses on Bedrock and generative AI", "skillbuilder.aws"],
-    [fa.FaGithub, "This repo", "Luna in 15 minutes, then all 8 levels", REPO],
+    [fa.FaGithub, "This repo", "Luna in 15 minutes, then make it your business: docs/extend.md", REPO],
   ];
   x = 0.6;
   for (let i = 0; i < path3.length; i++) {

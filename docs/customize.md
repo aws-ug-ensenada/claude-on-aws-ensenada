@@ -75,7 +75,7 @@ The Director reads the roster and starts giving orders to `chef` the next time y
 
 ## 6. Make it your business
 
-The repo has two sample businesses, a winery and restaurant (**Bodega Cielo Alto**) and a coffee shop (**Café Brisa**). Each is one preset plus one folder:
+Luna works for any business. The repo has two fictional examples, a winery and restaurant (**Bodega Cielo Alto**, Valle de Guadalupe) and a coffee shop (**Café Brisa**, Ensenada); a clinic, school, farm or office is built the same way (see [extend.md](extend.md) for the full walkthrough and ideas by industry). Each example is one preset plus one folder:
 
 | Piece | Winery | Coffee shop | What it's for |
 |---|---|---|---|

@@ -77,14 +77,14 @@ python luna.py --set assistant.personality="a pirate" --set assistant.language=S
 python luna.py --mode agency                         # Director + planner, finance, organizer (+ researcher, office, librarian when on)
 ```
 
-**Use it for a business.** Two sample businesses show Luna working with your files, your documents and the web, through MCP servers:
+**Use it for any business.** Luna is not tied to one kind of business. Two fictional examples, a winery in Valle de Guadalupe and a coffee shop in Ensenada, show it working with your files, your documents and the web, through MCP servers. A clinic, a school, a farm, a law office or a repair shop is set up the same way:
 
 ```bash
 python luna.py --preset coffee-shop --ask "What do I need to reorder this week, and from which supplier is espresso cheaper?"
 python luna.py --preset winery --mode agency --ask "Prepare my Monday briefing and save it as a report."
 ```
 
-Each business is one preset plus one folder (`assistant/business/`); copy them to make it yours, and connect more MCP servers (Gmail, Drive, Slack…). See [customize.md § 6–7](docs/customize.md#6-make-it-your-business).
+Each business is one preset plus one folder (`assistant/business/`) plus your documents; copy an example, replace the text and the CSV files, and connect more MCP servers (Gmail, Drive, Slack…). How, step by step, and how the Strands Agents framework underneath works: [docs/extend.md](docs/extend.md). Also see [customize.md § 6–7](docs/customize.md#6-make-it-your-business).
 
 Everything is a parameter in [`assistant/config.yaml`](assistant/config.yaml). See [docs/customize.md](docs/customize.md) to change the personality, the model, the tools, or the team of agents, and to add your own.
 
@@ -94,6 +94,7 @@ Everything is a parameter in [`assistant/config.yaml`](assistant/config.yaml). S
 |---|---|
 | [docs/prerequisites.md](docs/prerequisites.md) | What to install and turn on before you start, per level |
 | [docs/levels.md](docs/levels.md) | Step-by-step guide to all levels, with diagrams |
+| [docs/extend.md](docs/extend.md) | **Start here to make it yours:** what Strands Agents is, how to use it, and the five changes that adapt Luna to any business |
 | [docs/customize.md](docs/customize.md) | Parameters, presets, adding tools and agents |
 | [docs/costs.md](docs/costs.md) | Full cost breakdown: under a cent per answer on Haiku, about $10 for the whole talk |
 | [docs/comparison.md](docs/comparison.md) | Chat app vs local dev vs a fleet of agents: pros and cons |
