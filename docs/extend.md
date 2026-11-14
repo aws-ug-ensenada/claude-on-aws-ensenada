@@ -107,7 +107,7 @@ Two ways, depending on whether someone already built it:
 |---|---|---|---|
 | Winery or restaurant (the demo) | sales, reservations | handbook, supplier prices | web for guest questions |
 | Coffee shop (the demo) | sales, inventory | recipes, supplier prices | exchange rates for tourists |
-| Dental or medical clinic (`--preset clinic`, tested on the files) | appointments, supplies | policies, price list | calendar, reminders |
+| Dental or medical clinic (`--preset clinic`, tested with files, documents and the agency) | appointments, supplies | policies, price list | calendar, reminders |
 | Law or accounting office | matter or invoice list | templates, client terms | email drafts, deadline calendar |
 | School or academy | attendance, grades export | handbook, syllabi | messaging to parents |
 | Farm or food producer | harvest and orders | certifications, buyer terms | weather, market prices |
