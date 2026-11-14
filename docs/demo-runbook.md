@@ -64,7 +64,7 @@ Checked on a Raspberry Pi on 2026-11-14 (Claude 4.x on Bedrock, no Claude API ke
     --payload '{"prompt": "What should I wear today in Ensenada?"}' \
     --cli-binary-format raw-in-base64-out out.json && cat out.json
   ```
-- **Memory can trip the guardrail.** With the memory switched on, scene 6's prompt was refused by the guardrail before Claude saw it (no tool calls, $0.00), after memory had collected preferences from earlier scenes. The same prompt works with memory off or the guardrail off, and the prompt alone passes `apply-guardrail`. Until this is fixed, seed only the preference the memory scene needs, and run scene 6 with `--set memory.enabled=false` if it is refused.
+- **Memory can trip the guardrail.** With the memory switched on, scene 6's prompt was refused by the guardrail before Claude saw it (no tool calls, $0.00), after memory had collected preferences from earlier scenes. The same prompt works with memory off or the guardrail off, and the prompt alone passes `apply-guardrail`. On 2026-11-14 the fix was to delete the stray records (a budget, an email-summary rule, a briefing preference) and keep only *vegetarian* and *hates cold*; scene 6 then passed with everything on. Memory re-learns preferences from every conversation, so before the talk list the records (`aws bedrock-agentcore list-memory-records --memory-id <id> --namespace /preferences/friend`), delete any extras, and run scene 6 once more. If it is refused on the day, run it with `--set memory.enabled=false`.
 
 ## Plan B for the model
 
