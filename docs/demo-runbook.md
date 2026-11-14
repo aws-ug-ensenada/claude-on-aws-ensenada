@@ -55,7 +55,7 @@ Explaining the concepts to a non-technical room: [plain-words.md](plain-words.md
 
 ## Rehearsing on a second machine
 
-Checked on a Raspberry Pi on 2026-11-14 (Claude 4.x on Bedrock, no Claude API key). Things that only show up on a fresh machine:
+Checked on a second, low-power Linux machine on 2026-11-14 (Claude 4.x on Bedrock, no Claude API key). Things that only show up on a fresh machine:
 
 - **`config.local.yaml` is git-ignored,** so copy it across or recreate it from the IDs in [next-steps.md](next-steps.md). Without it the guardrail, memory and documents scenes silently run without those features.
 - **The first run of scene 6 (MCP) is slow, about 3 minutes.** `uvx` downloads the `time` and `fetch` servers, and `fetch` runs `npm install` for its Readability dependencies on first use. Run the scene once the day before; killing it half-way throws the install away. Later runs take about 40 seconds.
@@ -71,7 +71,7 @@ Checked on a Raspberry Pi on 2026-11-14 (Claude 4.x on Bedrock, no Claude API ke
 
 ## Time budget
 
-The talk is 45 minutes plus questions. The demo is about 20 of them, so not every scene fits live. Machine times below were measured on 2026-11-14 on a Raspberry Pi with Claude 4.x (`python rehearse.py`); add 30 to 60 seconds of talking per scene.
+The talk is 45 minutes plus questions. The demo is about 20 of them, so not every scene fits live. Machine times below were measured on 2026-11-14 on a low-power Linux machine with Claude 4.x (`python rehearse.py`); add 30 to 60 seconds of talking per scene.
 
 | Group | Scene | Machine time | Role |
 |---|---|---|---|

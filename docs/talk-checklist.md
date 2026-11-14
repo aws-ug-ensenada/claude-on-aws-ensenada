@@ -51,5 +51,5 @@ Tick each box when the check passes; write the date next to it. Commands run fro
 
 | Date | Where | What was checked | Result |
 |---|---|---|---|
-| 2026-11-14 | Raspberry Pi, Claude 4.x on Bedrock | `rehearse.py` (11 scenes plus the new Spanish one), `setup/prewarm.py` (all steps, MCP first run 125 s), clean checkout, clinic, tests, CI | all passed after the memory cleanup; first MCP run takes about 3 minutes; the Claude 5.5 path was not run |
+| 2026-11-14 | Low-power Linux machine, Claude 4.x on Bedrock | `rehearse.py` (11 scenes plus the new Spanish one), `setup/prewarm.py` (all steps, MCP first run 125 s), clean checkout, clinic, tests, CI | all passed after the memory cleanup; first MCP run takes about 3 minutes; the Claude 5.5 path was not run |
 | | | | |
