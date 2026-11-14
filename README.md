@@ -106,6 +106,16 @@ Everything is a parameter in [`assistant/config.yaml`](assistant/config.yaml). S
 | [docs/production.md](docs/production.md) | From the laptop to production: where to run it and what to add for real users |
 | [docs/next-steps.md](docs/next-steps.md) | Where the work stands, what's tested, and what to do next |
 
+## Tests
+
+Offline smoke tests (no AWS account, no model calls) check that every preset loads, every business folder exists, tool docstrings are clear, and every link in the docs points to a file. They run on every pull request.
+
+```bash
+cd assistant && pip install -r requirements-dev.txt && python -m pytest tests
+```
+
+`python rehearse.py` is the other kind of check: it runs the demo scenes against real AWS and Claude.
+
 ## Clean up
 
 ```bash

@@ -1,0 +1,90 @@
+"""Offline smoke tests: no AWS account, no model calls, no network. Run from assistant/:  python -m pytest tests"""
+
+import pathlib
+import re
+import sys
+
+import pytest
+import yaml
+
+HERE = pathlib.Path(__file__).resolve().parent.parent
+REPO = HERE.parent
+sys.path.insert(0, str(HERE))
+
+import core  # noqa: E402
+
+PRESETS = sorted(p.stem for p in (HERE / "presets").glob("*.yaml"))
+
+
+def test_default_config_loads():
+    cfg = core.load_config()
+    for section in ("assistant", "user", "model", "tools", "agency"):
+        assert section in cfg
+
+
+@pytest.mark.parametrize("preset", PRESETS)
+def test_preset_merges_and_builds_a_prompt(preset):
+    cfg = core.load_config(preset)
+    prompt = core.system_prompt(cfg)
+    assert cfg["assistant"]["name"] in prompt
+    extra = (yaml.safe_load((HERE / "presets" / f"{preset}.yaml").read_text()).get("assistant") or {}).get("extra_instructions")
+    if extra:
+        assert extra.strip().splitlines()[0].strip() in prompt
+
+
+@pytest.mark.parametrize("preset", PRESETS)
+def test_preset_business_folder_exists(preset):
+    files = (core.load_config(preset).get("mcp_servers") or {}).get("files") or {}
+    if files.get("enabled"):
+        assert (HERE / files["root"]).is_dir(), f"{preset}: files root {files['root']} is not a folder"
+
+
+def test_set_override_creates_and_changes_values():
+    cfg = core.load_config(overrides=["assistant.personality=a pirate", "memory.enabled=false", "mcp_servers.time.enabled=true"])
+    assert cfg["assistant"]["personality"] == "a pirate"
+    assert cfg["memory"]["enabled"] is False
+    assert cfg["mcp_servers"]["time"]["enabled"] is True
+
+
+def test_every_configured_tool_group_has_documented_tools():
+    cfg = core.load_config()
+    for name in cfg["tools"]:
+        if name in (cfg.get("gateway") or {}).get("tools", []) and not (HERE / "tools" / f"{name}.py").exists():
+            continue
+        for t in core.python_tools(cfg, name):
+            spec = getattr(t, "tool_spec", None)
+            if spec:  # the model reads this text to decide when to call the tool
+                assert len(spec["description"].strip()) > 15, f"{name}.{spec['name']}: write a clearer docstring"
+
+
+def test_agency_roster_loads():
+    cfg = core.load_config()
+    roster = core.active_agents(cfg)
+    assert roster and all({"name", "role"} <= set(a) for a in roster)
+
+
+def test_rehearsal_scenes_use_real_presets():
+    import rehearse
+
+    for name, _what, args, *_ in rehearse.SCENES:
+        if args and "--preset" in args:
+            assert args[args.index("--preset") + 1] in PRESETS, name
+
+
+def test_documents_referenced_by_presets_exist():
+    for preset in PRESETS:
+        text = (HERE / "presets" / f"{preset}.yaml").read_text()
+        for ref in re.findall(r"my_documents/([\w.*-]+)", text):
+            if "*" not in ref:
+                assert (HERE / "my_documents" / ref).exists(), f"{preset}: missing my_documents/{ref}"
+
+
+def test_markdown_links_point_to_files_that_exist():
+    broken = []
+    for md in [REPO / "README.md", *sorted((REPO / "docs").glob("*.md"))]:
+        for target in re.findall(r"\]\(([^)#\s]+)(?:#[^)]*)?\)", md.read_text()):
+            if re.match(r"^[a-z]+:", target):
+                continue
+            if not (md.parent / target).exists():
+                broken.append(f"{md.relative_to(REPO)} -> {target}")
+    assert not broken, "\n".join(broken)
