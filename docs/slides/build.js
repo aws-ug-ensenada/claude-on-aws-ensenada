@@ -462,6 +462,16 @@ async function build() {
     notes: "In plain words: the agent reads the stock sheet on the shelf and checks the supplier binder, then gives one answer. The files server can only open this one folder.",
   });
   await demo("Luna for your business", {
+    title: "A third business, no new code",
+    level: "Any business · example: a dental clinic · files + your documents",
+    command: "python luna.py --preset clinic",
+    question: "A patient cancelled tomorrow's cleaning with 5 hours' notice. Is there a fee? And which patient on Monday has an allergy?",
+    watch: ["Same agent, new preset and new data", "search_my_documents finds the 20% fee", "appointments.csv shows the penicillin allergy"],
+    why: "Winery, coffee shop, clinic: only the preset and the data change. Yours is next.",
+    clip: "clips/07b-clinic",
+    notes: "In plain words: the same assistant hired by a different business. Nothing in the code is about dentists: the preset says whose business it is, the CSV holds the appointments, and the policy document holds the rules. This is the proof of the claim: it works for any business. Ask the room what their own business would put in the folder.",
+  });
+  await demo("Luna for your business", {
     title: "The Monday briefing",
     level: "Advanced · an agency with files, web, time, documents and tools",
     command: "python luna.py --preset winery --mode agency",
@@ -697,7 +707,7 @@ async function build() {
   s.addText("Built with Claude Code", { placeholder: "title" });
   const stats = [
     ["8", "levels, from chatbot to a fleet in the cloud"],
-    ["11", "demo scenes, checked by one command: python rehearse.py"],
+    ["12", "demo scenes, checked by one command: python rehearse.py"],
     ["$0.10", "and about 3 minutes for a full rehearsal"],
   ];
   x = 0.6;
