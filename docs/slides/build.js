@@ -175,6 +175,25 @@ async function build() {
   }
   s.addNotes("Welcome. Tonight we build one AI assistant on stage and grow it from a chatbot into an agent, then into a small team of agents running on AWS. Everything is in the repo, so you can run it at home tonight.");
 
+  // 1b · Short intro in Spanish
+  s = addSlide("Opening", "Content");
+  s.addText("Bienvenidos: qué vamos a ver", { placeholder: "title" });
+  const intro = [
+    [fa.FaRoute, "Un asistente, ocho niveles", "De un chatbot a un agente, y de ahí a un equipo de agentes en AWS, con Claude."],
+    [fa.FaStore, "Sirve para cualquier negocio", "Un viñedo, una cafetería, una clínica, una escuela. Los ejemplos son nuestros; el caso es el tuyo."],
+    [fa.FaGithub, "Todo está en el repo", "Clónalo, córrelo en 15 minutos y adáptalo a tu negocio con Strands Agents."],
+  ];
+  x = 0.6;
+  for (let i = 0; i < intro.length; i++) {
+    const [Ic, head, body] = intro[i];
+    card(s, x, 1.75, 3.85, 4.4, COLOR.white, `${head} card`);
+    await badge(s, Ic, x + 0.4, 2.1, 0.95, i === 1 ? COLOR.teal : COLOR.coral);
+    text(s, head, { x: x + 0.4, y: 3.3, w: 3.1, h: 0.9, fontFace: FONT.head, fontSize: 22, bold: true });
+    text(s, body, { x: x + 0.4, y: 4.3, w: 3.1, h: 1.7, fontSize: 16, color: COLOR.muted });
+    x += 4.14;
+  }
+  s.addNotes("Say it in Spanish, one sentence per card. Guion: \"Bienvenidos. Esta noche vamos a construir un asistente de inteligencia artificial y lo vamos a hacer crecer: primero un chatbot, luego un agente que usa herramientas, y al final un equipo de agentes en AWS. Los ejemplos son un viñedo y una cafetería, porque son de aquí, pero lo importante es que sirve para cualquier negocio: una clínica, una escuela, un taller, el tuyo. Y todo está en el repositorio, para que lo puedas correr en tu casa esta misma noche.\" Then ask the two questions on the next slide. Slides are in English; speak and answer in whichever language the room prefers.");
+
   // 2 · Hook
   s = addSlide("Opening", "Content");
   s.addText("Quick show of hands", { placeholder: "title" });
