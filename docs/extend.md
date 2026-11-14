@@ -85,7 +85,7 @@ Copy `business/coffee-shop/` to `business/my-business/` and replace the CSV file
 
 ### 3. Give it your documents (RAG, no code)
 
-Put what people keep asking about in `my_documents/`: policies, price lists, menus, contracts, procedures. Then run `python setup/create_knowledge_base.py --sync`. Luna searches them before answering and says where the answer came from. Documents can be in any language the model reads: an English question can be answered from a Spanish contract.
+Put what people keep asking about in `my_documents/`: policies, price lists, menus, contracts, procedures. Then run `python setup/create_knowledge_base.py` the first time (it creates the knowledge base, about 2 minutes), and `python setup/create_knowledge_base.py --sync` after each later change. It costs cents; `python setup/cleanup.py` removes it. Luna searches them before answering and says where the answer came from. Documents can be in any language the model reads: an English question can be answered from a Spanish contract.
 
 **Files or documents?** Use the folder for data that changes and that Luna may update (sales, stock, reports). Use `my_documents/` for reference text it should search and quote.
 
@@ -119,3 +119,7 @@ These are starting points, not tested presets. Take the one closest to yours and
 ## Before real customers or real data
 
 Luna on a laptop is a prototype. For anything that touches customers, read [production.md](production.md) first: separate accounts, least-privilege access, budget alarms, logging, and what to review before turning on write access.
+
+## Checked from a clean checkout (2026-11-14)
+
+On a fresh clone, with a new virtual environment and no `config.local.yaml`: the README quickstart commands (`luna.py --no-tools`, then the tool agent) worked, copying `coffee-shop` to a new preset and folder worked, and the Strands example above ran as written. The install took about 4 minutes on a Raspberry Pi 5. Small models can miscount rows in a CSV: on one run Luna reported 3 unconfirmed appointments where the file has 4, so for numbers that matter, give the agent a tool that counts instead of asking it to read and add up.
