@@ -50,6 +50,22 @@ Scenes 6–8 are the business block: the part most people will want to copy, so 
 
 Explaining the concepts to a non-technical room: [plain-words.md](plain-words.md).
 
+## Rehearsing on a second machine
+
+Checked on a Raspberry Pi on 2026-11-14 (Claude 4.x on Bedrock, no Claude API key). Things that only show up on a fresh machine:
+
+- **`config.local.yaml` is git-ignored,** so copy it across or recreate it from the IDs in [next-steps.md](next-steps.md). Without it the guardrail, memory and documents scenes silently run without those features.
+- **The first run of scene 6 (MCP) is slow, about 3 minutes.** `uvx` downloads the `time` and `fetch` servers, and `fetch` runs `npm install` for its Readability dependencies on first use. Run the scene once the day before; killing it half-way throws the install away. Later runs take about 40 seconds.
+- **`agentcore invoke` needs the project's deployment state,** which is git-ignored and lives on the machine that ran `agentcore deploy`. On another machine it says *No deployment targets are configured*. Do not run `agentcore deploy` to fix that; call the runtime directly instead:
+  ```bash
+  ARN=$(aws bedrock-agentcore-control list-agent-runtimes --query "agentRuntimes[0].agentRuntimeArn" --output text)
+  aws bedrock-agentcore invoke-agent-runtime --agent-runtime-arn $ARN \
+    --runtime-session-id rehearsal-session-0000000000000000001 \
+    --payload '{"prompt": "What should I wear today in Ensenada?"}' \
+    --cli-binary-format raw-in-base64-out out.json && cat out.json
+  ```
+- **Memory can trip the guardrail.** With the memory switched on, scene 6's prompt was refused by the guardrail before Claude saw it (no tool calls, $0.00), after memory had collected preferences from earlier scenes. The same prompt works with memory off or the guardrail off, and the prompt alone passes `apply-guardrail`. Until this is fixed, seed only the preference the memory scene needs, and run scene 6 with `--set memory.enabled=false` if it is refused.
+
 ## Plan B for the model
 
 - **The Claude API is slow or failing:** run the same scene on Bedrock with `--set model.provider=bedrock --set model.id=global.anthropic.claude-haiku-4-5-20251001-v1:0 --set agency.director.model=global.anthropic.claude-sonnet-4-6`.
