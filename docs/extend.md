@@ -103,6 +103,29 @@ Two ways, depending on whether someone already built it:
 - **Rules.** Ask a person before anything risky (see how `tools/todo.py` asks before deleting), and add a Bedrock Guardrail for topics it must refuse ([levels.md § 2](levels.md#2--rules-amazon-bedrock-guardrails)). Rules that live outside the prompt can't be talked around.
 - **A team.** When one agent has too many jobs, split them: a Director that gives orders and specialists that each have a short prompt and only their own tools ([customize.md § 5](customize.md#5-add-an-agent-to-the-agency-no-code)). It is configuration, not code.
 
+## Connectors worth knowing (MCP servers)
+
+The MCP project keeps a small set of reference servers (`fetch`, `filesystem`, `git`, `memory`, `sequential-thinking`, `time`) and a [registry](https://registry.modelcontextprotocol.io) for the rest. Many older community servers (GitHub, Slack, Google Drive, PostgreSQL) have been retired in favour of ones the vendors run themselves, so check the vendor's own documentation before you install one. Treat anything not from the vendor as code you are letting run on your machine: read it first, and give it read-only access until you trust it.
+
+| For people who don't code | What it adds | Notes |
+|---|---|---|
+| Notion | Read and write your notes, wiki and databases | Hosted by Notion; sign in with your account |
+| Google Calendar, Drive, Gmail | Schedules, documents, email | Gmail is already wired in ([customize.md § 7](customize.md#gmail)); the others need your own Google OAuth client |
+| Slack | Search and post in channels | Hosted by Slack; sign in with OAuth |
+| Stripe | Payments, customers, invoices | Published by Stripe; start with a test-mode key |
+| A web browser (Playwright) | Click through sites that aren't plain pages | Published by Microsoft; runs locally |
+| Memory (knowledge graph) | Remembers facts between sessions in a local file | A reference server; a simpler alternative to AgentCore Memory |
+
+| For people who do code | What it adds | Notes |
+|---|---|---|
+| GitHub | Repos, pull requests, issues, workflows | Published by GitHub |
+| Git | Read and search a local repository | A reference server |
+| A database (Postgres) | Ask questions of your data in plain language | Several exist, some run by Supabase and Neon; use a read-only database user |
+| AWS documentation | Search and read the AWS docs | Already in `config.yaml` as `aws_docs` |
+| Sequential thinking | Step-by-step reasoning for hard problems | A reference server |
+
+Each one is a block under `mcp_servers:` in `config.yaml`, and one `--set mcp_servers.NAME.enabled=true` turns it on. A server's tools are the first thing to review: fewer is better, because every tool the agent can see is one more thing it may try.
+
 ## Ideas by kind of business
 
 | Business | Files it reads | Documents it searches | A tool or connector worth adding |

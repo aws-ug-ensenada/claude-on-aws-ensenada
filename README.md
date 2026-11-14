@@ -119,6 +119,7 @@ cd assistant && pip install -r requirements-dev.txt && python -m pytest tests
 ## Clean up
 
 ```bash
+python setup/cleanup.py --dry-run                    # show what it would delete (finds resources by name, on any machine)
 python setup/cleanup.py                              # guardrail, memory, knowledge base
 agentcore remove all --yes && agentcore deploy --yes # cloud level: runtime, gateway, placeholder key
 ```

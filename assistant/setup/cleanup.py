@@ -1,24 +1,42 @@
 """Delete everything the setup/ scripts created (guardrail, memory, knowledge base) and reset config.local.yaml.
 
-  python setup/cleanup.py
+  python setup/cleanup.py             # delete them
+  python setup/cleanup.py --dry-run   # only show what would be deleted
+
+It finds the resources by name as well as by config.local.yaml, so it works on a machine that never ran the
+setup scripts. Nothing outside the names the setup scripts use is touched.
 
 The cloud deployment (level 8) is removed separately:  agentcore remove all --yes && agentcore deploy --yes
 """
 
+import argparse
 import time
 
 import boto3
 from bedrock_agentcore.memory import MemoryClient
 from botocore.exceptions import ClientError
 
+import _discover
 import _local
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--dry-run", action="store_true", help="show what would be deleted and delete nothing")
+    args = parser.parse_args()
+
     local = _local.read()
-    guardrail_id = (local.get("guardrail") or {}).get("id")
-    memory_id = (local.get("memory") or {}).get("id")
-    kb = local.get("knowledge_base") or {}
+    found = _discover.discover()  # by name, so a machine without config.local.yaml still finds everything
+    guardrail_id = (local.get("guardrail") or {}).get("id") or (found.get("guardrail") or {}).get("id")
+    memory_id = (local.get("memory") or {}).get("id") or (found.get("memory") or {}).get("id")
+    kb = {**(found.get("knowledge_base") or {}), **(local.get("knowledge_base") or {})}
+    if args.dry_run:
+        print("Would delete (dry run, nothing changed):")
+        print(f"  guardrail       {guardrail_id or '-'}")
+        print(f"  memory          {memory_id or '-'}")
+        for key in ("id", "data_source_id", "vector_bucket", "index_arn", "bucket", "role"):
+            print(f"  knowledge base  {key:15} {kb.get(key) or '-'}")
+        return
     if guardrail_id:
         boto3.client("bedrock", region_name=_local.REGION).delete_guardrail(guardrailIdentifier=guardrail_id)
         print(f"🗑️  Guardrail {guardrail_id} deleted")
