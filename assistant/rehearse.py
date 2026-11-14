@@ -92,6 +92,23 @@ def run(args: list[str] | None, question: str, env: dict) -> str:
     return out.stdout + out.stderr
 
 
+def warn_stray_memory(cfg: dict) -> None:
+    """Memory learns from every rehearsal; stray records can make the guardrail refuse later scenes."""
+    if not (cfg.get("memory") or {}).get("enabled"):
+        return
+    try:
+        sys.path.insert(0, str(Path(HERE) / "setup"))
+        import clean_memory
+
+        found = clean_memory.records(cfg)
+    except Exception as err:  # a missing permission must not stop the rehearsal
+        print(f"   (could not read the memory records: {type(err).__name__})")
+        return
+    if len(found) > 3:
+        print(f"⚠️  The memory holds {len(found)} records; stray ones can make the guardrail refuse a scene.")
+        print("   List them: python setup/clean_memory.py   Tidy: python setup/clean_memory.py --keep vegetarian --keep cold")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("scenes", nargs="*", help="scene names (default: all)")
@@ -103,6 +120,7 @@ def main() -> None:
         return
 
     cfg = load_config()
+    warn_stray_memory(cfg)
     env = {**os.environ, "LUNA_DATA_DIR": tempfile.mkdtemp(prefix="luna-rehearsal-"), "PYTHONUNBUFFERED": "1"}
     chosen = [s for s in SCENES if not args.scenes or s[0] in args.scenes]
     results = []
