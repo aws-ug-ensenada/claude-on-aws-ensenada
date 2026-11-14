@@ -66,6 +66,7 @@ The status goes from `PENDING` to `AVAILABLE` in about a minute. To undo it, run
 
 **Gate 3, the quota.** Open **Service Quotas → AWS services → Amazon Bedrock** in us-east-1, search for the quota name from the table, select it, and choose **Request increase at account level**.
 
+- From the command line the same request is `aws service-quotas request-service-quota-increase --service-code bedrock --quota-code L-F26CA8D1 --desired-value 10000000 --region us-east-1` (swap the code and value for another model). On 2026-10-31 these requests for Haiku 5.5 and Sonnet 5.5 were both closed automatically with the quota still at 0.
 - The form doesn't accept values below the AWS default. For Haiku 5.5, enter **10000000**.
 - A request at or near the default can be approved automatically. Anything above the default, such as 10,000,000 for Sonnet 5.5, becomes an **AWS Support case** that a person reviews. That can take from hours to days. If AWS asks for a justification, answer on the case in **AWS Support Center**.
 - Until AWS approves, the *Applied* column keeps showing 0. Track progress under **Quota request history**, or from the CLI:

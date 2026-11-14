@@ -51,6 +51,19 @@ def main() -> int:
     for preset in PRESETS:
         results.append(step(f"preset {preset} passes the checker", lambda p=preset: not any(lv == "error" for lv, _ in check.problems(p)) or False))
 
+    def sample_dates() -> object:
+        import csv
+        import datetime
+
+        with (HERE / "business" / "winery" / "sales.csv").open(newline="") as f:
+            newest = max(datetime.date.fromisoformat(r["date"]) for r in csv.DictReader(f))
+        age = (datetime.date.today() - newest).days
+        if age > 14:
+            print(f"   the winery sales end {newest}, {age} days ago: the Monday briefing will report a data gap. Run python setup/refresh_sample_dates.py")
+            return False
+        return f"newest winery sales row is {newest}"
+
+    results.append(step("the winery sample data is current", sample_dates))
     results.append(step("the model answers", lambda: "ok" if re.search(r"(?i)ok", luna(["--no-tools", "--ask", "Reply with the single word ok."])) else False))
 
     # The slow first run of scene 6: downloads the time and fetch servers, installs the fetch dependencies.

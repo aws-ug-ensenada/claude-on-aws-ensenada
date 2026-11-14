@@ -57,9 +57,9 @@ SCENES = [
      ["--preset", "clinic"], "¿Cobran por cancelar una cita con 5 horas de aviso? ¿Cuánto cuesta una corona?",
      r"(?i)20 ?%(?s:.*)7,?500|7,?500(?s:.*)20 ?%", None),
     ("briefing", "Advanced: the agency prepares the owner's Monday briefing and saves it as a file",
-     ["--preset", "winery", "--mode", "agency"], "Prepare my Monday briefing: will the patio be usable this weekend, how this "
-     "weekend's sales compared with the weekend before, Saturday's reservations and allergies, what 100 dollars is in pesos "
-     "for US guests, and which cork supplier to use. Save it as a report.", r"📨(?s:.*)office", None),
+     ["--preset", "winery", "--mode", "agency"], "Prepare my Monday briefing: will the patio be usable this coming weekend, how "
+     "last weekend's sales compared with the weekend before, next Saturday's reservations and allergies, what 100 dollars is in pesos "
+     "for US guests, and which cork supplier to use. Save it as a report.", r"📨(?s:.*)office", r"(?i)data gap|no data available|only runs through"),
     ("cloud", "Level 8: the same agent on AgentCore Runtime, tools through the Gateway",
      None, "What should I wear today in Ensenada, and how much is 85 dollars in pesos?", r"(?i)MXN|pesos", re.escape(BLOCKED)),
 ]

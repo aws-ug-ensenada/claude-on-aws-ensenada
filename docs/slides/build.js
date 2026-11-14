@@ -518,7 +518,7 @@ async function build() {
     title: "The Monday briefing",
     level: "Advanced · an agency with files, web, time, documents and tools",
     command: "python luna.py --preset winery --mode agency",
-    question: "Prepare my Monday briefing: patio this weekend, sales vs last weekend, Saturday's reservations and allergies, 100 dollars in pesos, which cork supplier. Save it as a report.",
+    question: "Prepare my Monday briefing: patio this coming weekend, last weekend's sales vs the one before, next Saturday's reservations and allergies, 100 dollars in pesos, which cork supplier. Save it as a report.",
     watch: ["Six specialists get orders in parallel", "office reads sales and reservations", "A report appears in business/winery/reports/"],
     why: "One request, many sources, a finished document. This is where agents save hours.",
     clip: "clips/08-monday-briefing",
@@ -786,7 +786,7 @@ async function build() {
   const stats = [
     ["8", "levels, from chatbot to a fleet in the cloud"],
     ["12", "demo scenes, checked by one command: python rehearse.py"],
-    ["$0.10", "and about 3 minutes for a full rehearsal"],
+    ["$0.25", "and about 6 minutes for a full rehearsal"],
   ];
   x = 0.6;
   for (const [n, label] of stats) {
@@ -804,9 +804,9 @@ async function build() {
   s = addSlide("Your turn", "Content");
   s.addText("What it costs", { placeholder: "title" });
   const costs = [
-    ["$0.0006", "per answer, solo", "Claude Haiku 5.5, measured"],
-    ["$0.06", "the Monday briefing", "six agents, Sonnet 5.5 Director"],
-    ["< $5", "this whole talk", "rehearsals, demo and AWS services"],
+    ["$0.005", "per answer, with tools", "Claude Haiku 4.5 on Bedrock, measured"],
+    ["$0.10", "the Monday briefing", "six agents, Sonnet 4.6 Director, measured"],
+    ["< $10", "this whole talk", "rehearsals, demo and AWS services (estimate)"],
   ];
   x = 0.6;
   for (const [n, label, sub] of costs) {
@@ -818,10 +818,10 @@ async function build() {
   }
   bullets(s, [
     "No monthly fee for guardrails, memory, the knowledge base or the gateway: you pay per use",
-    "On Bedrock with Claude 4.x it is about 10× more per answer, still cents",
+    "Claude 5.5 Haiku, when your account has quota, is about 10× cheaper per answer than Haiku 4.5",
     "Set an AWS Budget alarm before you start; docs/costs.md has the full breakdown",
   ], { x: 0.6, y: 5.15, w: 12.1, h: 1.5, fontSize: 18 });
-  s.addNotes("Measured on 2026-10-31 with the cost line Luna prints after every answer. The free tier and pay-per-use pricing make this cheap to try at home.");
+  s.addNotes("Measured on 2026-11-16 on Claude 4.x on Bedrock with the cost line Luna prints after every answer: $0.005 for an answer with tools, about $0.10 for the six-agent briefing, about $0.25 for a full rehearsal of every scene. The whole-talk figure is an estimate (docs/costs.md says $7-12 for 300 questions on 4.x, so \"under $10\" assumes far fewer). Model prices were re-checked against the AWS Price List API on 2026-11-16. The free tier and pay-per-use pricing make this cheap to try at home.");
 
   // 22 · Your turn
   s = addSlide("Your turn", "Content");

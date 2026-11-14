@@ -24,6 +24,7 @@ Tick each box when the check passes; write the date next to it. Commands run fro
 
 - [ ] `python setup/clean_memory.py` lists only the preferences the memory scene needs (*vegetarian*, *hates cold*). Tidy with `--keep vegetarian --keep cold --yes`.
 - [ ] Seed the memory scene at least 5 minutes before you test it: `python luna.py --ask "Remember this about me: I'm vegetarian and I hate cold weather."`
+- [ ] `python setup/refresh_sample_dates.py` so the winery briefing has data for "last weekend" and "next Saturday" (undo with `git checkout -- assistant/business/winery`; never commit the shifted files).
 - [ ] `rm -f data/todo.json business/*/reports/*.md` so the audience sees the files appear.
 - [ ] Documents are synced: `python setup/create_knowledge_base.py --sync`, and the rent, clinic-fee and supplier questions all answer.
 - [ ] The presenting laptop: dark terminal theme, font 20 or larger, notifications off, charger plugged in, slides open from a local file, the `.pptx` also exported to PDF as a backup.
@@ -58,4 +59,5 @@ Tick each box when the check passes; write the date next to it. Commands run fro
 |---|---|---|---|
 | 2026-11-14 | Low-power Linux machine, Claude 4.x on Bedrock | `rehearse.py` (11 scenes plus the new Spanish one), `setup/prewarm.py` (all steps, MCP first run 125 s), clean checkout, clinic, tests, CI | all passed after the memory cleanup; first MCP run takes about 3 minutes; the Claude 5.5 path was not run |
 | 2026-11-16 | Same machine, Claude 4.x on Bedrock | full `rehearse.py` after the counting tool, deck checks, QR decode; `clinic`, `spanish` and `cloud` repeated 3 times | first full run failed 3 scenes (date-dependent question, a misread policy, no deployment state for the CLI); all fixed, then 9 of 9 passed |
+| 2026-11-16 | Same machine | model prices vs the AWS Price List API; cost slide and `costs.md`; winery sample dates; diagrams redrawn | prices unchanged; slide 36 corrected to measured Claude 4.x numbers; the briefing reported a data gap on today's date, now fixed with `refresh_sample_dates.py` and a stricter rehearsal check |
 | | | | |

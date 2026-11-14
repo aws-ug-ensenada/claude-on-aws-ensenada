@@ -71,7 +71,7 @@ python setup/check_mcp.py      # starts each server and lists its tools, without
 python luna.py --preset winery  # a business owner's assistant: time, fetch and files switched on
 ```
 
-Try with `--preset winery`: *"What time is it in Los Angeles? Then read https://en.wikipedia.org/wiki/Valle_de_Guadalupe and give me two facts for my US guests."* · *"How did this weekend's sales compare with the weekend before?"* Or with `--set mcp_servers.aws_docs.enabled=true`: *"What does the AWS documentation say about AgentCore Memory strategies?"*
+Try with `--preset winery`: *"What time is it in Los Angeles? Then read https://en.wikipedia.org/wiki/Valle_de_Guadalupe and give me two facts for my US guests."* · *"How did last weekend's sales compare with the weekend before?"* Or with `--set mcp_servers.aws_docs.enabled=true`: *"What does the AWS documentation say about AgentCore Memory strategies?"*
 
 How to add any other server (GitHub, Slack, Drive, a CRM…) and set up Gmail: [customize.md § 7](customize.md#7-connect-more-mcp-servers).
 
