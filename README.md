@@ -6,8 +6,21 @@ Talk, live demo and starter kit for the **AWS User Group Ensenada**: a personal 
 
 ```mermaid
 flowchart LR
-    L1["1 · Solo assistant<br/>Bedrock + Strands"] --> L2["2 · Rules<br/>Guardrails"] --> L3["3 · Memory<br/>AgentCore Memory"] --> L4["4 · MCP tools<br/>time · fetch · AWS docs"]
-    L4 --> L5["5 · Your documents<br/>RAG: Knowledge Bases"] --> L6["6 · Agency<br/>Director + specialists"] --> L7["7 · Fleet<br/>A2A protocol"] --> L8["8 · Cloud<br/>AgentCore Runtime + Gateway"]
+    L1["1 - Solo assistant<br/>Bedrock and Strands"]
+    L2["2 - Rules<br/>Guardrails"]
+    L3["3 - Memory<br/>AgentCore Memory"]
+    L4["4 - MCP tools<br/>time, fetch, AWS docs"]
+    L5["5 - Your documents<br/>RAG with Knowledge Bases"]
+    L6["6 - Agency<br/>Director and specialists"]
+    L7["7 - Fleet<br/>A2A protocol"]
+    L8["8 - Cloud<br/>AgentCore Runtime and Gateway"]
+    L1 --> L2
+    L2 --> L3
+    L3 --> L4
+    L4 --> L5
+    L5 --> L6
+    L6 --> L7
+    L7 --> L8
 ```
 
 | What | Technologies |
