@@ -226,4 +226,4 @@ export AGENTCORE_GATEWAY_LUNATOOLS_URL=$(aws bedrock-agentcore-control get-gatew
 python luna.py --mode agency --ask "Plan my Saturday at the beach, budget 50 USD"
 ```
 
-![Agency of agents on AgentCore](diagrams/cloud.png)
+![Luna on AgentCore: runtime, gateway, memory, knowledge base and guardrails](diagrams/cloud.png)

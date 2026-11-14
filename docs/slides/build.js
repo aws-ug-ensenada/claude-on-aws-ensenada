@@ -678,7 +678,20 @@ async function build() {
   s.addText("The same agent, in the cloud", { placeholder: "title" });
   text(s, "Level 8 · Amazon Bedrock AgentCore Runtime + Gateway", { x: 0.6, y: 1.38, w: 10.4, h: 0.4, fontSize: 16, italic: true, color: COLOR.teal });
   card(s, 0.6, 1.95, 6.6, 4.6, COLOR.white, "diagram card");
-  s.addImage({ path: path.join(__dirname, "..", "diagrams", "cloud.png"), x: 0.8, y: 2.1, w: 6.2, h: 4.3, sizing: { type: "contain", w: 6.2, h: 4.3 }, altText: "Luna's agency on AgentCore Runtime, with Gateway, Memory, Guardrails, Knowledge Base and CloudWatch" });
+  // The diagram is drawn with shapes so it stays readable from the back of the room (diagrams/cloud.png has every detail).
+  await badge(s, fa.FaUser, 0.85, 3.75, 0.8, COLOR.teal, "you");
+  text(s, "You", { x: 0.7, y: 4.6, w: 1.1, h: 0.4, fontSize: 15, bold: true, align: "center" });
+  s.addShape(pres.shapes.RIGHT_ARROW, { x: 1.9, y: 3.95, w: 0.4, h: 0.35, fill: { color: COLOR.coral }, line: { color: COLOR.coral }, objectName: "arrow" });
+  card(s, 2.4, 2.15, 1.9, 4.2, COLOR.mist, "runtime box");
+  await badge(s, fa.FaRobot, 2.95, 3.3, 0.8, COLOR.coral, "luna");
+  text(s, [{ text: "Luna", options: { bold: true, breakLine: true } }, { text: "on AgentCore Runtime", options: { fontSize: 12, color: COLOR.muted } }], { x: 2.45, y: 4.2, w: 1.8, h: 0.9, fontSize: 17, align: "center" });
+  const cloudParts = [["Claude on Bedrock", "+ Guardrails"], ["Memory", "AgentCore"], ["Knowledge Base", "your documents"], ["Gateway", "weather, currency"]];
+  cloudParts.forEach(([head, sub], i) => {
+    const py = 2.15 + i * 1.08;
+    s.addShape(pres.shapes.RIGHT_ARROW, { x: 4.38, y: py + 0.3, w: 0.35, h: 0.3, fill: { color: COLOR.line }, line: { color: COLOR.line }, objectName: "arrow" });
+    card(s, 4.8, py, 2.25, 0.92, COLOR.white, `${head} box`);
+    text(s, [{ text: head, options: { bold: true, breakLine: true } }, { text: sub, options: { fontSize: 12, color: COLOR.muted } }], { x: 4.9, y: py, w: 2.05, h: 0.92, fontSize: 15, valign: "middle" });
+  });
   terminal(s, { command: "agentcore invoke --runtime luna \\\n  --payload '{\"prompt\": \"hola\"}'" }, 7.5, 1.95, 5.23, 1.55);
   const cloud = [
     [fa.FaServer, "Runtime", "assistant/ deployed as-is; one microVM per session"],
