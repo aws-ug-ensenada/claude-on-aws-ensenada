@@ -54,6 +54,13 @@ python luna.py                   # new session: "Plan dinner for tonight"
 
 AgentCore extracts **preferences** from conversations and gives them back to the agent in later sessions.
 
+How it works, because the model itself has **no memory**: every call starts empty, so what feels like memory is the app putting text back in front of the model.
+
+- **Short-term memory** is the conversation so far, re-sent on every call inside the model's context window. It is gone when the session ends and it costs tokens each time.
+- **Long-term memory** lives outside the model. AgentCore Memory watches the conversations in the background (it takes a minute or two), extracts durable preferences ("vegetarian", "hates cold weather") and stores them under the user's name (`/preferences/<user>`). In the next session Luna asks for the 5 best matches (`top_k=5` in `core.memory_session`) and adds them to the prompt. Luna uses the *user preferences* strategy only.
+- **Memory is not RAG.** Memory is about *you* and is learned from conversations; RAG (level 5) is about *your documents* and is looked up by meaning.
+- **Because it joins the prompt,** memory costs tokens, and the guardrail reads it too (see the interaction above). It also learns from every conversation, including rehearsals: list it with `python setup/clean_memory.py` and delete what you don't want. It stores personal facts, so keep it in your own account.
+
 ## 4 · MCP: plug in other people's tools
 
 MCP (Model Context Protocol) is an open standard for connecting AI to tools: think USB-C for AI. Free servers are ready in `config.yaml`; they need [uv](https://docs.astral.sh/uv/), and `files` also needs Node.js:

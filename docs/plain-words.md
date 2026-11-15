@@ -11,6 +11,9 @@ A cheat sheet for explaining this talk to people who don't work in tech: busines
 | **Model (Claude)** | The "brain" that reads your request and decides what to do. | The person's judgment. | Claude Haiku (fast and cheap) or Sonnet (stronger) |
 | **Tool** | One thing the agent is allowed to do, like "get the weather". | An app on the assistant's phone. | `tools/weather.py`, `tools/currency.py`, `tools/todo.py` |
 | **Tokens** | How AI usage is measured and billed: roughly pieces of words. | Paying by the word for a translator. | The 💲 line after every answer |
+| **Context window** | The most the model can read in one call. It starts empty every call: instructions, tool descriptions, memory, documents, the conversation and your question all have to fit. | A desk of a fixed size: whatever isn't on it, the model can't see. | `"Reply with the single word ok."` was 1,633 tokens in: almost all of it Luna's own instructions and tools |
+| **System prompt** (instructions) | The standing instructions sent with every call: who it works for and its rules. | The employee handbook, handed over before each shift. | `assistant.extra_instructions` and a preset |
+| **Hallucination and grounding** | A model can sound sure and be wrong. Grounding means putting a real source in front of it (a tool, a document) so it answers from that. | A person guessing the weather vs reading the forecast. | The plain chatbot guesses; the agent calls `get_weather` |
 
 ## Giving it more
 
@@ -20,7 +23,11 @@ A cheat sheet for explaining this talk to people who don't work in tech: busines
 | **MCP server** | One connector: it gives the agent a set of tools for one app. | A charger for one device. | `files` lets Luna read and save files in one folder, and only that folder |
 | **RAG** (your documents) | The agent searches your documents before it answers, and says where the answer came from. | An open-book exam: it may look in *your* binder. | The lease, the café's price list, the winery's handbook |
 | **Knowledge base / vectors** | Your documents, prepared so they can be searched by meaning, not only by exact words. | A librarian who knows which page talks about "rent" even if you asked about "monthly payment". | Bedrock Knowledge Bases on S3 Vectors |
-| **Memory** | The agent remembers things about you between conversations. | A good waiter who remembers you don't eat meat. | AgentCore Memory: "I'm vegetarian" told yesterday, used today |
+| **Embedding / vector** | A list of numbers that captures the *meaning* of a piece of text, so similar meanings sit close together. | A map where "rent" and "monthly payment" are neighbours. | Titan Embeddings V2 |
+| **Chunk** | A piece of a document (a few paragraphs). Documents are cut into chunks so the search can return just the relevant bits. | Index cards cut from a long binder. | The knowledge base splits `my_documents/` before indexing |
+| **Vector database** | A store that finds the chunks closest in meaning to your question. | A librarian who answers "which pages are about this?" | Amazon S3 Vectors |
+| **Short-term memory** | The conversation so far, re-sent to the model on every call. It lives in the context window and is gone when the session ends. | The notes on the table during one meeting. | Any Luna session |
+| **Long-term memory** | The model has none: the app stores facts about you outside it and puts the relevant ones back in the prompt next session. | A good waiter who remembers you don't eat meat. | AgentCore Memory: "I'm vegetarian" told yesterday, used today |
 
 ## Keeping it safe
 

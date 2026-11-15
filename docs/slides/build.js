@@ -139,9 +139,10 @@ function terminal(slide, { command, question }, x, y, w, h) {
 const TIMING = [
   [0.5], [1], [1.5], // 1-3 opening
   [0.2], [1.5], [1.5], [1.5], [1.5], [1], // 4-9 the idea
-  [0.2], [1.5], [3], [2, true], [3], [1, true], [1.5], // 10-16 meet Luna
-  [0.2], [1], [1.5, true], [2.5], [2], [2, true], [1, true], [1], [1.5], // 17-25 any business
-  [0.2], [1.5], [1.5, true], [1.5, true], [1, true], [2.5], [1.5], [1], [1.5], [0.5, true], [1], [0.7], [0], // 26-38 the rest
+  [1.5, true], [2], // 10-11 what the model reads, where its knowledge comes from
+  [0.2], [1.5], [3], [2, true], [3], [1, true], [1.5], // 12-18 meet Luna
+  [0.2], [1], [1.5, true], [2.5], [2], [2, true], [1, true], [1], [1.5], // 19-27 any business
+  [0.2], [1.5], [2], [1.5, true], [1.5, true], [1, true], [2.5], [1.5], [1], [1.5], [0.5, true], [1], [0.7], [0], // 28-41 the rest (30 = the model has no memory)
 ];
 let slideCount = 0;
 const sections = {};
@@ -360,6 +361,56 @@ async function build() {
   }
   s.addNotes("For the people in the room who don't work in tech. Every term tonight maps to one of these. docs/plain-words.md has more comparisons.");
 
+  // Words → what the model reads on every call
+  s = addSlide("The idea", "Content");
+  s.addText("What the model reads on every call", { placeholder: "title" });
+  card(s, 0.6, 1.7, 6.9, 4.85, COLOR.white, "context card");
+  text(s, "One call = one context window", { x: 0.9, y: 1.85, w: 6.3, h: 0.4, fontSize: 16, bold: true, color: COLOR.teal });
+  const reads = [
+    ["Instructions", "who it works for and its rules (the system prompt)", false],
+    ["Tool descriptions", "what each tool does and how to call it", false],
+    ["Memory", "preferences it remembered about you", false],
+    ["Document passages", "what RAG found in your files", false],
+    ["The conversation so far", "your earlier questions and its answers", false],
+    ["Your question", "the only part you typed", true],
+  ];
+  reads.forEach(([head, body, you], i) => {
+    const ry = 2.35 + i * 0.68;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.9, y: ry, w: 6.3, h: 0.58, rectRadius: 0.08, fill: { color: you ? COLOR.coral : COLOR.mist }, line: { color: you ? COLOR.coral : COLOR.line, width: 0.75 }, objectName: `${head} row` });
+    text(s, [{ text: head + "  ", options: { bold: true, color: you ? COLOR.white : COLOR.ink } }, { text: body, options: { color: you ? COLOR.white : COLOR.muted } }],
+      { x: 1.1, y: ry, w: 5.95, h: 0.58, fontSize: 14, valign: "middle" });
+  });
+  card(s, 7.85, 1.7, 4.88, 4.85, COLOR.white, "tokens card");
+  text(s, "Tokens and the context window", { x: 8.15, y: 1.85, w: 4.3, h: 0.4, fontSize: 16, bold: true, color: COLOR.teal });
+  bullets(s, [
+    "A token is a piece of a word. The model reads and writes tokens, and you are billed per token.",
+    "The context window is the most it can read in one call. It starts empty every time.",
+    "A real call from tonight: \"Reply with the single word ok.\" took 1,633 tokens in, 59 out, $0.0002. Your question was about 10 of them.",
+    "More tools, memory, documents and history mean more tokens: more cost and more delay.",
+  ], { x: 8.15, y: 2.4, w: 4.35, h: 4.0, fontSize: 15 });
+  s.addNotes("In plain words: the model is a very fast reader with no notebook. On every call it gets one stack of paper, reads all of it, and writes an answer. Whatever isn't in the stack, it doesn't know. Tokens are the unit: roughly pieces of words, so a short question can still cost 1,600 tokens because Luna sends its instructions, the tool descriptions and the memory every time. Show the real cost line from the first demo: 1,633 tokens in, 59 out, a fiftieth of a cent. Two consequences to say out loud: more context costs more and is slower, which is why the Director (a stronger, pricier model) is used sparingly and the specialists run on a small, cheap one; and there is a limit, so you can't paste a whole library into every call, which is exactly why RAG exists: fetch only the few passages that matter. If you are short on time, skip this slide and mention tokens when you show the cost line.");
+
+  // Where does the model's knowledge come from?
+  s = addSlide("The idea", "Content");
+  s.addText("Where does its knowledge come from?", { placeholder: "title" });
+  const kHdr = (t) => ({ text: t, options: { bold: true, color: COLOR.white, fill: { color: COLOR.teal }, fontSize: 15, fontFace: FONT.body } });
+  const kCell = (t, o = {}) => ({ text: t, options: { color: COLOR.ink, fontSize: 15, fontFace: FONT.body, valign: "middle", ...o } });
+  const knowledge = [
+    ["Training", "\"Mid-November in Ensenada is mild\": the plain chatbot, guessing", "Inside the model, frozen when it was trained"],
+    ["Instructions", "\"You help run the clinic\": the preset", "The prompt, sent on every call"],
+    ["Memory", "\"I'm vegetarian\", said in an earlier session", "Stored about you, fetched each session"],
+    ["RAG", "The lease: 9,500 MXN, due by the 5th", "Your documents, searched by meaning"],
+    ["Tools", "Today's weather, the exchange rate", "Live systems, called when needed"],
+  ];
+  s.addTable([
+    [kHdr("Source"), kHdr("Example in Luna"), kHdr("Where it lives")],
+    ...knowledge.map(([a, b, c], i) => [kCell(a, { bold: true, color: COLOR.teal, fill: { color: i % 2 ? COLOR.white : COLOR.mist } }), kCell(b, { fill: { color: i % 2 ? COLOR.white : COLOR.mist } }), kCell(c, { color: COLOR.muted, fill: { color: i % 2 ? COLOR.white : COLOR.mist } })]),
+  ], { x: 0.6, y: 1.65, w: 12.13, colW: [2.2, 5.7, 4.23], rowH: [0.5, 0.74, 0.74, 0.74, 0.74, 0.74], border: { type: "solid", pt: 0.75, color: COLOR.line }, objectName: "knowledge table" });
+  card(s, 0.6, 6.0, 12.13, 0.75, COLOR.mist, "knowledge note");
+  text(s, [{ text: "The model only \"knows\" what it was trained on, plus what is put in front of it on this call. ", options: { bold: true } }, { text: "An agent is mostly the art of putting the right things there." }],
+    { x: 0.9, y: 6.0, w: 11.6, h: 0.75, fontSize: 16, valign: "middle" });
+  s.addNotes("In plain words: five places a fact can come from, and only the first one is inside the model. Training is what it learned once, up to a cutoff date; it can sound sure and still be out of date, or simply wrong (that's the 'guessing' chatbot in the first demo, and it's what people call a hallucination). Everything else is the app putting text in front of the model: the instructions, what memory remembered, the passages RAG found, the result of a tool. Putting a real source in front of the model is called grounding, and it is why the agent beats the chatbot: the weather comes from a weather service, the rent from your lease, the row count from a function. That last one is worth a sentence: models are poor at exact arithmetic and counting, so Luna has a small counting tool for the CSV files and the model calls it instead of adding in its head. Rule of thumb for the audience: facts that change (a rate, a stock level) belong in tools; facts about you belong in memory; documents belong in RAG; behaviour belongs in instructions.");
+
   // 6 · Section: meet Luna
   s = addSlide("Meet Luna", "Section");
   s.addText("Part 2 · Demo", { placeholder: "body" });
@@ -385,7 +436,7 @@ async function build() {
     watch: ["Tool #1 get_weather, #2 convert_currency, #3 add_task", "Real numbers: today's forecast and rate", "The cost line: well under a cent", "Then: \"delete the sunscreen task\" → it asks you first"],
     why: "Same model, same question. Tools turn guesses into facts, and asking before risky steps is the simplest rule.",
     clip: "clips/02-agent",
-    notes: "Same question as before, plus two more tasks. Read the tool calls out loud as they appear. Point at the cost line. Then ask it to delete the task: the to-do tool asks for approval before deleting, which is human-in-the-loop in one line of code.",
+    notes: "Same question as before, plus two more tasks. Read the tool calls out loud as they appear. Point at the cost line. Then ask it to delete the task: the to-do tool asks for approval before deleting, which is human-in-the-loop in one line of code. Name what just happened: the chatbot was guessing (a hallucination), the agent is grounded in real data from tools.",
   });
   await demo("Meet Luna", {
     title: "Make it yours",
@@ -502,7 +553,7 @@ async function build() {
     watch: ["read_text_file opens inventory.csv", "search_my_documents finds the price list", "Five items under their reorder point"],
     why: "Your data where it already lives: CSV exports and documents, no new system.",
     clip: "clips/07-your-business",
-    notes: "In plain words: the agent reads the stock sheet on the shelf and checks the supplier binder, then gives one answer. The files server can only open this one folder.",
+    notes: "In plain words: the agent reads the stock sheet on the shelf and checks the supplier binder, then gives one answer. The files server can only open this one folder. The exact counts come from a small counting tool, because models are poor at counting rows and adding numbers in their heads: let code do arithmetic and let the model do judgment.",
   });
   await demo("Luna for your business", {
     title: "A third business, no new code",
@@ -612,6 +663,37 @@ async function build() {
     notes: "In plain words: a bouncer at the door, not a polite request; the AI can't talk its way past it. With the Claude API the same guardrail checks what you type before Claude sees it. The guardrail is created by setup/create_guardrail.py. It denies investment advice and medical diagnosis, filters harmful content and prompt attacks, and anonymizes personal data. Lesson learned: at HIGH strength the prompt-attack filter blocked our own memory feature; see the lessons slide.",
   });
 
+  // 15a · The model has no memory
+  s = addSlide("The rest of the stack", "Content");
+  s.addText("The model has no memory", { placeholder: "title" });
+  const memSteps = [
+    [fa.FaComments, "Session 1", "You say: \"I'm vegetarian, I hate the cold\""],
+    [fa.FaCog, "Memory extracts", "In the background; takes a minute or two"],
+    [fa.FaDatabase, "Stored outside", "In AgentCore Memory, under your name"],
+    [fa.FaSearch, "Session 2: fetched", "The best 5 matches join the prompt"],
+    [fa.FaCommentDots, "Answer", "\"A vegetarian dinner, indoors\""],
+  ];
+  x = 0.6;
+  for (let i = 0; i < memSteps.length; i++) {
+    const [Ic, head, body] = memSteps[i];
+    await badge(s, Ic, x + 0.72, 1.75, 0.95, i === 0 || i === 4 ? COLOR.teal : COLOR.coral);
+    text(s, head, { x, y: 2.85, w: 2.4, h: 0.6, fontSize: 18, bold: true, align: "center", valign: "bottom" });
+    text(s, body, { x, y: 3.5, w: 2.4, h: 0.95, fontSize: 14, color: COLOR.muted, align: "center" });
+    if (i < memSteps.length - 1) s.addShape(pres.shapes.RIGHT_ARROW, { x: x + 2.2, y: 2.07, w: 0.35, h: 0.3, fill: { color: COLOR.line }, line: { color: COLOR.line }, objectName: "arrow" });
+    x += 2.48;
+  }
+  const memKinds = [
+    ["Short-term memory", "This conversation, kept inside the context window. Gone when the session ends, and it costs tokens on every call.", COLOR.mist],
+    ["Long-term memory", "Preferences kept outside the model and fetched into the next session. It survives sessions, lives in your account, and you can list and delete it.", COLOR.mist],
+  ];
+  memKinds.forEach(([head, body, fill], i) => {
+    const kx = 0.6 + i * 6.23;
+    card(s, kx, 4.7, 5.9, 1.9, fill, `${head} card`);
+    text(s, head, { x: kx + 0.35, y: 4.85, w: 5.2, h: 0.45, fontFace: FONT.head, fontSize: 20, bold: true, color: COLOR.teal });
+    text(s, body, { x: kx + 0.35, y: 5.35, w: 5.2, h: 1.2, fontSize: 15, color: COLOR.ink });
+  });
+  s.addNotes("In plain words: the model forgets everything the moment it answers; it is a reader with no notebook. What feels like memory is the app, not the model. Short-term memory is just the conversation so far, re-sent on every call inside the context window; close the session and it is gone. Long-term memory is the interesting part: AgentCore Memory watches the conversations in the background, extracts durable facts and preferences (it has a strategy for user preferences; others exist for summaries and facts), and stores them outside the model under your name. In the next session Luna asks the memory for the best 5 matches for what you just said and adds them to the prompt, so the model 'remembers' because the text is in front of it. Two honest consequences, both from the build: memory text becomes part of the prompt, so it costs tokens and the guardrail reads it too (the 'What broke' slide is exactly that: stray records made the guardrail refuse a fair question); and it learns from every conversation, including rehearsals, so tidy it before a talk with python setup/clean_memory.py. Privacy in one sentence: it stores things about a person, so know what it holds, keep it in your own account, and be able to list and delete it. Memory is different from RAG: memory is about you and is learned; RAG is about your documents and is looked up.");
+
   // 15 · Memory
   await demo("The rest of the stack", {
     title: "Memory: it remembers you",
@@ -630,15 +712,15 @@ async function build() {
   const rag = [
     [fa.FaFileContract, "my_documents/", "Lease, insurance, recipes"],
     [fa.FaDatabase, "Amazon S3", "The files"],
-    [fa.FaProjectDiagram, "Titan Embeddings V2", "Text → vectors"],
-    [fa.FaCubes, "Amazon S3 Vectors", "The index"],
+    [fa.FaProjectDiagram, "Titan Embeddings V2", "Chunks of text → vectors, numbers for meaning"],
+    [fa.FaCubes, "Amazon S3 Vectors", "The index: finds the chunks closest in meaning"],
   ];
   x = 0.6;
   for (let i = 0; i < rag.length; i++) {
     const [Ic, head, body] = rag[i];
     await badge(s, Ic, x + 0.57, 1.8, 0.85, i === 3 ? COLOR.coral : COLOR.teal);
     text(s, head, { x, y: 2.75, w: 2.0, h: 0.62, fontSize: 15, bold: true, align: "center", valign: "top" });
-    text(s, body, { x, y: 3.4, w: 2.0, h: 0.7, fontSize: 14, color: COLOR.muted, align: "center" });
+    text(s, body, { x, y: 3.4, w: 2.0, h: 0.8, fontSize: 14, color: COLOR.muted, align: "center" });
     if (i < rag.length - 1) s.addShape(pres.shapes.RIGHT_ARROW, { x: x + 1.88, y: 2.08, w: 0.32, h: 0.3, fill: { color: COLOR.line }, line: { color: COLOR.line }, objectName: "arrow" });
     x += 2.2;
   }
@@ -651,7 +733,7 @@ async function build() {
   text(s, "vs", { x: 9.75, y: 3.6, w: 2.8, h: 0.4, fontSize: 15, italic: true, color: COLOR.foam, align: "center" });
   text(s, "$175+", { x: 9.75, y: 3.95, w: 2.8, h: 1.05, fontFace: FONT.head, fontSize: 54, bold: true, color: COLOR.white, align: "center" });
   text(s, "a month for an idle OpenSearch Serverless", { x: 9.75, y: 5.03, w: 2.8, h: 0.9, fontSize: 15, color: COLOR.foam, align: "center" });
-  s.addNotes("In plain words: an open-book exam. Before answering, it looks in YOUR binder and tells you which page it used. RAG with Bedrock Knowledge Bases. The console suggests OpenSearch Serverless by default, which bills compute even when idle. S3 Vectors costs cents for a personal knowledge base. Set up with setup/create_knowledge_base.py; about two minutes. Recorded clip: clips/11-documents.");
+  s.addNotes("In plain words: an open-book exam. Before answering, it looks in YOUR binder and tells you which page it used. How it finds the page, in three plain steps: the documents are cut into chunks (a few paragraphs each, because the model can only read so much per call); an embedding model turns each chunk into a vector, a list of numbers that captures its meaning, so \"rent\" and \"monthly payment\" land close together; at question time your question becomes a vector too, and the vector database (here S3 Vectors) returns the few chunks closest in meaning. Only those chunks go into the prompt. That is the whole of RAG: search by meaning, then answer from what was found. RAG with Bedrock Knowledge Bases. The console suggests OpenSearch Serverless by default, which bills compute even when idle. S3 Vectors costs cents for a personal knowledge base. Set up with setup/create_knowledge_base.py; about two minutes. Recorded clip: clips/11-documents.");
 
   // 17 · MCP and A2A
   s = addSlide("The rest of the stack", "Content");
@@ -756,7 +838,7 @@ async function build() {
   card(s, 0.6, 5.85, 12.13, 0.8, COLOR.mist, "safety note");
   text(s, [{ text: "Start read-only. ", options: { bold: true } }, { text: "Give write access one tool at a time, after you have watched it work. More in docs/production.md." }],
     { x: 0.95, y: 5.85, w: 11.5, h: 0.8, fontSize: 16, valign: "middle" });
-  s.addNotes("In plain words: a new employee gets one key, not the master key, and a manager signs off anything risky. The one thing that is new with agents: they read text from the outside world (a web page, a customer's email, a document), and that text can try to give them orders. That is called prompt injection. You can't fully prevent it, so you limit what a fooled agent could do: read-only access, one folder, approval for anything that changes something, and guardrails that live outside the prompt. docs/production.md has the checklist for real use.");
+  s.addNotes("In plain words: a new employee gets one key, not the master key, and a manager signs off anything risky. The one thing that is new with agents: they read text from the outside world (a web page, a customer's email, a document), and that text can try to give them orders. That is called prompt injection. You can't fully prevent it, so you limit what a fooled agent could do: read-only access, one folder, approval for anything that changes something, and guardrails that live outside the prompt. docs/production.md has the checklist for real use. One more safety point, about memory: it stores personal facts, so know what it holds, keep it in your own account, and be able to list and delete it (setup/clean_memory.py).");
 
   // 19 · Lessons
   s = addSlide("The rest of the stack", "Content");
