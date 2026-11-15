@@ -12,7 +12,7 @@ Tick each box when the check passes; write the date next to it. Commands run fro
   - Claude 5.5 through the Claude API: set `ANTHROPIC_API_KEY`, then `python luna.py --set model.provider=anthropic --set model.id=claude-haiku-5-5 --ask "ok"`. Not yet rehearsed on any machine in this repo's notes; rehearse it before relying on it.
   - Claude 5.5 on Bedrock: quota was 0 on 2026-11-14. Re-check with the commands in [bedrock-access.md](bedrock-access.md).
 - [ ] **Offline tests green:** `python -m pytest tests -q` (31 tests) and the `smoke` check on the pull request.
-- [ ] **A full rehearsal passes:** `python rehearse.py` ends with `✅ Ready for the talk`. Note the time and cost.
+- [ ] **A full rehearsal passes:** `python rehearse.py` ends with `✅ Ready for the talk`. Note the time and cost. The exact steps, from a fresh terminal, are in [demo-runbook.md](demo-runbook.md#run-the-demo-yourself-step-by-step).
 - [ ] **The AWS diagrams match what is deployed.** `docs/diagrams/local.py` and `cloud.py` (regenerate with `pip install diagrams`, graphviz, then `python local.py && python cloud.py`) were redrawn on 2026-11-15 against `agentcore/agentcore.json` and the presets; slides 8 and 31 are drawn in `docs/slides/build.js`. Redraw all of them after any architecture change.
 - [ ] **The deck checks pass:** `cd docs/slides && python3 check_deck.py` (text size, colour contrast, a timed speaker note on every slide). `node build.js` prints the planned time: 49.5 minutes with every slide, 37.5 without the optional ones, so plan to skip about 5 minutes of them.
 - [ ] **PDF backup regenerated** after any slide change: `cd docs/slides && npm run pdf`, and open it once. The PDF is committed next to the deck.
