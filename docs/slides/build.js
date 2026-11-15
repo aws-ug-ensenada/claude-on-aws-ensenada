@@ -617,7 +617,7 @@ async function build() {
     title: "Memory: it remembers you",
     level: "Level 3 · Amazon Bedrock AgentCore Memory",
     command: "python luna.py",
-    question: "Suggest a dinner for tonight based on what you know about me.",
+    question: "Suggest a dinner for tonight based on what you know about me, and tell me which of my preferences you used.",
     watch: ["A new session, yet it knows you're vegetarian", "It learned that from an earlier conversation", "Your memory, in your account"],
     why: "AgentCore Memory extracts preferences from conversations in the background and gives them back in later sessions.",
     clip: "clips/10-memory",

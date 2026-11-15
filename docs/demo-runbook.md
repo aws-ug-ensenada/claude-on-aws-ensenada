@@ -2,6 +2,48 @@
 
 How to rehearse, record and run the live demo for the talk. The scenes follow [agenda.md](agenda.md). Every command runs from `assistant/` with the virtual environment active and your AWS account's credentials loaded (us-east-1).
 
+## Run the demo yourself, step by step
+
+The same steps work for anyone who clones the repo. Do them in one terminal, in this order.
+
+1. **Go to the project and activate its virtual environment** (made in the README quickstart):
+   ```bash
+   cd claude-on-aws-ensenada/assistant
+   source .venv/bin/activate
+   export AWS_PROFILE=<your-profile> AWS_REGION=us-east-1     # the account that holds the guardrail, memory and knowledge base
+   ```
+2. **Put your Claude API key in the environment** (only if you use Claude 5.5 through the API; skip it for Bedrock). Create the key in the [Claude Console](https://platform.claude.com) under **API keys** (choose *Somewhere else* if it asks where your code runs, because Luna reads a key from the environment), with an expiry after the talk, and copy it when it is shown: it is shown once. Keep a copy in your password manager, then load it without echoing it:
+   ```bash
+   read -rs ANTHROPIC_API_KEY && export ANTHROPIC_API_KEY      # paste the key; it isn't shown
+   [ -n "$ANTHROPIC_API_KEY" ] && echo "key set (${#ANTHROPIC_API_KEY} chars)"
+   ```
+   If you use the 1Password CLI, let `op run` hand the key to a single command instead of exporting it: put `ANTHROPIC_API_KEY=op://<vault>/<item>/credential` in a file outside the repo, then run `op run --env-file <that file> -- python rehearse.py`. Never put the key in `config.local.yaml`, the repo or your shell profile, and don't share screenshots of the terminal while it is on screen. If your shell loads a key automatically (for example with direnv), the line above shows whether one is set.
+3. **Choose the model.** `rehearse.py` has no `--set` flag, so it reads the model from `config.local.yaml`. For Claude 5.5 through the API, set (keep your other keys in that file):
+   ```yaml
+   model:
+     provider: anthropic
+     id: claude-haiku-5-5
+   agency:
+     director:
+       model: claude-sonnet-5-5
+   ```
+   For Bedrock, use `provider: bedrock` with `id: global.anthropic.claude-haiku-4-5-20251001-v1:0` and the Director `global.anthropic.claude-sonnet-4-6`.
+4. **Check that the model answers:**
+   ```bash
+   python luna.py --ask "Reply with the single word ok."
+   ```
+   It prints `ok` and a cost line. A 401 means a wrong key; a credit-balance error means the Console account has no credit.
+5. **Rehearse every scene:** `python rehearse.py`. It takes about 5 minutes and costs cents, and ends with `✅ Ready for the talk` or names the scenes that failed and shows their output.
+6. **Check the two scenes it can't run for you:**
+   - *Approval:* `python luna.py`, ask *"Add 'buy sunscreen' to my list."*, then *"Delete the sunscreen task."* Luna must ask for your approval before it deletes.
+   - *Fleet:* run `python fleet_server.py --all` in one terminal and `python luna.py --mode fleet` in another, then ask a question that needs two specialists (weather and currency). The 📨 lines show the Director delegating over A2A. Stop the server with Ctrl+C.
+7. **Tidy up after the rehearsal:**
+   ```bash
+   rm -f data/todo.json business/*/reports/*.md
+   git status --short          # nothing should be listed
+   ```
+8. **On the day of the talk:** `python setup/refresh_sample_dates.py` (on a Sunday it anchors to the previous one; to rehearse early as if it were the day, add `--today YYYY-MM-DD`), seed the memory scene at least 5 minutes ahead (see below), and ten minutes before start run `python setup/prewarm.py` until it ends with `✅ Warm and ready`. The full list is in [talk-checklist.md](talk-checklist.md).
+
 ## The day before
 
 The full list, with the checks and a log to fill in, is in [talk-checklist.md](talk-checklist.md). In short:
@@ -45,7 +87,7 @@ Each scene has a slide in [the deck](slides/claude-on-aws-ensenada.pptx) with th
 | 7b | 32–33 | Any business (a clinic) | `python luna.py --preset clinic`, then *"A patient cancelled a cleaning with only 5 hours' notice. Is there a fee? And which patient on 16 November has an allergy the dentists should know about?"* | The same agent, a third kind of business: it reads `appointments.csv` and searches the clinic's policies (20% fee, penicillin allergy). Nothing in the code changed, only a preset and data | Run `python luna.py --preset clinic` once beforehand; the documents must be synced (`create_knowledge_base.py --sync`) |
 | 8 | 32–35 | Monday briefing (advanced) | `python luna.py --preset winery --mode agency`, then *"Prepare my Monday briefing: will the patio be usable this coming weekend, how last weekend's sales compared with the weekend before, next Saturday's reservations and allergies, what 100 dollars is in pesos for US guests, and which cork supplier to use. Save it as a report."* | Orders to six specialists; then open `business/winery/reports/` and show the saved file | About 45 s: narrate the orders; or show a report saved in rehearsal |
 | 9 | 38–42 | Guardrail | *"Should I buy bitcoin with my savings?"* | The guardrail's refusal, before Claude sees it | — |
-| 10 | 38–42 | Memory | *"Suggest a dinner for tonight based on what you know about me."* | It knows you're vegetarian, from an earlier session | Not seeded → skip, or show the clip |
+| 10 | 38–42 | Memory | *"Suggest a dinner for tonight based on what you know about me, and tell me which of my preferences you used."* | It knows you're vegetarian, from an earlier session | Not seeded → skip, or show the clip |
 | 11 | 38–42 | Your documents | *"According to my lease, when is the rent due and how much is it?"* | `search_my_documents`, then 9,500 MXN by the 5th: an English question answered from a Spanish contract | — |
 | 12 | 38–42 | Cloud | From the repo root: `agentcore invoke --runtime luna --payload '{"prompt": "What should I wear today in Ensenada?"}'` | The same agent answering from AgentCore Runtime, with weather through the Gateway | Show the clip or the CloudWatch trace |
 
