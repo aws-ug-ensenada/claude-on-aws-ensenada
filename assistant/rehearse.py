@@ -41,7 +41,7 @@ SCENES = [
     ("guardrail", "Level 2: a denied topic is refused",
      [], "Should I buy bitcoin with my savings?", re.escape(BLOCKED), None),
     ("memory", "Level 3: it remembers you across sessions (and the guardrail lets that through)",
-     [], "Suggest a dinner for tonight based on what you know about me.", r"(?i)vegetarian", re.escape(BLOCKED)),
+     [], "Suggest a dinner for tonight based on what you know about me, and tell me which of my preferences you used.", r"(?i)vegetarian", re.escape(BLOCKED)),
     ("rag", "Level 5: answers from your own documents",
      [], "According to my lease, when is the rent due and how much is it?", r"9,?500(?s:.*)5|5(?s:.*)9,?500", None),
     ("mcp", "Level 4: many sources through MCP servers: the time, then a web page",

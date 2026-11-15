@@ -2,6 +2,7 @@
 
   python setup/refresh_sample_dates.py            # shift, in whole weeks (weekdays stay the same)
   python setup/refresh_sample_dates.py --dry-run  # show what would change
+  python setup/refresh_sample_dates.py --today 2026-11-17   # rehearse early: pretend it is the day of the talk
   git checkout -- business/winery                 # put the original dates back
 
 The sample sales end on a Sunday and the sample reservations start on a Thursday. This moves sales so the last day is
@@ -38,8 +39,9 @@ def shift(path: pathlib.Path, rows: list[dict], target: datetime.date, anchor: s
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--today", type=datetime.date.fromisoformat, metavar="YYYY-MM-DD", help="pretend this is today's date (to rehearse before the day of the talk)")
     args = parser.parse_args()
-    today = datetime.date.today()
+    today = args.today or datetime.date.today()
     plan = [("sales.csv", last_sunday_before(today), "last"), ("reservations.csv", next_thursday_from(today), "first")]
     for name, target, anchor in plan:
         path = FOLDER / name

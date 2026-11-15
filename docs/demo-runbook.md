@@ -42,7 +42,7 @@ The same steps work for anyone who clones the repo. Do them in one terminal, in 
    rm -f data/todo.json business/*/reports/*.md
    git status --short          # nothing should be listed
    ```
-8. **On the day of the talk:** `python setup/refresh_sample_dates.py` (not on a Sunday), seed the memory scene at least 5 minutes ahead (see below), and ten minutes before start run `python setup/prewarm.py` until it ends with `✅ Warm and ready`. The full list is in [talk-checklist.md](talk-checklist.md).
+8. **On the day of the talk:** `python setup/refresh_sample_dates.py` (on a Sunday it anchors to the previous one; to rehearse early as if it were the day, add `--today YYYY-MM-DD`), seed the memory scene at least 5 minutes ahead (see below), and ten minutes before start run `python setup/prewarm.py` until it ends with `✅ Warm and ready`. The full list is in [talk-checklist.md](talk-checklist.md).
 
 ## The day before
 
@@ -87,7 +87,7 @@ Each scene has a slide in [the deck](slides/claude-on-aws-ensenada.pptx) with th
 | 7b | 32–33 | Any business (a clinic) | `python luna.py --preset clinic`, then *"A patient cancelled a cleaning with only 5 hours' notice. Is there a fee? And which patient on 16 November has an allergy the dentists should know about?"* | The same agent, a third kind of business: it reads `appointments.csv` and searches the clinic's policies (20% fee, penicillin allergy). Nothing in the code changed, only a preset and data | Run `python luna.py --preset clinic` once beforehand; the documents must be synced (`create_knowledge_base.py --sync`) |
 | 8 | 32–35 | Monday briefing (advanced) | `python luna.py --preset winery --mode agency`, then *"Prepare my Monday briefing: will the patio be usable this coming weekend, how last weekend's sales compared with the weekend before, next Saturday's reservations and allergies, what 100 dollars is in pesos for US guests, and which cork supplier to use. Save it as a report."* | Orders to six specialists; then open `business/winery/reports/` and show the saved file | About 45 s: narrate the orders; or show a report saved in rehearsal |
 | 9 | 38–42 | Guardrail | *"Should I buy bitcoin with my savings?"* | The guardrail's refusal, before Claude sees it | — |
-| 10 | 38–42 | Memory | *"Suggest a dinner for tonight based on what you know about me."* | It knows you're vegetarian, from an earlier session | Not seeded → skip, or show the clip |
+| 10 | 38–42 | Memory | *"Suggest a dinner for tonight based on what you know about me, and tell me which of my preferences you used."* | It knows you're vegetarian, from an earlier session | Not seeded → skip, or show the clip |
 | 11 | 38–42 | Your documents | *"According to my lease, when is the rent due and how much is it?"* | `search_my_documents`, then 9,500 MXN by the 5th: an English question answered from a Spanish contract | — |
 | 12 | 38–42 | Cloud | From the repo root: `agentcore invoke --runtime luna --payload '{"prompt": "What should I wear today in Ensenada?"}'` | The same agent answering from AgentCore Runtime, with weather through the Gateway | Show the clip or the CloudWatch trace |
 
