@@ -1,6 +1,6 @@
 # Cost breakdown
 
-Prices are AWS list prices for **us-east-1**. The Claude model prices were re-checked against the AWS Price List API on **2026-11-16** and had not changed; the other services' prices are from **2026-10-31**. Sources are listed at the end. Prices change, so check the pricing pages before you rely on these numbers. The assistant prints the **actual** tokens and cost after every answer (`show_cost: true`).
+Prices are AWS list prices for **us-east-1**. The Claude model prices were re-checked against the AWS Price List API on **2026-11-15** and had not changed; the other services' prices are from **2026-10-31**. Sources are listed at the end. Prices change, so check the pricing pages before you rely on these numbers. The assistant prints the **actual** tokens and cost after every answer (`show_cost: true`).
 
 ## TL;DR
 
@@ -47,7 +47,7 @@ Luna defaults to the 4.x models because the 5.5 models often start with a 0 quot
 
 **1,000 answers** cost about **$7** with solo Haiku 4.5 (or $0.70 on Haiku 5.5) and about **$45** with a Sonnet-led agency on 4.x. Picking the right model per agent is the biggest cost lever.
 
-**Measured on 2026-11-16** (Claude 4.x on Bedrock, one full `rehearse.py`): a plain chat answer $0.001, an answer with tools $0.005, an agency answer $0.023, a business answer with files and documents $0.02 to $0.03, and the six-agent Monday briefing about $0.10 (Sonnet 4.6 Director). A full rehearsal of all 12 scenes costs about $0.25 and takes about 6 minutes.
+**Measured on 2026-11-15** (Claude 4.x on Bedrock, one full `rehearse.py`): a plain chat answer $0.001, an answer with tools $0.005, an agency answer $0.023, a business answer with files and documents $0.02 to $0.03, and the six-agent Monday briefing about $0.10 (Sonnet 4.6 Director). A full rehearsal of all 12 scenes costs about $0.25 and takes about 6 minutes.
 
 **Measured on 2026-10-31** (Claude 4.x, the cost line Luna prints): a solo answer with two tools used 2,789 input and 256 output tokens, about **$0.004**. An agency answer with three specialists came to about **$0.022**. Both are below the estimates above, because the estimate assumes a longer conversation.
 

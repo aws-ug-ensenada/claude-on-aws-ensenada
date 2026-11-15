@@ -4,6 +4,8 @@ Talk, live demo and starter kit for the **AWS User Group Ensenada**: a personal 
 
 **De chatbot a agente: construimos un agente de IA en AWS con Claude.**
 
+**When:** Tuesday 17 November 2026, 5:00 PM PST (UTC−8).
+
 ```mermaid
 flowchart LR
     L1["1 - Solo assistant<br/>Bedrock and Strands"]
