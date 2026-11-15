@@ -821,7 +821,7 @@ async function build() {
     "Claude 5.5 Haiku, when your account has quota, is about 10× cheaper per answer than Haiku 4.5",
     "Set an AWS Budget alarm before you start; docs/costs.md has the full breakdown",
   ], { x: 0.6, y: 5.15, w: 12.1, h: 1.5, fontSize: 18 });
-  s.addNotes("Measured on 2026-11-16 on Claude 4.x on Bedrock with the cost line Luna prints after every answer: $0.005 for an answer with tools, about $0.10 for the six-agent briefing, about $0.25 for a full rehearsal of every scene. The whole-talk figure is an estimate (docs/costs.md says $7-12 for 300 questions on 4.x, so \"under $10\" assumes far fewer). Model prices were re-checked against the AWS Price List API on 2026-11-16. The free tier and pay-per-use pricing make this cheap to try at home.");
+  s.addNotes("Measured on 2026-11-15 on Claude 4.x on Bedrock with the cost line Luna prints after every answer: $0.005 for an answer with tools, about $0.10 for the six-agent briefing, about $0.25 for a full rehearsal of every scene. The whole-talk figure is an estimate (docs/costs.md says $7-12 for 300 questions on 4.x, so \"under $10\" assumes far fewer). Model prices were re-checked against the AWS Price List API on 2026-11-15. The free tier and pay-per-use pricing make this cheap to try at home.");
 
   // 22 · Your turn
   s = addSlide("Your turn", "Content");

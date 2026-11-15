@@ -84,7 +84,7 @@ A higher quota is only a ceiling. You still pay only for the tokens you use.
 
 A system makes this decision from the account's history, so a better justification on the case is unlikely to change it.
 
-**Second attempt, 2026-11-16.** The presenter filed all three again from the CLI, at the AWS default for each model: Haiku 5.5 at 10,000,000 (case 179469848300860), Sonnet 5.5 at 6,000,000 (case 179469848500530) and Opus 5.5 at 30,000,000 (case 179469848900918). All three were closed automatically within about 20 seconds and the applied quota stayed at 0, so filing again won't help; the way forward is the escalation below.
+**Second attempt, 2026-11-15.** The presenter filed all three again from the CLI, at the AWS default for each model: Haiku 5.5 at 10,000,000 (case 179469848300860), Sonnet 5.5 at 6,000,000 (case 179469848500530) and Opus 5.5 at 30,000,000 (case 179469848900918). All three were closed automatically within about 20 seconds and the applied quota stayed at 0, so filing again won't help; the way forward is the escalation below.
 
 **Another region doesn't get around it.** On 2026-11-01 the presenter's account had the full Haiku 5.5 quota (10,000,000 tokens per minute) in us-west-2 and eu-central-1, and every availability flag said `AVAILABLE` (agreement, authorization, entitlement, region), yet calls in all three regions were still refused with *"not available for this account"*. So the 0 in us-east-1 is a symptom: AWS holds the Claude 5.x models back for the whole account. Check the flags and quotas in another region with:
 

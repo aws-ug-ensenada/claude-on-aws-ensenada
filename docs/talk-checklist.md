@@ -2,6 +2,8 @@
 
 Tick each box when the check passes; write the date next to it. Commands run from `assistant/` with the personal AWS account's credentials loaded (us-east-1). Details for each scene are in [demo-runbook.md](demo-runbook.md).
 
+**The talk:** Tuesday 17 November 2026, 5:00 PM PST (UTC−8). "The day before" below means Monday 16 November, except the sample-dates step, which belongs on Tuesday (see below). Do the "ten minutes before" step around 4:30 PM.
+
 ## 1. A week before
 
 - [ ] **Date, venue and language of the room decided** (the slides are in English, the first slide is in Spanish).
@@ -11,7 +13,7 @@ Tick each box when the check passes; write the date next to it. Commands run fro
   - Claude 5.5 on Bedrock: quota was 0 on 2026-11-14. Re-check with the commands in [bedrock-access.md](bedrock-access.md).
 - [ ] **Offline tests green:** `python -m pytest tests -q` (31 tests) and the `smoke` check on the pull request.
 - [ ] **A full rehearsal passes:** `python rehearse.py` ends with `✅ Ready for the talk`. Note the time and cost.
-- [ ] **The AWS diagrams match what is deployed.** `docs/diagrams/local.py` and `cloud.py` (regenerate with `pip install diagrams`, graphviz, then `python local.py && python cloud.py`) were redrawn on 2026-11-16 against `agentcore/agentcore.json` and the presets; slides 8 and 31 are drawn in `docs/slides/build.js`. Redraw all of them after any architecture change.
+- [ ] **The AWS diagrams match what is deployed.** `docs/diagrams/local.py` and `cloud.py` (regenerate with `pip install diagrams`, graphviz, then `python local.py && python cloud.py`) were redrawn on 2026-11-15 against `agentcore/agentcore.json` and the presets; slides 8 and 31 are drawn in `docs/slides/build.js`. Redraw all of them after any architecture change.
 - [ ] **The deck checks pass:** `cd docs/slides && python3 check_deck.py` (text size, colour contrast, a timed speaker note on every slide). `node build.js` prints the planned time: 49.5 minutes with every slide, 37.5 without the optional ones, so plan to skip about 5 minutes of them.
 - [ ] **PDF backup regenerated** after any slide change: `cd docs/slides && npm run pdf`, and open it once. The PDF is committed next to the deck.
 - [ ] **The QR code opens the repo** when scanned with a phone (it decodes correctly from the rendered slide).
@@ -24,7 +26,7 @@ Tick each box when the check passes; write the date next to it. Commands run fro
 
 - [ ] `python setup/clean_memory.py` lists only the preferences the memory scene needs (*vegetarian*, *hates cold*). Tidy with `--keep vegetarian --keep cold --yes`.
 - [ ] Seed the memory scene at least 5 minutes before you test it: `python luna.py --ask "Remember this about me: I'm vegetarian and I hate cold weather."`
-- [ ] `python setup/refresh_sample_dates.py` so the winery briefing has data for "last weekend" and "next Saturday" (undo with `git checkout -- assistant/business/winery`; never commit the shifted files).
+- [ ] `python setup/refresh_sample_dates.py` **on the day of the talk** (not on a Sunday: it anchors to the previous Sunday), so the winery briefing has data for "last weekend" and "next Saturday" (undo with `git checkout -- assistant/business/winery`; never commit the shifted files).
 - [ ] `rm -f data/todo.json business/*/reports/*.md` so the audience sees the files appear.
 - [ ] Documents are synced: `python setup/create_knowledge_base.py --sync`, and the rent, clinic-fee and supplier questions all answer.
 - [ ] The presenting laptop: dark terminal theme, font 20 or larger, notifications off, charger plugged in, slides open from a local file, the `.pptx` also exported to PDF as a backup.
@@ -58,7 +60,8 @@ Tick each box when the check passes; write the date next to it. Commands run fro
 | Date | Where | What was checked | Result |
 |---|---|---|---|
 | 2026-11-14 | Low-power Linux machine, Claude 4.x on Bedrock | `rehearse.py` (11 scenes plus the new Spanish one), `setup/prewarm.py` (all steps, MCP first run 125 s), clean checkout, clinic, tests, CI | all passed after the memory cleanup; first MCP run takes about 3 minutes; the Claude 5.5 path was not run |
-| 2026-11-16 | Same machine, Claude 4.x on Bedrock | full `rehearse.py` after the counting tool, deck checks, QR decode; `clinic`, `spanish` and `cloud` repeated 3 times | first full run failed 3 scenes (date-dependent question, a misread policy, no deployment state for the CLI); all fixed, then 9 of 9 passed |
-| 2026-11-16 | Same machine | model prices vs the AWS Price List API; cost slide and `costs.md`; winery sample dates; diagrams redrawn | prices unchanged; slide 36 corrected to measured Claude 4.x numbers; the briefing reported a data gap on today's date, now fixed with `refresh_sample_dates.py` and a stricter rehearsal check |
-| 2026-11-16 | Personal AWS account, us-east-1 | Claude 5.5 quota requests for Haiku, Sonnet and Opus (cases 179469848300860, 179469848500530, 179469848900918) | all closed automatically in about 20 seconds, quotas still 0; escalate through an AWS contact, and plan the talk on Claude 4.x on Bedrock or the Claude API |
+| 2026-11-15 | Same machine, Claude 4.x on Bedrock | full `rehearse.py` after the counting tool, deck checks, QR decode; `clinic`, `spanish` and `cloud` repeated 3 times | first full run failed 3 scenes (date-dependent question, a misread policy, no deployment state for the CLI); all fixed, then 9 of 9 passed |
+| 2026-11-15 | Same machine | model prices vs the AWS Price List API; cost slide and `costs.md`; winery sample dates; diagrams redrawn | prices unchanged; slide 36 corrected to measured Claude 4.x numbers; the briefing reported a data gap on today's date, now fixed with `refresh_sample_dates.py` and a stricter rehearsal check |
+| 2026-11-15 | Personal AWS account, us-east-1 | Claude 5.5 quota requests for Haiku, Sonnet and Opus (cases 179469848300860, 179469848500530, 179469848900918) | all closed automatically in about 20 seconds, quotas still 0; escalate through an AWS contact, and plan the talk on Claude 4.x on Bedrock or the Claude API |
+| 2026-11-15 | Personal AWS account, us-east-1, Claude 4.x on Bedrock (Haiku 4.5, Director Sonnet 4.6), winery dates shifted as for Tuesday 17 | `setup/prewarm.py`, then full `rehearse.py` (13 scenes) | prewarm passed except memory (4 records; stray ones deleted with `clean_memory.py`); all 13 scenes passed, about 5 minutes and about $0.25 in total; the Claude 5.5 path through the Claude API was not run (no `ANTHROPIC_API_KEY` in this session); scene 3 (approval) and the fleet level are not in `rehearse.py` |
 | | | | |
