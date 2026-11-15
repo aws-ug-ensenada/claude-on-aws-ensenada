@@ -133,7 +133,7 @@ The talk is 45 minutes plus questions. The demo is about 20 of them, so not ever
 | | 8 Monday briefing | 58 s | the long one: clip is fine |
 | | Spanish question | 50 s | shows language is not a barrier |
 
-The deck's speaker notes carry a planned time per slide (`node build.js` prints 49.5 minutes with every slide and 37.5 without the optional ones; replace the estimates in `TIMING` in `docs/slides/build.js` with your timed run). The slide-by-slide script is in [presenter-script.md](presenter-script.md).
+The deck's speaker notes carry a planned time per slide (`node build.js` prints 55 minutes with every slide and 41.5 without the optional ones; replace the estimates in `TIMING` in `docs/slides/build.js` with your timed run). The slide-by-slide script is in [presenter-script.md](presenter-script.md).
 
 Add these up with your own talking time in the first full rehearsal, and write the total in [talk-checklist.md](talk-checklist.md). The must-show set is what you run if you are over time.
 
