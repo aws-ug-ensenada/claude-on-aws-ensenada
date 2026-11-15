@@ -75,7 +75,7 @@ The Director reads the roster and starts giving orders to `chef` the next time y
 
 ## 6. Make it your business
 
-The repo has two sample businesses, a winery and restaurant (**Bodega Cielo Alto**) and a coffee shop (**Café Brisa**). Each is one preset plus one folder:
+Luna works for any business. The repo has two fictional examples, a winery and restaurant (**Bodega Cielo Alto**, Valle de Guadalupe) and a coffee shop (**Café Brisa**, Ensenada); a clinic, school, farm or office is built the same way (see [extend.md](extend.md) for the full walkthrough and ideas by industry). A third example, a dental clinic (`--preset clinic`), shows the same pattern outside food and drink. Each example is one preset plus one folder:
 
 | Piece | Winery | Coffee shop | What it's for |
 |---|---|---|---|
@@ -94,8 +94,8 @@ To make your own:
 
 1. Copy `presets/coffee-shop.yaml` to `presets/my-business.yaml`. Change `extra_instructions` and `user.about` to describe your business, and point `mcp_servers.files.root` at your folder.
 2. Copy `business/coffee-shop/` to `business/my-business/` and replace the CSV files with your own exports (sales, stock, bookings…). Plain CSV or Markdown works best.
-3. Put documents people ask about (policies, price lists, menus, contracts) in `my_documents/` and run `python setup/create_knowledge_base.py --sync`.
-4. `python luna.py --preset my-business`
+3. Put documents people ask about (policies, price lists, menus, contracts) in `my_documents/` and run `python setup/create_knowledge_base.py` (first time) or `python setup/create_knowledge_base.py --sync` (after changes).
+4. `python luna.py --preset my-business --check` (no AWS or Claude calls; it catches typos, missing folders and unknown tools), then `python luna.py --preset my-business`
 
 **Files or documents?** Use the business folder for data that changes and that Luna may update (sales, stock, reports). Use `my_documents/` for reference text Luna should search and quote (handbooks, contracts, price lists).
 

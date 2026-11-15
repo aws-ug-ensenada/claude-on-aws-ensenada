@@ -13,7 +13,7 @@
 | 14–20 | **Agent** | `luna.py`: same question → real weather, USD→MXN, adds to the to-do list; deleting asks first. Cost per answer on screen | Level 1 |
 | 20–23 | **Make it yours** | `--preset family` / `--set assistant.personality=…` with an audience suggestion | [customize.md](customize.md) |
 | 23–27 | **Agency** | `--mode agency`: "Plan my Saturday at the beach". The Director gives orders; cost per agent | Level 6 |
-| 27–35 | **Luna for your business** | A winery and a coffee shop. Many sources through MCP (time + a web page); the café's files + price list in one answer; the winery's Monday briefing by six agents, saved as a report. "Connect your world": Gmail, Drive, Slack… | [customize.md § 6–7](customize.md#6-make-it-your-business) |
+| 27–35 | **Luna for your business** | A winery and a coffee shop. Many sources through MCP (time + a web page); the café's files + price list in one answer; the winery's Monday briefing by six agents, saved as a report. "Connect your world": Gmail, Drive, Slack… The point: any business, not just wine or coffee; Strands Agents explained; five steps to make it yours | [extend.md](extend.md), [customize.md § 6–7](customize.md#6-make-it-your-business) |
 | 35–38 | Chat vs fleet | Pros and cons; "when to use which" | [comparison.md](comparison.md) |
 | 38–42 | Rules, memory, documents, cloud | Guardrail, memory, "ask your own lease", the same agent on AgentCore with tools through the Gateway. "What broke while building it" | Levels 2–5, 8 |
 | 42–44 | **To production** | Laptop → cloud → pilot → production; what to add for real users | [production.md](production.md) |
@@ -24,6 +24,8 @@
 To preview without PowerPoint: `soffice --headless --convert-to pdf claude-on-aws-ensenada.pptx`. Install `fonts-crosextra-carlito` and `fonts-crosextra-caladea` first: they have Calibri's and Cambria's metrics, so text fits exactly as it will in PowerPoint.
 
 ## Prep
+
+The checklist to tick: [talk-checklist.md](talk-checklist.md). Time budget and the must-show scenes: [demo-runbook.md](demo-runbook.md#time-budget). A one-page handout in English and Spanish: [cheatsheet.md](cheatsheet.md).
 
 Step by step in [demo-runbook.md](demo-runbook.md).
 

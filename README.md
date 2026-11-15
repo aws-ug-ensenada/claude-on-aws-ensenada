@@ -6,8 +6,21 @@ Talk, live demo and starter kit for the **AWS User Group Ensenada**: a personal 
 
 ```mermaid
 flowchart LR
-    L1["1 · Solo assistant<br/>Bedrock + Strands"] --> L2["2 · Rules<br/>Guardrails"] --> L3["3 · Memory<br/>AgentCore Memory"] --> L4["4 · MCP tools<br/>time · fetch · AWS docs"]
-    L4 --> L5["5 · Your documents<br/>RAG: Knowledge Bases"] --> L6["6 · Agency<br/>Director + specialists"] --> L7["7 · Fleet<br/>A2A protocol"] --> L8["8 · Cloud<br/>AgentCore Runtime + Gateway"]
+    L1["1 - Solo assistant<br/>Bedrock and Strands"]
+    L2["2 - Rules<br/>Guardrails"]
+    L3["3 - Memory<br/>AgentCore Memory"]
+    L4["4 - MCP tools<br/>time, fetch, AWS docs"]
+    L5["5 - Your documents<br/>RAG with Knowledge Bases"]
+    L6["6 - Agency<br/>Director and specialists"]
+    L7["7 - Fleet<br/>A2A protocol"]
+    L8["8 - Cloud<br/>AgentCore Runtime and Gateway"]
+    L1 --> L2
+    L2 --> L3
+    L3 --> L4
+    L4 --> L5
+    L5 --> L6
+    L6 --> L7
+    L7 --> L8
 ```
 
 | What | Technologies |
@@ -64,14 +77,14 @@ python luna.py --set assistant.personality="a pirate" --set assistant.language=S
 python luna.py --mode agency                         # Director + planner, finance, organizer (+ researcher, office, librarian when on)
 ```
 
-**Use it for a business.** Two sample businesses show Luna working with your files, your documents and the web, through MCP servers:
+**Use it for any business.** Luna is not tied to one kind of business. Two fictional examples, a winery in Valle de Guadalupe and a coffee shop in Ensenada, show it working with your files, your documents and the web, through MCP servers. A clinic, a school, a farm, a law office or a repair shop is set up the same way:
 
 ```bash
 python luna.py --preset coffee-shop --ask "What do I need to reorder this week, and from which supplier is espresso cheaper?"
 python luna.py --preset winery --mode agency --ask "Prepare my Monday briefing and save it as a report."
 ```
 
-Each business is one preset plus one folder (`assistant/business/`); copy them to make it yours, and connect more MCP servers (Gmail, Drive, Slack…). See [customize.md § 6–7](docs/customize.md#6-make-it-your-business).
+Each business is one preset plus one folder (`assistant/business/`) plus your documents; copy an example, replace the text and the CSV files, and connect more MCP servers (Gmail, Drive, Slack…). How, step by step, and how the Strands Agents framework underneath works: [docs/extend.md](docs/extend.md). Also see [customize.md § 6–7](docs/customize.md#6-make-it-your-business).
 
 Everything is a parameter in [`assistant/config.yaml`](assistant/config.yaml). See [docs/customize.md](docs/customize.md) to change the personality, the model, the tools, or the team of agents, and to add your own.
 
@@ -81,20 +94,35 @@ Everything is a parameter in [`assistant/config.yaml`](assistant/config.yaml). S
 |---|---|
 | [docs/prerequisites.md](docs/prerequisites.md) | What to install and turn on before you start, per level |
 | [docs/levels.md](docs/levels.md) | Step-by-step guide to all levels, with diagrams |
+| [docs/extend.md](docs/extend.md) | **Start here to make it yours:** what Strands Agents is, how to use it, and the five changes that adapt Luna to any business |
 | [docs/customize.md](docs/customize.md) | Parameters, presets, adding tools and agents |
 | [docs/costs.md](docs/costs.md) | Full cost breakdown: under a cent per answer on Haiku, about $10 for the whole talk |
 | [docs/comparison.md](docs/comparison.md) | Chat app vs local dev vs a fleet of agents: pros and cons |
 | [docs/agenda.md](docs/agenda.md) · [docs/topics.md](docs/topics.md) | The talk: outline and researched topics |
 | [docs/bedrock-access.md](docs/bedrock-access.md) | Turning on Claude in an account: use-case form, agreement, and the quotas to request |
 | [docs/slides/](docs/slides/) | The talk's deck (`claude-on-aws-ensenada.pptx`, 31 slides) and its generator (`npm install && node build.js`) |
+| [docs/talk-checklist.md](docs/talk-checklist.md) | The validation checklist for the talk: a week before, the day before, ten minutes before, during, after |
+| [docs/presenter-script.md](docs/presenter-script.md) | What to say and do, slide by slide, with transitions and what to skip when running long |
+| [docs/cheatsheet.md](docs/cheatsheet.md) | One page, in English and Spanish: run it, then make it your business |
 | [docs/demo-runbook.md](docs/demo-runbook.md) | Rehearse (`python rehearse.py`), record and run the talk's demo, scene by scene |
 | [docs/plain-words.md](docs/plain-words.md) | Every concept in plain words, with everyday comparisons, for explaining it to anyone |
 | [docs/production.md](docs/production.md) | From the laptop to production: where to run it and what to add for real users |
 | [docs/next-steps.md](docs/next-steps.md) | Where the work stands, what's tested, and what to do next |
 
+## Tests
+
+Offline smoke tests (no AWS account, no model calls) check that every preset loads, every business folder exists, tool docstrings are clear, and every link in the docs points to a file. A CI workflow to run them on every pull request is drafted but not yet committed.
+
+```bash
+cd assistant && pip install -r requirements-dev.txt && python -m pytest tests
+```
+
+`python rehearse.py` is the other kind of check: it runs the demo scenes against real AWS and Claude.
+
 ## Clean up
 
 ```bash
+python setup/cleanup.py --dry-run                    # show what it would delete (finds resources by name, on any machine)
 python setup/cleanup.py                              # guardrail, memory, knowledge base
 agentcore remove all --yes && agentcore deploy --yes # cloud level: runtime, gateway, placeholder key
 ```

@@ -66,6 +66,7 @@ The status goes from `PENDING` to `AVAILABLE` in about a minute. To undo it, run
 
 **Gate 3, the quota.** Open **Service Quotas → AWS services → Amazon Bedrock** in us-east-1, search for the quota name from the table, select it, and choose **Request increase at account level**.
 
+- From the command line the same request is `aws service-quotas request-service-quota-increase --service-code bedrock --quota-code L-F26CA8D1 --desired-value 10000000 --region us-east-1` (swap the code and value for another model). On 2026-10-31 these requests for Haiku 5.5 and Sonnet 5.5 were both closed automatically with the quota still at 0.
 - The form doesn't accept values below the AWS default. For Haiku 5.5, enter **10000000**.
 - A request at or near the default can be approved automatically. Anything above the default, such as 10,000,000 for Sonnet 5.5, becomes an **AWS Support case** that a person reviews. That can take from hours to days. If AWS asks for a justification, answer on the case in **AWS Support Center**.
 - Until AWS approves, the *Applied* column keeps showing 0. Track progress under **Quota request history**, or from the CLI:
@@ -82,6 +83,8 @@ A higher quota is only a ceiling. You still pay only for the tokens you use.
 > To maintain service quality and ensure a reliable experience for all customers, model access for a given account may depend on factors such as regional availability, account history, and usage patterns. We are unable to approve your request at this time. Accessibility is subject to change automatically as time passes.
 
 A system makes this decision from the account's history, so a better justification on the case is unlikely to change it.
+
+**Second attempt, 2026-11-16.** The presenter filed all three again from the CLI, at the AWS default for each model: Haiku 5.5 at 10,000,000 (case 179469848300860), Sonnet 5.5 at 6,000,000 (case 179469848500530) and Opus 5.5 at 30,000,000 (case 179469848900918). All three were closed automatically within about 20 seconds and the applied quota stayed at 0, so filing again won't help; the way forward is the escalation below.
 
 **Another region doesn't get around it.** On 2026-11-01 the presenter's account had the full Haiku 5.5 quota (10,000,000 tokens per minute) in us-west-2 and eu-central-1, and every availability flag said `AVAILABLE` (agreement, authorization, entitlement, region), yet calls in all three regions were still refused with *"not available for this account"*. So the 0 in us-east-1 is a symptom: AWS holds the Claude 5.x models back for the whole account. Check the flags and quotas in another region with:
 

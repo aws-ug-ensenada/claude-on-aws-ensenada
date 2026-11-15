@@ -50,10 +50,16 @@ SCENES = [
     ("business", "Your business: your files (MCP) plus your documents (RAG), in one answer",
      ["--preset", "coffee-shop"], "What do I need to reorder this week, and from which supplier is espresso cheaper?",
      r"(?i)oat milk(?s:.*)Tostadores|Tostadores(?s:.*)(?i:oat milk)", None),
+    ("clinic", "Any business: a third example, a clinic, with no change to the agent: files plus policies",
+     ["--preset", "clinic"], "A patient cancelled a cleaning with only 5 hours' notice. Is there a fee? And which patient on 16 November "
+     "has an allergy the dentists should know about?", r"(?i)20 ?%(?s:.*)penicillin|penicillin(?s:.*)20 ?%", None),
+    ("spanish", "Any language: the same clinic agent, asked in Spanish",
+     ["--preset", "clinic"], "¿Cobran por cancelar una cita con 5 horas de aviso? ¿Cuánto cuesta una corona?",
+     r"(?i)20 ?%(?s:.*)7,?500|7,?500(?s:.*)20 ?%", None),
     ("briefing", "Advanced: the agency prepares the owner's Monday briefing and saves it as a file",
-     ["--preset", "winery", "--mode", "agency"], "Prepare my Monday briefing: will the patio be usable this weekend, how this "
-     "weekend's sales compared with the weekend before, Saturday's reservations and allergies, what 100 dollars is in pesos "
-     "for US guests, and which cork supplier to use. Save it as a report.", r"📨(?s:.*)office", None),
+     ["--preset", "winery", "--mode", "agency"], "Prepare my Monday briefing: will the patio be usable this coming weekend, how "
+     "last weekend's sales compared with the weekend before, next Saturday's reservations and allergies, what 100 dollars is in pesos "
+     "for US guests, and which cork supplier to use. Save it as a report.", r"📨(?s:.*)office", r"(?i)data gap|no data available|only runs through"),
     ("cloud", "Level 8: the same agent on AgentCore Runtime, tools through the Gateway",
      None, "What should I wear today in Ensenada, and how much is 85 dollars in pesos?", r"(?i)MXN|pesos", re.escape(BLOCKED)),
 ]
@@ -67,11 +73,11 @@ def needs(name: str, cfg: dict) -> str | None:
         return "no memory (python setup/create_memory.py)"
     if name == "rag" and not (cfg.get("knowledge_base") or {}).get("enabled"):
         return "no knowledge base (python setup/create_knowledge_base.py)"
-    if name in ("mcp", "business", "briefing") and not shutil.which("uvx"):
+    if name in ("mcp", "business", "clinic", "spanish", "briefing") and not shutil.which("uvx"):
         return "uvx not installed"
-    if name in ("business", "briefing") and not shutil.which("npx"):
+    if name in ("business", "clinic", "spanish", "briefing") and not shutil.which("npx"):
         return "npx not installed (Node.js), needed by the files server"
-    if name in ("business", "briefing") and not (cfg.get("knowledge_base") or {}).get("enabled"):
+    if name in ("business", "clinic", "spanish", "briefing") and not (cfg.get("knowledge_base") or {}).get("enabled"):
         return "no knowledge base (python setup/create_knowledge_base.py)"
     if name == "cloud" and not shutil.which("agentcore"):
         return "agentcore CLI not installed (npm install -g @aws/agentcore)"
@@ -86,7 +92,40 @@ def run(args: list[str] | None, question: str, env: dict) -> str:
         cmd = [sys.executable, "luna.py", *args, "--ask", question]
         cwd = HERE
     out = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True, timeout=300)
-    return out.stdout + out.stderr
+    text = out.stdout + out.stderr
+    if args is None and "No deployment targets" in text:  # the CLI's deployment state is git-ignored: this machine never ran `agentcore deploy`
+        return invoke_runtime_directly(question)
+    return text
+
+
+def invoke_runtime_directly(question: str) -> str:
+    """The same call `agentcore invoke` makes, without the project's deployment state (see docs/demo-runbook.md)."""
+    import boto3
+
+    region = load_config()["model"]["region"]
+    runtimes = boto3.client("bedrock-agentcore-control", region_name=region).list_agent_runtimes()["agentRuntimes"]
+    arn = next(r["agentRuntimeArn"] for r in runtimes if r["agentRuntimeName"].startswith("luna"))
+    reply = boto3.client("bedrock-agentcore", region_name=region).invoke_agent_runtime(
+        agentRuntimeArn=arn, runtimeSessionId="rehearsal-" + "0" * 30, payload=json.dumps({"prompt": question}).encode()
+    )
+    return "(called the runtime directly) " + reply["response"].read().decode()
+
+
+def warn_stray_memory(cfg: dict) -> None:
+    """Memory learns from every rehearsal; stray records can make the guardrail refuse later scenes."""
+    if not (cfg.get("memory") or {}).get("enabled"):
+        return
+    try:
+        sys.path.insert(0, str(Path(HERE) / "setup"))
+        import clean_memory
+
+        found = clean_memory.records(cfg)
+    except Exception as err:  # a missing permission must not stop the rehearsal
+        print(f"   (could not read the memory records: {type(err).__name__})")
+        return
+    if len(found) > 3:
+        print(f"⚠️  The memory holds {len(found)} records; stray ones can make the guardrail refuse a scene.")
+        print("   List them: python setup/clean_memory.py   Tidy: python setup/clean_memory.py --keep vegetarian --keep cold")
 
 
 def main() -> None:
@@ -100,6 +139,7 @@ def main() -> None:
         return
 
     cfg = load_config()
+    warn_stray_memory(cfg)
     env = {**os.environ, "LUNA_DATA_DIR": tempfile.mkdtemp(prefix="luna-rehearsal-"), "PYTHONUNBUFFERED": "1"}
     chosen = [s for s in SCENES if not args.scenes or s[0] in args.scenes]
     results = []

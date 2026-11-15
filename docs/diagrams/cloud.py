@@ -1,6 +1,6 @@
 from diagrams import Diagram, Cluster, Edge
 from diagrams.aws.ml import Bedrock
-from diagrams.aws.security import IAMRole
+from diagrams.aws.security import IAMRole, SecretsManager
 from diagrams.aws.network import APIGateway
 from diagrams.aws.storage import SimpleStorageServiceS3Bucket, SimpleStorageServiceS3
 from diagrams.aws.management import Cloudwatch
@@ -9,10 +9,10 @@ from diagrams.onprem.network import Internet
 from diagrams.programming.language import Python
 
 g = {"fontsize": "14", "pad": "0.5", "nodesep": "0.9", "ranksep": "0.7", "splines": "spline"}
-with Diagram("Agency of agents on AgentCore", filename="cloud", outformat="png", show=False, direction="TB", graph_attr=g):
+with Diagram("Luna on AgentCore", filename="cloud", outformat="png", show=False, direction="TB", graph_attr=g):
     user = User("User")
     with Cluster("AWS us-east-1"):
-        with Cluster("AgentCore Runtime\n(agency: one runtime;\nfleet mode: one runtime\nper agent, over A2A)"):
+        with Cluster("AgentCore Runtime\n(solo agent by default;\nLUNA_MODE=agency runs the team;\nfleet mode: one runtime per agent, over A2A)"):
             rec = Python("Director\n(master agent)")
             pl = Python("Planner\n(weather)")
             fi = Python("Finance\n(currency)")
@@ -26,6 +26,7 @@ with Diagram("Agency of agents on AgentCore", filename="cloud", outformat="png",
             tit = Bedrock("Titan Text\nEmbeddings V2")
             sv = SimpleStorageServiceS3("S3 Vectors index\n(S3 icon)")
             s3 = SimpleStorageServiceS3Bucket("S3 bucket\nmy_documents/")
+        ident = SecretsManager("AgentCore Identity\n(API key for the\nGateway targets)")
         gr = Bedrock("Bedrock Guardrails")
         bed = Bedrock("Amazon Bedrock\nClaude")
         cw = Cloudwatch("CloudWatch\nObservability\n(OpenTelemetry\ntraces)")
@@ -43,6 +44,7 @@ with Diagram("Agency of agents on AgentCore", filename="cloud", outformat="png",
         a >> Edge(style="dotted") >> gr
     gr >> bed
     rec >> Edge(style="dashed", label="optional: Claude API key") >> api
+    gw >> Edge(style="dotted", label="outbound key") >> ident
     pl >> Edge(label="weather tool") >> gw
     fi >> Edge(label="currency tool") >> gw
     gw >> Edge(label="HTTPS") >> om

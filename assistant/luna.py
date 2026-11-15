@@ -5,6 +5,7 @@
   python luna.py --mode agency            # a Director agent gives orders to specialists
   python luna.py --mode fleet             # same, over A2A (start: python fleet_server.py --all)
   python luna.py --preset student         # a ready-made profile from presets/
+  python luna.py --preset my-business --check   # check a preset you wrote, without calling AWS or Claude
   python luna.py --set assistant.personality=funny --set model.id=global.anthropic.claude-sonnet-4-6
   python luna.py --ask "What should I wear today?"   # one question, then exit
 """
@@ -26,8 +27,13 @@ def main() -> None:
     parser.add_argument("--mode", choices=["solo", "agency", "fleet"], help="override config mode")
     parser.add_argument("--no-tools", action="store_true", help="solo mode without tools (plain chatbot)")
     parser.add_argument("--ask", help="ask one question and exit")
+    parser.add_argument("--check", action="store_true", help="check the preset and config (no AWS, no Claude) and exit")
     args = parser.parse_args()
 
+    if args.check:
+        import check
+
+        raise SystemExit(check.run(args.preset, args.set))
     cfg = load_config(args.preset, args.set)
     mode = args.mode or cfg.get("mode", "solo")
     session_id = uuid.uuid4().hex

@@ -1,0 +1,13 @@
+date,time,patient_id,treatment,dentist,status,notes
+2026-11-16,09:00,P-1041,Cleaning,Dr. Ruiz,confirmed,
+2026-11-16,10:00,P-1007,Root canal (session 2),Dr. Ortega,confirmed,Allergic to penicillin
+2026-11-16,11:30,P-1088,Check-up,Dr. Ruiz,unconfirmed,Reminder not answered
+2026-11-16,13:00,P-1023,Crown fitting,Dr. Ortega,confirmed,
+2026-11-16,16:00,P-1064,Whitening,Dr. Ruiz,unconfirmed,Paid deposit
+2026-11-17,09:30,P-1012,Filling,Dr. Ortega,confirmed,Latex allergy
+2026-11-17,11:00,P-1055,Cleaning,Dr. Ruiz,confirmed,
+2026-11-17,12:00,P-1090,First visit,Dr. Ruiz,unconfirmed,Insurance: Seguros Pacífico
+2026-11-17,15:30,P-1031,Extraction,Dr. Ortega,confirmed,Anxious patient: allow extra time
+2026-11-18,10:00,P-1077,Braces adjustment,Dr. Ruiz,confirmed,
+2026-11-18,12:30,P-1019,Check-up,Dr. Ortega,cancelled,Asked to rebook
+2026-11-18,17:00,P-1044,Cleaning,Dr. Ruiz,unconfirmed,

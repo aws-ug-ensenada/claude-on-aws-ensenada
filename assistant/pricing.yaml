@@ -1,6 +1,6 @@
 # USD per 1 million tokens, on-demand, standard tier.
 # Source: AWS Price List API (service AmazonBedrockFoundationModels, us-east-1) and
-# https://platform.claude.com/docs/en/about-claude/pricing — checked 2026-10-31.
+# https://platform.claude.com/docs/en/about-claude/pricing — checked 2026-10-31; the Bedrock prices (global and regional, all five models) were re-checked against the Price List API on 2026-11-16 and are unchanged.
 #   global    → global.anthropic.* profiles (cheapest, may run in any AWS region)
 #   regional  → us.anthropic.* profiles (stays in the US, +10%)
 #   anthropic → Claude API with your own key (provider: anthropic)
