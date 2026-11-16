@@ -906,6 +906,7 @@ async function build() {
   s.addNotes("Measured on 2026-11-15 on Claude 4.x on Bedrock with the cost line Luna prints after every answer: $0.005 for an answer with tools, about $0.10 for the six-agent briefing, about $0.25 for a full rehearsal of every scene. The whole-talk figure is an estimate (docs/costs.md says $7-12 for 300 questions on 4.x, so \"under $10\" assumes far fewer). Model prices were re-checked against the AWS Price List API on 2026-11-15. The free tier and pay-per-use pricing make this cheap to try at home.");
 
   // 22a · Quiz and answers
+  const PRIZE = "a prize"; // decide before Tuesday and name it here, e.g. "AWS swag"; the quiz slides and notes use it
   const QUIZ = [
     ["Between two separate chats, what does the model remember by itself?", "A  Your preferences     B  Last week's chat     C  Nothing", "C", "Nothing. The model is stateless; memory is something the agent adds (slide 30)."],
     ["How can Luna know today's weather?", "A  It was in the training data     B  A tool fetches it     C  The guardrail", "B", "A tool call. The model decides to use the tool; the Python function does the fetching."],
@@ -916,6 +917,8 @@ async function build() {
   for (const answers of [false, true]) {
     s = addSlide("Your turn", "Content");
     s.addText(answers ? "Quiz: the answers" : "Quick quiz: 5 questions", { placeholder: "title" });
+    text(s, answers ? `How many did you get? The most right answers wins ${PRIZE}` : `Keep score: the most right answers wins ${PRIZE}`,
+      { x: 6.6, y: 0.55, w: 6.1, h: 0.7, fontSize: 16, bold: true, color: COLOR.teal, align: "right", valign: "middle", objectName: "prize" });
     for (let i = 0; i < QUIZ.length; i++) {
       const [q, opts, letter, why] = QUIZ[i];
       const y = 1.55 + i * 1.02;
@@ -929,8 +932,8 @@ async function build() {
       }
     }
     s.addNotes(answers
-      ? "Read each answer with its reason. 1 C, 2 B, 3 A, 4 C, 5 B. If the room got three or more right, they have the core ideas: the model has no memory, tools do the real work, exact numbers belong in code, A2A links agents, and RAG finds chunks."
-      : "Optional, about 3 minutes. Read each question, ask for a show of hands for A, B or C (or ask them to answer in the chat). Do not reveal the answers yet; the next slide has them. Skip both slides if you are running long.");
+      ? "Read each answer with its reason. 1 C, 2 B, 3 A, 4 C, 5 B. Ask who got 5, then 4, and so on, until you have the winner; break a tie with a random draw (a coin, or a random number). If the room got three or more right, they have the core ideas: the model has no memory, tools do the real work, exact numbers belong in code, A2A links agents, and RAG finds chunks."
+      : "Optional, about 3 minutes. Read each question, ask for a show of hands for A, B or C (or ask them to answer in the chat). Do not reveal the answers yet; the next slide has them. Say the prize and the rule up front: everyone keeps a score on paper (or in the chat), the most right answers wins, ties go to a random draw. Skip both slides if you are running long.");
   }
 
   // 22 · Your turn
