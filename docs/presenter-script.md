@@ -1,6 +1,6 @@
 # Presenter script
 
-What to say and do, slide by slide, with the transitions. Slide numbers are for the 41-slide deck; the timing for each slide is in its speaker notes (`⏱`), and the ones marked *optional* are the first to skip. Demo commands and fallbacks are in [demo-runbook.md](demo-runbook.md). The slides are in English; speak in whichever language the room prefers.
+What to say and do, slide by slide, with the transitions. Slide numbers are for the 43-slide deck; the timing for each slide is in its speaker notes (`⏱`), and the ones marked *optional* are the first to skip. Demo commands and fallbacks are in [demo-runbook.md](demo-runbook.md). The slides are in English; speak in whichever language the room prefers.
 
 **The one sentence to land:** *An agent is a brain, hands and rules, and the same small agent works for any business: you change who it works for, what it can see and what it can do.*
 
@@ -48,12 +48,13 @@ What to say and do, slide by slide, with the transitions. Slide numbers are for 
 - **35 Laptop to production, 36 Safe with real data.** "Start read-only; give write access one tool at a time."
 - **37 What broke.** The honest slide. Tell the memory story: leftover memory made the guardrail refuse a fair question.
 
-## Closing (slides 38 to 41)
+## Closing (slides 38 to 43)
 
 - **38 Built with Claude Code (optional), 39 What it costs.** "Cents per answer; about $5 for the whole talk."
-- **40 Your turn.** Three steps: PartyRock, Skill Builder, this repo.
-- **41 Questions.** Leave it up. The QR opens the repo; the first command is `python luna.py`; the one-page handout is [cheatsheet.md](cheatsheet.md).
+- **40 and 41 Quiz (optional).** Five questions by show of hands (A, B or C), then the answers. About 4 minutes; skip both when short. If the room gets three or more right, say they have the core ideas.
+- **42 Your turn.** Three steps: PartyRock, Skill Builder, this repo.
+- **43 Questions.** Leave it up. The QR opens the repo; the first command is `python luna.py`; the one-page handout is [cheatsheet.md](cheatsheet.md). Likely questions, with short answers: [audience-questions.md](audience-questions.md).
 
 ## If you are running long
 
-Skip in this order: 9, 10, 17, 38, 25, 33, 21, 31, 15, 24. Everything else is the story.
+Skip in this order: 40 and 41 (the quiz), 9, 10, 17, 38, 25, 33, 21, 31, 15, 24. Everything else is the story.
