@@ -144,10 +144,10 @@ const TIMING = [
   [0.2], [1], [1.5, true], [2.5], [2], [2, true], [1, true], [1], [1.5], // 19-27 any business
   [0.2], [1.5], [2], [1.5, true], [1.5, true], [1, true], [2.5], [1.5], [1], [1.5], [0.5, true], [1], [2], [2, true], [2.5], [2.5, true], [1.5, true], [0.7], [0], // 28-46 the rest (30 = the model has no memory, 40-42 = your own workday, 43-44 = the quiz)
 ];
-// Spanish explanation of each slide, in deck order; added to the speaker notes after the English text.
+// The speaker notes of each slide, in Spanish, in deck order.
 const SPANISH = [
  "Bienvenida. Esta noche construimos un asistente de IA y lo hacemos crecer: de chatbot a agente, y luego a un equipo de agentes corriendo en AWS. Todo está en el repositorio, así que cualquiera puede correrlo en su casa esta misma noche.",
- "Presentación en español, una frase por tarjeta: un asistente y ocho niveles; sirve para cualquier negocio (viñedo, cafetería, clínica, taller, el tuyo); y todo está en el repositorio. Después haz las dos preguntas de la siguiente diapositiva.",
+ "Dilo en español, una frase por tarjeta. Guion: «Bienvenidos. Esta noche vamos a construir un asistente de inteligencia artificial y lo vamos a hacer crecer: primero un chatbot, luego un agente que usa herramientas, y al final un equipo de agentes en AWS. Los ejemplos son un viñedo y una cafetería, porque son de aquí, pero lo importante es que sirve para cualquier negocio: una clínica, una escuela, un taller, el tuyo. Y todo está en el repositorio, para que lo puedas correr en tu casa esta misma noche.» Después haz las dos preguntas de la siguiente diapositiva. Las diapositivas están en inglés; habla y responde en el idioma que prefiera la sala.",
  "Mano alzada. Retoma la sesión de abril, donde el AWS DevOps Agent diagnosticó fallas en EKS: ese era un agente que construyó alguien más; esta noche construimos el nuestro. Pregunta si han usado un chat y si han usado un agente, y cuenta las manos: casi todos han usado un chat, pocos un agente.",
  "Divisor de la parte 1. Cinco minutos de concepto y enseguida pasamos a la terminal.",
  "La idea central de la charla. Un chatbot es una persona muy leída al teléfono que no puede buscar nada; solo adivina. Un agente es esa misma persona con teléfono, calculadora y tu libreta (herramientas), más reglas de la casa. Cerebro + manos + reglas: todo lo demás esta noche es una variación de estas tres piezas.",
@@ -205,7 +205,9 @@ function addSlide(section, masterName) {
   const [minutes, optional] = TIMING[index] || [];
   if (minutes !== undefined) {
     const notes = slide.addNotes.bind(slide);
-    slide.addNotes = (text) => notes(`⏱ ~${minutes} min${optional ? " · optional: skip if you are short on time" : ""}.\n\n${text}\n\n🇪🇸 EN ESPAÑOL: ${SPANISH[index]}`);
+    // The speaker notes are in Spanish only. The English text passed to addNotes() at each call site is kept in this
+    // file as reference for the presenter script, but it is not written to the deck.
+    slide.addNotes = () => notes(`⏱ ~${minutes} min${optional ? " · opcional: omítela si te falta tiempo" : ""}.\n\n${SPANISH[index]}`);
   }
   return slide;
 }
