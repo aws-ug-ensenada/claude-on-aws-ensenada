@@ -142,7 +142,7 @@ const TIMING = [
   [1.5, true], [2], // 10-11 what the model reads, where its knowledge comes from
   [0.2], [1.5], [3], [2, true], [3], [1, true], [1.5], // 12-18 meet Luna
   [0.2], [1], [1.5, true], [2.5], [2], [2, true], [1, true], [1], [1.5], // 19-27 any business
-  [0.2], [1.5], [2], [1.5, true], [1.5, true], [1, true], [2.5], [1.5], [1], [1.5], [0.5, true], [1], [2.5, true], [1.5, true], [0.7], [0], // 28-43 the rest (30 = the model has no memory, 40-41 = the quiz)
+  [0.2], [1.5], [2], [1.5, true], [1.5, true], [1, true], [2.5], [1.5], [1], [1.5], [0.5, true], [1], [2], [2, true], [2.5], [2.5, true], [1.5, true], [0.7], [0], // 28-46 the rest (30 = the model has no memory, 40-42 = your own workday, 43-44 = the quiz)
 ];
 // Spanish explanation of each slide, in deck order; added to the speaker notes after the English text.
 const SPANISH = [
@@ -185,6 +185,9 @@ const SPANISH = [
  "Lo que falló mientras lo construíamos. La diapositiva honesta: cada problema costó tiempo y está documentado en el repo. La lección: cada capa que agregas (memoria, guardrails, gateway, nube) cambia cómo se comportan las demás, así que pruébalas juntas. Un ensayo de un solo comando (python rehearse.py) los detecta antes de la charla. El de la memoria nos pasó dos veces: una por el nivel del filtro y otra por registros sobrantes de ensayos anteriores.",
  "Hecho con Claude Code (opcional). Claude Code lo escribió conmigo: el código del agente, los scripts de instalación, la documentación, la infraestructura como código del nivel de nube y estas diapositivas. También encontró y arregló los problemas de la diapositiva anterior; cada paso se revisó, probó y guardó en el repo.",
  "Cuánto cuesta. Medido el 15 de noviembre de 2026 con Claude 4.x en Bedrock usando la línea de costo que Luna imprime: unos $0.005 por respuesta con herramientas, unos $0.10 el briefing de seis agentes y unos $0.25 un ensayo completo. Toda la charla, menos de $10 (estimado). No hay cuota mensual: pagas por uso. Pon una alarma de AWS Budgets antes de empezar.",
+"Agentes para tu propio día de trabajo. Es el mismo ciclo de Luna apuntado a la jornada de un ingeniero. Servidores MCP verificados el 16 de noviembre de 2026: el AWS MCP Server y el AWS Knowledge MCP Server (documentación actual), el servidor MCP de GitHub (con la URL de solo lectura primero), Context7 para documentación al día de librerías, Playwright MCP para pruebas en el navegador, el Terraform MCP Server de HashiCorp y Sentry MCP. Los servidores antiguos de awslabs se están integrando al Agent Toolkit for AWS. Seguridad: un servidor ejecuta código y ve lo que el agente le envía; lo que trae (una página, un issue, un error) es texto no confiable que puede intentar darle órdenes. Empieza en solo lectura.",
+ "Seis formas de extender un agente. CLAUDE.md es contexto persistente. Un skill es un procedimiento escrito que se carga solo cuando hace falta. Un servidor MCP conecta al agente con un servicio. Un subagente trabaja en su propio contexto y devuelve solo un resumen. Un hook es un script que siempre se ejecuta ante un evento: las reglas que deben cumplirse siempre van ahí, no en un prompt. Un plugin empaqueta todo lo anterior y se comparte en un marketplace (/plugin install nombre@marketplace). Un plugin corre con tus privilegios: léelo antes de instalarlo.",
+ "Mi propio setup: un equipo de agentes para el trabajo. Trabajo con varios clientes y entornos, así que la primera regla es no mezclarlos: cada contexto tiene su memoria, sus plugins y sus servidores MCP de solo lectura. Un archivo de reglas global dice que pregunte si algo no está claro y que planee antes de cambiar nada. Un hook sobre los comandos de shell me pregunta antes de lo destructivo, impide que los subagentes los ejecuten y busca secretos en cada commit; otro hook revisa el estilo después de cada edición. Siete subagentes de solo lectura (investigador de clúster, revisor de planes de infraestructura, revisor de seguridad, analista de logs, redactor de documentos, constructor de diagramas e investigador). El contexto fijo bajó de unos 42k tokens a 26–36k (medido el 11 de octubre de 2026) porque las herramientas se cargan solo al usarse. No necesitas todo esto: empieza con un archivo de reglas, acceso de solo lectura y un subagente.",
  "Mini quiz de 5 preguntas (opcional). Se juega en Kahoot (preguntas en docs/kahoot-quiz.md): inicia el juego, comparte el PIN y deja que jueguen desde el celular. Estas diapositivas son el respaldo si falla Kahoot o el Wi-Fi: lee cada pregunta y pide levantar la mano para A, B, C o D sin revelar la respuesta. El premio es una sorpresa que se anuncia en el evento.",
  "Respuestas del quiz (opcional). Lee cada respuesta con su razón: 1 C (el modelo no recuerda nada por sí solo), 2 B (una herramienta trae el clima), 3 A (una herramienta que cuenta: los números exactos van en código), 4 C (A2A es agentes hablando con agentes; MCP es para herramientas) y 5 B (RAG busca los fragmentos más cercanos en significado y los pone en el prompt). Si acertaron tres o más, ya entendieron lo esencial.",
  "Tu turno. Un camino gratis de cero a tu propio agente: PartyRock no necesita código ni cuenta de AWS; Skill Builder tiene cursos gratuitos de Bedrock e IA generativa; y el repo tiene un quickstart que pone a Luna a funcionar en unos 15 minutos con tu propia cuenta de AWS.",
@@ -951,6 +954,76 @@ async function build() {
     "Set an AWS Budget alarm before you start; docs/costs.md has the full breakdown",
   ], { x: 0.6, y: 5.15, w: 12.1, h: 1.5, fontSize: 18 });
   s.addNotes("Measured on 2026-11-15 on Claude 4.x on Bedrock with the cost line Luna prints after every answer: $0.005 for an answer with tools, about $0.10 for the six-agent briefing, about $0.25 for a full rehearsal of every scene. The whole-talk figure is an estimate (docs/costs.md says $7-12 for 300 questions on 4.x, so \"under $10\" assumes far fewer). Model prices were re-checked against the AWS Price List API on 2026-11-15. The free tier and pay-per-use pricing make this cheap to try at home.");
+
+  // 21a · For engineers: MCP servers by job
+  s = addSlide("Your turn", "Content");
+  s.addText("Agents for your own workday", { placeholder: "title" });
+  const wHdr = (t) => ({ text: t, options: { bold: true, color: COLOR.white, fill: { color: COLOR.teal }, fontSize: 15, fontFace: FONT.body } });
+  const wCell = (t, o = {}) => ({ text: t, options: { color: COLOR.ink, fontSize: 14, fontFace: FONT.body, valign: "middle", ...o } });
+  const workday = [
+    ["AWS", "AWS MCP Server · AWS Knowledge MCP Server", "\"Which IAM actions does this call need?\""],
+    ["Code and CI", "GitHub MCP Server (use the read-only URL first)", "\"Why did the last CI run on this PR fail?\""],
+    ["Library docs", "Context7", "\"How does this version of the library do X?\""],
+    ["Testing", "Playwright MCP", "\"Open the sign-up page and try the flow\""],
+    ["Infrastructure", "Terraform MCP Server (HashiCorp)", "\"Which provider version has this argument?\""],
+    ["Errors", "Sentry MCP", "\"What is breaking for users this week?\""],
+  ];
+  s.addTable([
+    [wHdr("Job"), wHdr("MCP server"), wHdr("Ask it")],
+    ...workday.map(([a, b, c], i) => [wCell(a, { bold: true, color: COLOR.teal, fill: { color: i % 2 ? COLOR.white : COLOR.mist } }), wCell(b, { fill: { color: i % 2 ? COLOR.white : COLOR.mist } }), wCell(c, { color: COLOR.muted, fill: { color: i % 2 ? COLOR.white : COLOR.mist } })]),
+  ], { x: 0.6, y: 1.55, w: 12.13, colW: [2.1, 5.2, 4.83], rowH: [0.46, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62], border: { type: "solid", pt: 0.75, color: COLOR.line }, objectName: "workday table" });
+  card(s, 0.6, 6.0, 12.13, 0.8, COLOR.mist, "workday note");
+  text(s, [{ text: "Same idea as Luna, different job. ", options: { bold: true } }, { text: "Start read-only: every server you add is code that sees what the agent sends it, and what it fetches can try to give orders." }],
+    { x: 0.9, y: 6.0, w: 11.6, h: 0.8, fontSize: 16, valign: "middle" });
+  s.addNotes("The same agent loop as Luna, pointed at an engineer's day instead of a business. These are the servers I checked on 2026-11-16, each from its own repo or docs: the AWS MCP Server (AWS-hosted, generally available since May 2026, part of the Agent Toolkit for AWS) and the AWS Knowledge MCP Server for current docs; the GitHub MCP Server (its URL /mcp/readonly gives read-only access); Context7 for up-to-date library docs; Playwright MCP from Microsoft for browser testing; the Terraform MCP Server from HashiCorp (the tools that change things are off by default); and Sentry MCP. Mention that the older awslabs servers are being folded into the Agent Toolkit for AWS, so check there first. Safety, in one breath: a server runs code and sees what the agent sends it, and anything it fetches (a web page, an issue, an error message) is untrusted text that can try to give the agent orders. Use read-only credentials and the real permissions of the system (read-only database roles, RBAC), not just a server flag. Install a server with claude mcp add, or install a plugin that already bundles it.");
+
+  // 21b · Skills, plugins, subagents, hooks
+  s = addSlide("Your turn", "Content");
+  s.addText("Six ways to extend an agent", { placeholder: "title" });
+  const ext = [
+    [fa.FaFileAlt, "CLAUDE.md", "Rules and context loaded every session", "How we work here"],
+    [fa.FaMagic, "Skill", "A written procedure, loaded when needed", "How to review a plan"],
+    [fa.FaPlug, "MCP server", "Connects the agent to a service", "GitHub, AWS, a database"],
+    [fa.FaUsers, "Subagent", "A helper with its own context; returns a summary", "A read-only investigator"],
+    [fa.FaShieldAlt, "Hook", "A script that always runs on an event", "Block risky commands"],
+    [fa.FaBoxOpen, "Plugin", "A package of the above, shared in a marketplace", "/plugin install name@market"],
+  ];
+  for (let i = 0; i < ext.length; i++) {
+    const [Ic, head, body, eg] = ext[i];
+    const cx = 0.6 + (i % 3) * 4.12, cy = 1.6 + Math.floor(i / 3) * 2.2;
+    card(s, cx, cy, 3.85, 2.0, COLOR.white, "extension card");
+    await badge(s, Ic, cx + 0.25, cy + 0.25, 0.7, i % 2 ? COLOR.teal : COLOR.coral, "extension icon");
+    text(s, head, { x: cx + 1.1, y: cy + 0.25, w: 2.6, h: 0.7, fontFace: FONT.head, fontSize: 21, bold: true, valign: "middle" });
+    text(s, body, { x: cx + 0.3, y: cy + 1.05, w: 3.3, h: 0.5, fontSize: 14, color: COLOR.muted });
+    text(s, eg, { x: cx + 0.3, y: cy + 1.62, w: 3.3, h: 0.35, fontSize: 13, bold: true, color: COLOR.teal });
+  }
+  card(s, 0.6, 6.05, 12.13, 0.75, COLOR.mist, "extension note");
+  text(s, [{ text: "A rule that must always hold goes in a hook, not in a prompt. ", options: { bold: true } }, { text: "A plugin runs with your privileges: read it before you install it." }],
+    { x: 0.9, y: 6.05, w: 11.6, h: 0.75, fontSize: 16, valign: "middle" });
+  s.addNotes("The six extension points in Claude Code, from Anthropic's docs. CLAUDE.md is persistent context. A skill is a written procedure: only its short description is loaded until it is needed. An MCP server connects the agent to a service; its tool definitions load on demand. A subagent runs in its own context window and returns only a summary, which keeps the main conversation small and lets you give it narrower permissions. A hook is a script that fires on an event (before a command runs, after a file is edited) and is deterministic, so rules that must always hold belong there, not in a prompt the model might not follow. A plugin bundles skills, hooks, subagents and MCP servers so a team can share them: add a marketplace with /plugin marketplace add owner/repo and install with /plugin install name@marketplace. Safety: a plugin runs hooks and local MCP servers with your user privileges, so read what it contains (its hooks and .mcp.json) before installing, and be careful with third-party marketplaces. The same pieces are what Luna's levels use, in an agent you build yourself.");
+
+  // 21c · My own setup
+  s = addSlide("Your turn", "Content");
+  s.addText("My own setup: a team of agents for work", { placeholder: "title" });
+  const setup = [
+    [fa.FaUsers, COLOR.coral, "Seven read-only subagents", ["cluster investigator", "plan reviewer", "security reviewer", "log analyst", "doc writer", "diagram builder", "researcher"]],
+    [fa.FaShieldAlt, COLOR.teal, "Hooks that enforce", ["risky command → ask first", "subagents cannot run them", "secret scan on every commit", "lint after every edit"]],
+    [fa.FaFileAlt, COLOR.coral, "Rules and permissions", ["a global rules file: ask when unclear, plan before apply", "allow, ask and deny lists", "a separate memory per context"]],
+  ];
+  for (let i = 0; i < setup.length; i++) {
+    const [Ic, fill, head, items] = setup[i];
+    const cx = 0.6 + i * 4.12;
+    card(s, cx, 1.55, 3.85, 3.75, COLOR.white, "setup card");
+    await badge(s, Ic, cx + 0.3, 1.8, 0.75, fill, "setup icon");
+    text(s, head, { x: cx + 1.25, y: 1.8, w: 2.45, h: 0.75, fontFace: FONT.head, fontSize: 19, bold: true, valign: "middle" });
+    bullets(s, items, { x: cx + 0.3, y: 2.75, w: 3.35, h: 2.45, fontSize: 14 });
+  }
+  card(s, 0.6, 5.5, 12.13, 1.3, COLOR.ocean, "setup footer");
+  text(s, [
+    { text: "Plugins by topic: ", options: { bold: true, color: COLOR.coral } }, { text: "infrastructure as code, Kubernetes, CI/CD, security, docs. ", options: { color: COLOR.white, breakLine: true } },
+    { text: "Measured: ", options: { bold: true, color: COLOR.coral } }, { text: "the fixed context dropped from about 42k tokens to 26–36k, because tools load on demand.", options: { color: COLOR.white } },
+  ], { x: 0.95, y: 5.5, w: 11.4, h: 1.3, fontSize: 17, valign: "middle" });
+  s.addNotes("My own working setup, as an example of what these pieces add up to. Say it as a story: I work across several clients and environments, so the first rule is never to mix them: each context has its own memory, its own plugins and its own read-only MCP servers. A global rules file tells the agent to ask when something is unclear and to plan before it changes anything. The permission lists decide what runs without asking, what asks, and what is denied. A hook on shell commands prompts me before anything destructive, blocks the subagents from running those commands at all, and scans for secrets on every commit; another hook lints each file after an edit. Seven subagents, all read-only: a cluster investigator, an infrastructure plan reviewer, a security reviewer, a log analyst, a doc writer, a diagram builder and a researcher; the main agent delegates a question to one and gets back a short summary instead of a pile of output. Plugins group the skills by topic. The measured number is from my own check on 2026-10-11: the fixed context before the harness was about 42k tokens and is now between 26k and 36k, because MCP tools are loaded only when used. The point for the audience: you don't need all of this; start with a rules file, read-only access and one subagent. It is the same brain, hands and rules as Luna, applied to your own job.");
 
   // 22a · Quiz and answers
   const PRIZE = "a surprise prize"; // kept secret on purpose: announced at the event

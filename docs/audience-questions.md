@@ -61,6 +61,9 @@ Yes: copy a preset and a folder under `assistant/business/`, put your CSV files 
 
 ## Tooling
 
+**Which MCP servers, skills or plugins should I start with for my own work?**
+Start small and read-only: the AWS MCP Server or the AWS Knowledge MCP Server for AWS questions, the GitHub MCP Server (its read-only URL first), and Context7 for current library docs. Add Playwright for browser testing, the Terraform MCP Server or Sentry if you use them. These were checked on 2026-11-16; the older awslabs servers are being folded into the Agent Toolkit for AWS. Every server is code that sees what the agent sends it, and what it fetches can carry instructions, so use read-only credentials and read a plugin before you install it. Slides 40 to 42.
+
 **Why Strands Agents and not something else?**
 It's open source from AWS, small enough to read, works with Bedrock and the Claude API, and supports MCP and A2A. Other frameworks would do the same job; the ideas in the talk carry over. → [extend.md](extend.md)
 
