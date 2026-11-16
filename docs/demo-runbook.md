@@ -71,9 +71,38 @@ A recording replaces the live demo if the venue network fails. It can also *be* 
 - **Tools:** [asciinema](https://asciinema.org) records the terminal as text (small files, sharp at any size, the text can be copied). OBS Studio records the screen and your voice if you want a narrated video. Either works for a fallback.
 - **Answers vary** a little from run to run. Keep the take where the answer reads best.
 
+### Record the clips on a Mac, step by step
+
+Video is the simplest fallback: no extra software on the presenting machine, and it plays with the network off.
+
+1. **Set the Mac up like the demo machine** ([Run the demo yourself](#run-the-demo-yourself-step-by-step)): clone the repo, make the venv, install the requirements, and copy `assistant/config.local.yaml` from your other machine (it is git-ignored and holds the resource IDs). Export the key and the AWS profile, then run `python setup/prewarm.py` until it ends with `✅ Warm and ready`.
+2. **Prepare the data:** `python setup/refresh_sample_dates.py`, `rm -f data/todo.json business/*/reports/*.md`, and seed the memory at least 5 minutes before you record the memory clip.
+3. **Prepare the terminal:** dark theme, font size 20 or larger, window about 100 × 30, `PS1='❯ '`, notifications off (Focus mode), `clear` before each take.
+4. **Allow screen recording once:** System Settings → Privacy & Security → Screen & System Audio Recording → turn on QuickTime Player (or Terminal and your browser, if macOS asks).
+5. **Record each clip with QuickTime Player:** File → New Screen Recording, click the small arrow next to the red button and set Microphone to *None* (or pick your microphone to narrate), drag to select only the terminal window, run the scene, then stop from the menu bar (⌘⌃Esc). Trim the start and end with Edit → Trim (⌘T). Save it as `clips/<name>.mov`, with the names in the table below. (`⌘⇧5` does the same with Record Selected Portion.)
+6. **Keep the take where the answer reads best.** Answers vary; a clip with a tool error or a slow answer is not worth keeping. Redo it.
+7. **Test them with the Wi-Fi off:** open each file in QuickTime Player, press space to play. Put all the clips in one folder and keep it open in Finder during the talk. Copy the folder to a USB stick too. Do not commit the videos (they are large); the checklist's last step publishes them.
+
+| Clip | Run | Type |
+|---|---|---|
+| `01-chatbot` | `python luna.py --no-tools` | *What should I wear today?* |
+| `02-agent` | `python luna.py` | *What should I wear today, and how much is 85 dollars in pesos? Add 'buy sunscreen' to my list.* then *Delete the sunscreen task* (shows the approval) |
+| `04-make-it-yours` | `python luna.py --preset family` | *What should I wear today?* |
+| `05-agency` | `python luna.py --mode agency` | *Plan my Saturday at the beach, budget 50 USD* |
+| `06-many-sources` | `python luna.py --preset winery` | the time-and-web-page question in scene 6 |
+| `07-your-business` | `python luna.py --preset coffee-shop` | *What do I need to reorder this week, and from which supplier is espresso cheaper?* |
+| `07b-clinic` | `python luna.py --preset clinic` | the cancellation-fee and allergy question in scene 7b |
+| `08-monday-briefing` | `python luna.py --preset winery --mode agency` | the Monday briefing question in scene 8 (about 1 minute; cut the waiting) |
+| `09-guardrail` | `python luna.py` | *Should I buy bitcoin with my savings?* |
+| `10-memory` | `python luna.py` | *Suggest a dinner for tonight based on what you know about me, and tell me which of my preferences you used.* |
+| `11-documents` | `python luna.py` | *According to my lease, when is the rent due and how much is it?* |
+| `12-cloud` | from the repo root: `agentcore invoke --runtime luna --payload '{"prompt": "What should I wear today in Ensenada?"}'` | nothing |
+
+The exact questions for scenes 6, 7b and 8 are in the [scenes table](#scenes) below; copy them from there.
+
 ## Scenes
 
-Each scene has a slide in [the deck](slides/claude-on-aws-ensenada.pptx) with the command, what to watch for, and the clip name below (`clips/01-chatbot` and so on). Name the recordings to match. `rehearse.py` runs every scene except 3 (the approval needs someone at the keyboard) with the same questions.
+Each scene has a slide in [the deck](slides/claude-on-aws-ensenada.pptx) with the command and what to watch for; the fallback clip name (`clips/01-chatbot` and so on) is in that slide's speaker notes, not on the slide. Name the recordings to match. `rehearse.py` runs every scene except 3 (the approval needs someone at the keyboard) with the same questions.
 
 | # | Minute | Scene | Command | What the audience should see | If it fails |
 |---|---|---|---|---|---|
