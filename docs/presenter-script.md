@@ -1,6 +1,6 @@
 # Presenter script
 
-What to say and do, slide by slide, with the transitions. Slide numbers are for the 46-slide deck; the timing for each slide is in its speaker notes (`⏱`), and the ones marked *optional* are the first to skip. Demo commands and fallbacks are in [demo-runbook.md](demo-runbook.md). The slides are in English; speak in whichever language the room prefers.
+What to say and do, slide by slide, with the transitions. Slide numbers are for the 46-slide deck; the timing for each slide is in its speaker notes (`⏱`), and the ones marked *optional* are the first to skip. Demo commands and fallbacks are in [demo-runbook.md](demo-runbook.md). The slides are in English and the speaker notes are in Spanish; speak in whichever language the room prefers.
 
 **The one sentence to land:** *An agent is a brain, hands and rules, and the same small agent works for any business: you change who it works for, what it can see and what it can do.*
 
