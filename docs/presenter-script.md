@@ -50,7 +50,7 @@ What to say and do, slide by slide, with the transitions. Slide numbers are for 
 
 ## Closing (slides 38 to 43)
 
-- **38 Built with Claude Code (optional), 39 What it costs.** "Cents per answer; about $5 for the whole talk."
+- **38 Built with Claude Code (optional), 39 What it costs.** "Cents per answer; under $10 for the whole talk (the slide says the same)."
 - **40 and 41 Quiz (optional).** Five questions on Kahoot ([kahoot-quiz.md](kahoot-quiz.md)); these slides are the fallback (show of hands). The top score on the leaderboard wins a surprise prize, announced at the event. About 4 minutes; skip both when short. If the room gets three or more right, say they have the core ideas.
 - **42 Your turn.** Three steps: PartyRock, Skill Builder, this repo.
 - **43 Questions.** Leave it up. The QR opens the repo; the first command is `python luna.py`; the one-page handout is [cheatsheet.md](cheatsheet.md). Likely questions, with short answers: [audience-questions.md](audience-questions.md).
