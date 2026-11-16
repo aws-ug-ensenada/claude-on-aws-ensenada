@@ -426,7 +426,7 @@ async function build() {
     watch: ["It answers confidently, but it's guessing", "No tool calls: it can't see today's weather", "Ask the room: is that the real forecast?"],
     why: "A brain without hands can only guess about the world, however good the model is.",
     clip: "clips/01-chatbot",
-    notes: "Run the plain chatbot. It will probably give reasonable generic advice for October in Ensenada, but it has no idea about today. Point out there is no 'Tool #' line in the output.",
+    notes: "Run the plain chatbot. It will probably give reasonable generic advice for the season in Ensenada, but it has no idea about today. Point out there is no 'Tool #' line in the output.",
   });
   await demo("Meet Luna", {
     title: "Now give it hands",
