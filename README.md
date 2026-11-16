@@ -102,7 +102,7 @@ Everything is a parameter in [`assistant/config.yaml`](assistant/config.yaml). S
 | [docs/comparison.md](docs/comparison.md) | Chat app vs local dev vs a fleet of agents: pros and cons |
 | [docs/agenda.md](docs/agenda.md) · [docs/topics.md](docs/topics.md) | The talk: outline and researched topics |
 | [docs/bedrock-access.md](docs/bedrock-access.md) | Turning on Claude in an account: use-case form, agreement, and the quotas to request |
-| [docs/slides/](docs/slides/) | The talk's deck (`claude-on-aws-ensenada.pptx`, 43 slides) and its generator (`npm install && node build.js`) |
+| [docs/slides/](docs/slides/) | The talk's deck (`claude-on-aws-ensenada.pptx`, 46 slides) and its generator (`npm install && node build.js`) |
 | [docs/talk-checklist.md](docs/talk-checklist.md) | The validation checklist for the talk: a week before, the day before, ten minutes before, during, after |
 | [docs/presenter-script.md](docs/presenter-script.md) | What to say and do, slide by slide, with transitions and what to skip when running long |
 | [docs/audience-questions.md](docs/audience-questions.md) | The questions the audience may ask, with 20-second answers |

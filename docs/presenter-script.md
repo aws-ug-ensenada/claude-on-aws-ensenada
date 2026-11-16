@@ -1,6 +1,6 @@
 # Presenter script
 
-What to say and do, slide by slide, with the transitions. Slide numbers are for the 43-slide deck; the timing for each slide is in its speaker notes (`⏱`), and the ones marked *optional* are the first to skip. Demo commands and fallbacks are in [demo-runbook.md](demo-runbook.md). The slides are in English; speak in whichever language the room prefers.
+What to say and do, slide by slide, with the transitions. Slide numbers are for the 46-slide deck; the timing for each slide is in its speaker notes (`⏱`), and the ones marked *optional* are the first to skip. Demo commands and fallbacks are in [demo-runbook.md](demo-runbook.md). The slides are in English; speak in whichever language the room prefers.
 
 **The one sentence to land:** *An agent is a brain, hands and rules, and the same small agent works for any business: you change who it works for, what it can see and what it can do.*
 
@@ -48,13 +48,16 @@ What to say and do, slide by slide, with the transitions. Slide numbers are for 
 - **35 Laptop to production, 36 Safe with real data.** "Start read-only; give write access one tool at a time."
 - **37 What broke.** The honest slide. Tell the memory story: leftover memory made the guardrail refuse a fair question.
 
-## Closing (slides 38 to 43)
+## Closing (slides 38 to 46)
 
 - **38 Built with Claude Code (optional), 39 What it costs.** "Cents per answer; under $10 for the whole talk (the slide says the same)."
-- **40 and 41 Quiz (optional).** Five questions on Kahoot ([kahoot-quiz.md](kahoot-quiz.md)); these slides are the fallback (show of hands). The top score on the leaderboard wins a surprise prize, announced at the event. About 4 minutes; skip both when short. If the room gets three or more right, say they have the core ideas.
-- **42 Your turn.** Three steps: PartyRock, Skill Builder, this repo.
-- **43 Questions.** Leave it up. The QR opens the repo; the first command is `python luna.py`; the one-page handout is [cheatsheet.md](cheatsheet.md). Likely questions, with short answers: [audience-questions.md](audience-questions.md).
+- **40 Agents for your own workday.** For the engineers in the room: "Same idea as Luna, a different job." Walk the table by job (AWS, GitHub, library docs, browser testing, Terraform, errors) and say the safety line: start read-only; a server sees what the agent sends it, and what it fetches can try to give orders.
+- **41 Six ways to extend an agent (optional).** CLAUDE.md, skill, MCP server, subagent, hook, plugin, one line each. "A rule that must always hold goes in a hook, not in a prompt."
+- **42 My own setup.** Seven read-only subagents, hooks that enforce (ask before risky commands, no secrets in commits), rules and permissions, one memory per context. "You don't need all of it: start with a rules file, read-only access and one subagent."
+- **43 and 44 Quiz (optional).** Five questions on Kahoot ([kahoot-quiz.md](kahoot-quiz.md)); these slides are the fallback (show of hands). The top score on the leaderboard wins a surprise prize, announced at the event. About 4 minutes; skip both when short. If the room gets three or more right, say they have the core ideas.
+- **45 Your turn.** Three steps: PartyRock, Skill Builder, this repo.
+- **46 Questions.** Leave it up. The QR opens the repo; the first command is `python luna.py`; the one-page handout is [cheatsheet.md](cheatsheet.md). Likely questions, with short answers: [audience-questions.md](audience-questions.md).
 
 ## If you are running long
 
-Skip in this order: 40 and 41 (the quiz), 9, 10, 17, 38, 25, 33, 21, 31, 15, 24. Everything else is the story.
+Skip in this order: 43 and 44 (the quiz), 41, 9, 10, 17, 38, 25, 33, 21, 31, 15, 24. Everything else is the story.

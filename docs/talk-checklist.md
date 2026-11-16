@@ -14,13 +14,13 @@ Tick each box when the check passes; write the date next to it. Commands run fro
 - [ ] **Offline tests green:** `python -m pytest tests -q` (31 tests) and the `smoke` check on the pull request.
 - [ ] **A full rehearsal passes:** `python rehearse.py` ends with `✅ Ready for the talk`. Note the time and cost. The exact steps, from a fresh terminal, are in [demo-runbook.md](demo-runbook.md#run-the-demo-yourself-step-by-step).
 - [ ] **The AWS diagrams match what is deployed.** `docs/diagrams/local.py` and `cloud.py` (regenerate with `pip install diagrams`, graphviz, then `python local.py && python cloud.py`) were redrawn on 2026-11-15 against `agentcore/agentcore.json` and the presets; slides 8 and 34 are drawn in `docs/slides/build.js`. Redraw all of them after any architecture change.
-- [ ] **The deck checks pass:** `cd docs/slides && python3 check_deck.py` (text size, colour contrast, a timed speaker note on every slide). `node build.js` prints the planned time: 59 minutes with every slide, 41.5 without the optional ones, so plan to skip the optional ones in the order the [presenter script](presenter-script.md#if-you-are-running-long) gives.
+- [ ] **The deck checks pass:** `cd docs/slides && python3 check_deck.py` (text size, colour contrast, a timed speaker note on every slide). `node build.js` prints the planned time: 65.5 minutes with every slide, 46 without the optional ones, so plan to skip the optional ones in the order the [presenter script](presenter-script.md#if-you-are-running-long) gives.
 - [ ] **PDF backup regenerated** after any slide change: `cd docs/slides && npm run pdf`, and open it once. The PDF is committed next to the deck.
 - [ ] **The QR code opens the repo** when scanned with a phone (it decodes correctly from the rendered slide).
 - [ ] **Time the talk once**, out loud, with the real slides and the demo. Write the total here: ____ min. If it is over 40 minutes, drop scenes from the "if time allows" list in [demo-runbook.md](demo-runbook.md#time-budget).
 - [ ] **Clips recorded**, one per scene that is live, named as on the slides (`clips/01-chatbot` … `clips/07b-clinic` …), and they play from the presenting laptop with no network.
 - [ ] **Prices re-checked** ([costs.md](costs.md)) and the budget alarm is set.
-- [ ] **The Kahoot quiz is created** from [kahoot-quiz.md](kahoot-quiz.md) (5 questions, 20 seconds each) and tested once from a phone; the prize is a surprise, so bring it. The quiz slides 40 and 41 are the fallback if Kahoot or the Wi-Fi fails.
+- [ ] **The Kahoot quiz is created** from [kahoot-quiz.md](kahoot-quiz.md) (5 questions, 20 seconds each) and tested once from a phone; the prize is a surprise, so bring it. The quiz slides 43 and 44 are the fallback if Kahoot or the Wi-Fi fails.
 - [ ] **A person outside the project followed the README quickstart** and reached the first answer.
 
 ## 2. The day before
