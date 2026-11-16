@@ -906,18 +906,18 @@ async function build() {
   s.addNotes("Measured on 2026-11-15 on Claude 4.x on Bedrock with the cost line Luna prints after every answer: $0.005 for an answer with tools, about $0.10 for the six-agent briefing, about $0.25 for a full rehearsal of every scene. The whole-talk figure is an estimate (docs/costs.md says $7-12 for 300 questions on 4.x, so \"under $10\" assumes far fewer). Model prices were re-checked against the AWS Price List API on 2026-11-15. The free tier and pay-per-use pricing make this cheap to try at home.");
 
   // 22a · Quiz and answers
-  const PRIZE = "a prize"; // decide before Tuesday and name it here, e.g. "AWS swag"; the quiz slides and notes use it
+  const PRIZE = "a surprise prize"; // kept secret on purpose: announced at the event
   const QUIZ = [
-    ["Between two separate chats, what does the model remember by itself?", "A  Your preferences     B  Last week's chat     C  Nothing", "C", "Nothing. The model is stateless; memory is something the agent adds (slide 30)."],
-    ["How can Luna know today's weather?", "A  It was in the training data     B  A tool fetches it     C  The guardrail", "B", "A tool call. The model decides to use the tool; the Python function does the fetching."],
-    ["You need an exact count from a CSV. What do you use?", "A  A tool that counts     B  Ask the model to estimate     C  A bigger context window", "A", "A tool. Models read text; they are not calculators, so exact sums belong in code."],
-    ["What is A2A for?", "A  Giving an agent new tools     B  Storing memory     C  Agents asking other agents", "C", "Agents asking agents. MCP is for tools; A2A is for agent to agent."],
-    ["What does RAG do?", "A  Retrains Claude on your files     B  Finds the matching chunks and adds them to the prompt     C  Makes answers faster", "B", "It finds the chunks closest in meaning and puts them in front of the model."],
+    ["Between two separate chats, what does the model remember by itself?", "A  Your preferences     B  Last week's chat     C  Nothing     D  Everything you typed", "C", "Nothing. The model is stateless; memory is something the agent adds (slide 30)."],
+    ["How can Luna know today's weather?", "A  Its training data     B  A tool fetches it     C  The guardrail     D  Memory", "B", "A tool call. The model decides to use the tool; the Python function does the fetching."],
+    ["You need an exact count from a CSV. What do you use?", "A  A tool that counts     B  The model estimates     C  A bigger context window     D  A longer prompt", "A", "A tool. Models read text; they are not calculators, so exact sums belong in code."],
+    ["What is A2A for?", "A  Giving an agent tools     B  Storing memory     C  Agents asking agents     D  Blocking topics", "C", "Agents asking agents. MCP is for tools; A2A is for agent to agent."],
+    ["What does RAG do?", "A  Retrains Claude     B  Finds matching chunks for the prompt     C  Makes answers faster     D  Deletes memory", "B", "It finds the chunks closest in meaning and puts them in front of the model."],
   ];
   for (const answers of [false, true]) {
     s = addSlide("Your turn", "Content");
     s.addText(answers ? "Quiz: the answers" : "Quick quiz: 5 questions", { placeholder: "title" });
-    text(s, answers ? `How many did you get? The most right answers wins ${PRIZE}` : `Keep score: the most right answers wins ${PRIZE}`,
+    text(s, answers ? `Kahoot leaderboard: the top score wins ${PRIZE}` : `Play on Kahoot: the top score wins ${PRIZE}`,
       { x: 6.6, y: 0.55, w: 6.1, h: 0.7, fontSize: 16, bold: true, color: COLOR.teal, align: "right", valign: "middle", objectName: "prize" });
     for (let i = 0; i < QUIZ.length; i++) {
       const [q, opts, letter, why] = QUIZ[i];
@@ -932,8 +932,8 @@ async function build() {
       }
     }
     s.addNotes(answers
-      ? "Read each answer with its reason. 1 C, 2 B, 3 A, 4 C, 5 B. Ask who got 5, then 4, and so on, until you have the winner; break a tie with a random draw (a coin, or a random number). If the room got three or more right, they have the core ideas: the model has no memory, tools do the real work, exact numbers belong in code, A2A links agents, and RAG finds chunks."
-      : "Optional, about 3 minutes. Read each question, ask for a show of hands for A, B or C (or ask them to answer in the chat). Do not reveal the answers yet; the next slide has them. Say the prize and the rule up front: everyone keeps a score on paper (or in the chat), the most right answers wins, ties go to a random draw. Skip both slides if you are running long.");
+      ? "Read each answer with its reason. 1 C, 2 B, 3 A, 4 C, 5 B. Kahoot shows the correct answer after each question; use this slide to explain the reason for each one, or as the fallback with a show of hands. If the room got three or more right, they have the core ideas: the model has no memory, tools do the real work, exact numbers belong in code, A2A links agents, and RAG finds chunks."
+      : "Optional, about 3 minutes. Read each question, ask for a show of hands for A, B or C (or ask them to answer in the chat). Do not reveal the answers yet; the next slide has them. Hosted on Kahoot (questions in docs/kahoot-quiz.md): start the game, share the join PIN, and let people play on their phones; these slides are the fallback if Kahoot or the Wi-Fi fails, with a show of hands. The prize is a surprise: announce it at the event, then reveal the winner from the leaderboard. Skip both slides if you are running long.");
   }
 
   // 22 · Your turn
