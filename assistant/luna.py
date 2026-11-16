@@ -11,6 +11,7 @@
 """
 
 import argparse
+import os
 import uuid
 
 from strands.types.exceptions import MaxTokensReachedException
@@ -105,5 +106,30 @@ def print_cost(cfg, billed, before, session_total, fleet) -> float:
     return turn
 
 
+def explain(error: Exception) -> str | None:
+    """A one-line reason and fix for the failures that happen on a bad day: credentials, model access, network."""
+    name, text = type(error).__name__, str(error)
+    if name == "AuthenticationError" or "UnrecognizedClientException" in text or "ExpiredToken" in text:
+        return "Credentials were refused. Check ANTHROPIC_API_KEY, or AWS_PROFILE and `aws sso login`."
+    if "AccessDenied" in text or "PermissionDenied" in name:
+        return "This account or key is not allowed to do that. Check model access (docs/bedrock-access.md)."
+    if "ValidationException" in text and "model identifier" in text:
+        return "Unknown model id. Check model.id in config.local.yaml."
+    if "Throttl" in text or "RateLimit" in name or "quota" in text.lower():
+        return "Rate limit or quota reached. Wait a minute, or switch model (Plan B: Bedrock Claude 4.x)."
+    if name in ("EndpointConnectionError", "ConnectError", "APIConnectionError", "ConnectTimeout", "ProxyConnectionError", "ReadTimeoutError") or "Could not connect" in text or "Failed to connect" in text:
+        return "No network to the model. Check the Wi-Fi (or the phone hotspot), or play the recorded clip."
+    if "credit balance" in text.lower():
+        return "The Claude API account is out of credit. Add credit in the Console, or switch to Bedrock."
+    return None
+
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as error:  # noqa: BLE001 - last line of defence: say what to do, not just a stack trace
+        reason = explain(error)
+        if reason is None or os.environ.get("LUNA_DEBUG"):
+            raise
+        print(f"\n❌ {reason}\n   ({type(error).__name__}; set LUNA_DEBUG=1 for the full trace)")
+        raise SystemExit(1)
