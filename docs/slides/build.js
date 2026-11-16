@@ -193,6 +193,8 @@ const SPANISH = [
  "Tu turno. Un camino gratis de cero a tu propio agente: PartyRock no necesita código ni cuenta de AWS; Skill Builder tiene cursos gratuitos de Bedrock e IA generativa; y el repo tiene un quickstart que pone a Luna a funcionar en unos 15 minutos con tu propia cuenta de AWS.",
  "Preguntas. Deja esta diapositiva en pantalla durante las preguntas. El código QR abre el repositorio y el primer comando es python luna.py. Hay una hoja de referencia en inglés y español en docs/cheatsheet.md, y respuestas cortas a las preguntas probables en docs/audience-questions.md. Gracias a AWS User Group Ensenada."
 ];
+// Fallback clip per slide (by 0-based slide index): named in the speaker notes, not drawn on the slide.
+const CLIPS = { 31: "clips/11-documents", 33: "clips/12-cloud" };
 let slideCount = 0;
 const sections = {};
 function addSlide(section, masterName) {
@@ -207,7 +209,7 @@ function addSlide(section, masterName) {
     const notes = slide.addNotes.bind(slide);
     // The speaker notes are in Spanish only. The English text passed to addNotes() at each call site is kept in this
     // file as reference for the presenter script, but it is not written to the deck.
-    slide.addNotes = () => notes(`⏱ ~${minutes} min${optional ? " · opcional: omítela si te falta tiempo" : ""}.\n\n${SPANISH[index]}`);
+    slide.addNotes = () => notes(`⏱ ~${minutes} min${optional ? " · opcional: omítela si te falta tiempo" : ""}.\n\n${SPANISH[index]}${CLIPS[index] ? `\n\n▶ Clip de respaldo: ${CLIPS[index]}` : ""}`);
   }
   return slide;
 }
@@ -215,17 +217,15 @@ function addSlide(section, masterName) {
 // One demo scene: what to run, what to watch for, why it matters, and the fallback clip.
 async function demo(section, { title, level, command, question, watch, why, clip, notes }) {
   const s = addSlide(section, "Demo");
+  CLIPS[slideCount - 1] = clip;
   s.addText(title, { placeholder: "title" });
   text(s, level, { x: 0.6, y: 1.38, w: 10.4, h: 0.4, fontSize: 16, italic: true, color: COLOR.teal });
   terminal(s, { command, question }, 0.6, 1.95, 7.3, 2.45);
   await badge(s, fa.FaLightbulb, 0.6, 4.7, 0.62, COLOR.teal, "why icon");
   text(s, why, { x: 1.4, y: 4.68, w: 6.5, h: 1.05, fontSize: 17, valign: "middle" });
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: 6.05, w: 7.3, h: 0.5, rectRadius: 0.25, fill: { color: COLOR.white }, line: { color: COLOR.teal, width: 1, dashType: "dash" }, objectName: "clip chip" });
-  text(s, [{ text: "▶  Recorded clip  ", options: { bold: true, color: COLOR.teal } }, { text: clip, options: { color: COLOR.muted, fontFace: FONT.code } }],
-    { x: 0.85, y: 6.05, w: 6.9, h: 0.5, fontSize: 12, valign: "middle", objectName: "clip" });
-  card(s, 8.25, 1.95, 4.48, 4.6, COLOR.white, "watch card");
+  card(s, 8.25, 1.95, 4.48, 3.85, COLOR.white, "watch card");
   text(s, "What to watch for", { x: 8.55, y: 2.2, w: 3.9, h: 0.45, fontSize: 19, bold: true, color: COLOR.teal });
-  bullets(s, watch, { x: 8.55, y: 2.8, w: 3.95, h: 3.6, fontSize: 17 });
+  bullets(s, watch, { x: 8.55, y: 2.8, w: 3.95, h: 2.9, fontSize: 17 });
   s.addNotes(notes);
 }
 
