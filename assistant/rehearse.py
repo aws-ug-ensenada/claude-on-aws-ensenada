@@ -7,7 +7,9 @@
 Each scene runs luna.py --ask (or agentcore invoke for the cloud scene) exactly as on stage, then
 checks the output for what the audience should see. The to-do list goes to a scratch folder, so
 your real list isn't touched; the briefing scene saves a report in business/winery/reports/ (git-ignored).
-A full run costs about 15 cents and takes about 5 minutes.
+The approval scene answers "n" to Luna's [y/N] question, so nothing is deleted. The fleet scene starts the specialists
+as A2A servers on their configured ports (9001 and up), asks one question, and stops them.
+A full run costs about 30 cents and takes about 6 minutes.
 Scenes whose setup is missing (no knowledge base, no uvx…) are skipped, not failed. Without the agentcore CLI
 or its deployment state, the cloud scene calls the runtime directly.
 """
@@ -17,13 +19,17 @@ import json
 import os
 import re
 import shutil
+import signal
+import socket
 import subprocess
 import sys
 import tempfile
 import time
+from contextlib import contextmanager
 from pathlib import Path
+from urllib.parse import urlparse
 
-from core import load_config
+from core import active_agents, load_config
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 BLOCKED = "outside what I'm allowed to do"
@@ -39,6 +45,8 @@ SCENES = [
      ["--preset", "family"], "Hola, ¿quién eres?", r".", None),
     ("agency", "Level 6: the Director gives orders to specialists",
      ["--mode", "agency"], "Plan my Saturday at the beach, budget 50 USD", r"📨(?s:.*)✅", None),
+    ("approval", "Human in the loop: Luna asks before it deletes (the rehearsal answers n, so nothing is deleted)",
+     [], "Add 'buy sunscreen' to my list, then delete the sunscreen task.", r"\[y/N\]", r"(?i)\"deleted\": true"),
     ("guardrail", "Level 2: a denied topic is refused",
      [], "Should I buy bitcoin with my savings?", re.escape(BLOCKED), None),
     ("memory", "Level 3: it remembers you across sessions (and the guardrail lets that through)",
@@ -61,9 +69,36 @@ SCENES = [
      ["--preset", "winery", "--mode", "agency"], "Prepare my Monday briefing: will the patio be usable this coming weekend, how "
      "last weekend's sales compared with the weekend before, next Saturday's reservations and allergies, what 100 dollars is in pesos "
      "for US guests, and which cork supplier to use. Save it as a report.", r"📨(?s:.*)office", r"(?i)data gap|no data available|only runs through"),
+    ("fleet", "Level 7: the same agency, each specialist its own A2A service (this scene starts and stops the servers)",
+     ["--mode", "fleet"], "What should I wear today in Ensenada, and how much is 85 dollars in pesos?", r"📨(?s:.*)(?i:MXN|pesos)", None),
     ("cloud", "Level 8: the same agent on AgentCore Runtime, tools through the Gateway",
      None, "What should I wear today in Ensenada, and how much is 85 dollars in pesos?", r"(?i)MXN|pesos", re.escape(BLOCKED)),
 ]
+
+
+# Scenes that ask the person something at the terminal: the text the rehearsal types.
+STDIN = {"approval": "n\n"}
+
+
+@contextmanager
+def fleet_running(cfg: dict, env: dict):
+    """Start every specialist as an A2A server (python fleet_server.py --all), wait for their ports, stop them after."""
+    urls = [urlparse(a["url"]) for a in active_agents(cfg) if a.get("url")]
+    proc = subprocess.Popen([sys.executable, "fleet_server.py", "--all"], cwd=HERE, env=env,
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+    try:
+        deadline = time.time() + 90
+        pending = list(urls)
+        while pending and time.time() < deadline:
+            pending = [u for u in pending if socket.socket().connect_ex((u.hostname, u.port)) != 0]
+            if pending:
+                time.sleep(1)
+        if pending:
+            raise RuntimeError("fleet servers did not start: " + ", ".join(f"{u.hostname}:{u.port}" for u in pending))
+        yield
+    finally:
+        os.killpg(proc.pid, signal.SIGTERM)
+        proc.wait(timeout=30)
 
 
 def needs(name: str, cfg: dict) -> str | None:
@@ -83,7 +118,7 @@ def needs(name: str, cfg: dict) -> str | None:
     return None
 
 
-def run(args: list[str] | None, question: str, env: dict) -> str:
+def run(args: list[str] | None, question: str, env: dict, stdin: str | None = None) -> str:
     if args is None and not shutil.which("agentcore"):  # no CLI on this machine: the runtime answers the same direct call
         return invoke_runtime_directly(question)
     if args is None:  # the cloud scene
@@ -92,7 +127,8 @@ def run(args: list[str] | None, question: str, env: dict) -> str:
     else:
         cmd = [sys.executable, "luna.py", *args, "--ask", question]
         cwd = HERE
-    out = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True, timeout=300)
+    out = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True, timeout=300,
+                         input=stdin if stdin is not None else None, stdin=None if stdin is not None else subprocess.DEVNULL)
     text = out.stdout + out.stderr
     if args is None and "No deployment targets" in text:  # the CLI's deployment state is git-ignored: this machine never ran `agentcore deploy`
         return invoke_runtime_directly(question)
@@ -152,9 +188,15 @@ def main() -> None:
             continue
         start = time.time()
         try:
-            output = run(luna_args, question, env)
+            if name == "fleet":
+                with fleet_running(cfg, env):
+                    output = run(luna_args, question, env)
+            else:
+                output = run(luna_args, question, env, STDIN.get(name))
         except subprocess.TimeoutExpired:
             output = "TIMEOUT after 300 s"
+        except RuntimeError as err:
+            output = f"ERROR {err}"
         took = time.time() - start
         ok = bool(re.search(must, output)) and not (must_not and re.search(must_not, output))
         if name == "briefing":

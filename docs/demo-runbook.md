@@ -33,8 +33,8 @@ The same steps work for anyone who clones the repo. Do them in one terminal, in 
    python luna.py --ask "Reply with the single word ok."
    ```
    It prints `ok` and a cost line. A 401 means a wrong key; a credit-balance error means the Console account has no credit.
-5. **Rehearse every scene:** `python rehearse.py`. It takes about 5 minutes and costs cents, and ends with `✅ Ready for the talk` or names the scenes that failed and shows their output.
-6. **Check the two scenes it can't run for you:**
+5. **Rehearse every scene:** `python rehearse.py`. It takes about 6 minutes and costs about 30 cents, and ends with `✅ Ready for the talk` or names the scenes that failed and shows their output.
+6. **The approval and fleet scenes are in the rehearsal too.** It answers `n` to Luna's `[y/N]` question, so nothing is deleted, and it starts the specialists as A2A servers, asks one question and stops them. Run each by hand once anyway, to see what the audience will see:
    - *Approval:* `python luna.py`, ask *"Add 'buy sunscreen' to my list."*, then *"Delete the sunscreen task."* Luna must ask for your approval before it deletes.
    - *Fleet:* run `python fleet_server.py --all` in one terminal and `python luna.py --mode fleet` in another, then ask a question that needs two specialists (weather and currency). The 📨 lines show the Director delegating over A2A. Stop the server with Ctrl+C.
 7. **Tidy up after the rehearsal:**
@@ -50,7 +50,7 @@ The full list, with the checks and a log to fill in, is in [talk-checklist.md](t
 
 1. **Check access and resources:**
    ```bash
-   python rehearse.py            # every scene once, with checks; about 6 minutes and $0.25 on Claude 4.x
+   python rehearse.py            # every scene once, with checks; about 6 minutes and $0.30 on Claude 4.x
    ```
    It ends with `✅ Ready for the talk`, or names the scenes that failed and shows their output. `python rehearse.py agent rag` runs only those scenes; `--list` shows them all.
 2. **Seed the memory scene.** Memory needs a few minutes to learn a preference, so do this at least 5 minutes before you show it:
@@ -102,19 +102,19 @@ The exact questions for scenes 6, 7b and 8 are in the [scenes table](#scenes) be
 
 ## Scenes
 
-Each scene has a slide in [the deck](slides/claude-on-aws-ensenada.pptx) with the command and what to watch for; the fallback clip name (`clips/01-chatbot` and so on) is in that slide's speaker notes, not on the slide. Name the recordings to match. `rehearse.py` runs every scene except 3 (the approval needs someone at the keyboard) with the same questions.
+Each scene has a slide in [the deck](slides/claude-on-aws-ensenada.pptx) with the command and what to watch for; the fallback clip name (`clips/01-chatbot` and so on) is in that slide's speaker notes, not on the slide. Name the recordings to match. `rehearse.py` runs every scene with the same questions (the approval scene answers `n` for you).
 
-| # | Minute | Scene | Command | What the audience should see | If it fails |
+| # | Slide | Scene | Command | What the audience should see | If it fails |
 |---|---|---|---|---|---|
-| 1 | 10–14 | Chatbot | `python luna.py --no-tools`, then *"What should I wear today?"* | It guesses: no tools, no real weather | It only needs the model |
-| 2 | 14–20 | Agent | `python luna.py`, then *"What should I wear today, and how much is 85 dollars in pesos? Add 'buy sunscreen' to my list."* | `get_weather`, `convert_currency`, `add_task`; real numbers; the cost line | Weather or rates API down → play the clip |
-| 3 | 14–20 | Human in the loop | *"Delete the sunscreen task"* | Luna asks for approval before deleting | — |
-| 4 | 20–23 | Make it yours | `python luna.py --preset family`, or `--set assistant.personality=pirate`, or a suggestion from the room | Same agent, new name, voice and model | — |
-| 5 | 23–27 | Agency | `python luna.py --mode agency`, then *"Plan my Saturday at the beach, budget 50 USD"* | The Director's orders (📨) and the specialists' replies (✅), cost per agent | Slow (about 20 s): talk over the orders |
-| 6 | 27–30 | Many sources (MCP) | `python luna.py --preset winery`, then *"What time is it in Los Angeles right now? Then read https://en.wikipedia.org/wiki/Valle_de_Guadalupe and give me two facts I can tell my US guests."* | `get_current_time` and `fetch`: two MCP servers, one answer | Site slow → any other public page |
-| 7 | 30–32 | Your business | `python luna.py --preset coffee-shop`, then *"What do I need to reorder this week, and from which supplier is espresso cheaper?"* | The `files` server reads `inventory.csv`; RAG finds the supplier prices; one answer from both | — |
-| 7b | 32–33 | Any business (a clinic) | `python luna.py --preset clinic`, then *"A patient cancelled a cleaning with only 5 hours' notice. Is there a fee? And which patient on 16 November has an allergy the dentists should know about?"* | The same agent, a third kind of business: it reads `appointments.csv` and searches the clinic's policies (20% fee, penicillin allergy). Nothing in the code changed, only a preset and data | Run `python luna.py --preset clinic` once beforehand; the documents must be synced (`create_knowledge_base.py --sync`) |
-| 8 | 32–35 | Monday briefing (advanced) | `python luna.py --preset winery --mode agency`, then *"Prepare my Monday briefing: will the patio be usable this coming weekend, how last weekend's sales compared with the weekend before, next Saturday's reservations and allergies, what 100 dollars is in pesos for US guests, and which cork supplier to use. Save it as a report."* | Orders to six specialists; then open `business/winery/reports/` and show the saved file | About 45 s: narrate the orders; or show a report saved in rehearsal |
+| 1 | 13 | Chatbot | `python luna.py --no-tools`, then *"What should I wear today?"* | It guesses: no tools, no real weather | It only needs the model |
+| 2 | 14 | Agent | `python luna.py`, then *"What should I wear today, and how much is 85 dollars in pesos? Add 'buy sunscreen' to my list."* | `get_weather`, `convert_currency`, `add_task`; real numbers; the cost line | Weather or rates API down → play the clip |
+| 3 | 14 | Human in the loop | *"Delete the sunscreen task"* | Luna asks for approval before deleting | — |
+| 4 | 15 | Make it yours | `python luna.py --preset family`, or `--set assistant.personality=pirate`, or a suggestion from the room | Same agent, new name, voice and model | — |
+| 5 | 16 | Agency | `python luna.py --mode agency`, then *"Plan my Saturday at the beach, budget 50 USD"* | The Director's orders (📨) and the specialists' replies (✅), cost per agent | Slow (about 20 s): talk over the orders |
+| 6 | 21 | Many sources (MCP) | `python luna.py --preset winery`, then *"What time is it in Los Angeles right now? Then read https://en.wikipedia.org/wiki/Valle_de_Guadalupe and give me two facts I can tell my US guests."* | `get_current_time` and `fetch`: two MCP servers, one answer | Site slow → any other public page |
+| 7 | 22 | Your business | `python luna.py --preset coffee-shop`, then *"What do I need to reorder this week, and from which supplier is espresso cheaper?"* | The `files` server reads `inventory.csv`; RAG finds the supplier prices; one answer from both | — |
+| 7b | 23 | Any business (a clinic) | `python luna.py --preset clinic`, then *"A patient cancelled a cleaning with only 5 hours' notice. Is there a fee? And which patient on 16 November has an allergy the dentists should know about?"* | The same agent, a third kind of business: it reads `appointments.csv` and searches the clinic's policies (20% fee, penicillin allergy). Nothing in the code changed, only a preset and data | Run `python luna.py --preset clinic` once beforehand; the documents must be synced (`create_knowledge_base.py --sync`) |
+| 8 | 24 | Monday briefing (advanced) | `python luna.py --preset winery --mode agency`, then *"Prepare my Monday briefing: will the patio be usable this coming weekend, how last weekend's sales compared with the weekend before, next Saturday's reservations and allergies, what 100 dollars is in pesos for US guests, and which cork supplier to use. Save it as a report."* | Orders to six specialists; then open `business/winery/reports/` and show the saved file | About 45 s: narrate the orders; or show a report saved in rehearsal |
 | 9 | 29 | Guardrail | *"Should I buy bitcoin with my savings?"* | The guardrail's refusal, before Claude sees it | — |
 | 10 | 31 | Memory | *"Suggest a dinner for tonight based on what you know about me, and tell me which of my preferences you used."* | It knows you're vegetarian, from an earlier session | Not seeded → skip, or show the clip |
 | 11 | 32 | Your documents | *"According to my lease, when is the rent due and how much is it?"* | `search_my_documents`, then 9,500 MXN by the 5th: an English question answered from a Spanish contract | — |
@@ -164,7 +164,7 @@ The talk is 45 minutes plus questions. The demo is about 20 of them, so not ever
 | | 8 Monday briefing | 58 s | the long one: clip is fine |
 | | Spanish question | 50 s | shows language is not a barrier |
 
-The deck's speaker notes carry a planned time per slide (`node build.js` prints 65.5 minutes with every slide and 46 without the optional ones; replace the estimates in `TIMING` in `docs/slides/build.js` with your timed run). The slide-by-slide script is in [presenter-script.md](presenter-script.md).
+The deck's speaker notes carry a planned time per slide (`node build.js` prints 72 minutes with every slide and 56.5 without the optional ones; replace the estimates in `TIMING` in `docs/slides/build.js` with your timed run). The slide-by-slide script is in [presenter-script.md](presenter-script.md).
 
 Add these up with your own talking time in the first full rehearsal, and write the total in [talk-checklist.md](talk-checklist.md). The must-show set is what you run if you are over time.
 
