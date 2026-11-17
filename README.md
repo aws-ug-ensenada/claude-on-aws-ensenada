@@ -90,6 +90,128 @@ Each business is one preset plus one folder (`assistant/business/`) plus your do
 
 Everything is a parameter in [`assistant/config.yaml`](assistant/config.yaml). See [docs/customize.md](docs/customize.md) to change the personality, the model, the tools, or the team of agents, and to add your own.
 
+## Run the talk's demo live
+
+Every scene of the talk, as the commands to type instead of playing the recorded clips. The same scenes, with what the audience should see and what to do when one fails, are in [docs/demo-runbook.md](docs/demo-runbook.md#scenes); `python rehearse.py` runs them all unattended first.
+
+**Once per terminal**, from `assistant/`:
+
+```bash
+source .venv/bin/activate                                       # the project's Python and packages
+export AWS_PROFILE=<your-profile> AWS_REGION=us-east-1 AWS_PAGER=""
+aws sts get-caller-identity --query Account --output text       # check it is the account you expect
+read -rs ANTHROPIC_API_KEY && export ANTHROPIC_API_KEY          # only when config.local.yaml uses the Claude API
+```
+
+- `AWS_PROFILE` picks the credentials, `AWS_REGION` the region where the guardrail, memory, knowledge base and runtime live, and `AWS_PAGER=""` stops the AWS CLI hiding short output in a pager.
+- `read -rs` reads the key without showing it on screen or saving it in the shell history.
+
+**Before the talk:** `python setup/prewarm.py` checks every piece and warms the model, the MCP servers and the cloud runtime. If your memory picked up stray facts while rehearsing, `python setup/clean_memory.py --keep 'Hates cold' --keep '^Vegetarian' --yes` keeps only the two the memory scene needs.
+
+### The `luna.py` options
+
+| Option | What it does | Example |
+|---|---|---|
+| *(none)* | Luna with every tool in `config.yaml` (weather, currency, to-do list, documents), plus guardrail and memory when `config.local.yaml` enables them | `python luna.py` |
+| `--no-tools` | The same model with no tools: a plain chatbot that can only guess | `python luna.py --no-tools` |
+| `--preset NAME` | Loads `presets/NAME.yaml` over `config.yaml`: another name, personality, language, model, business data | `--preset winery` |
+| `--mode solo\|agency\|fleet` | `solo`: one agent. `agency`: a Director gives orders to specialists in this process. `fleet`: the same team, each specialist its own A2A server | `--mode agency` |
+| `--set KEY=VALUE` | Overrides any config value for this run; repeat it for several | `--set assistant.personality=pirate` |
+| `--ask "…"` | Asks one question, prints the answer and exits (what `rehearse.py` uses) | `--ask "What should I wear today?"` |
+| `--check` | Checks the preset and config for mistakes, without AWS or Claude, and exits | `--preset clinic --check` |
+
+In the chat, type a question and press Enter; `exit` (or an empty line, or Ctrl-D) ends it. The 💲 line after each answer is the cost: [how to read it](docs/clip-notes.md#reading-the-cost-line).
+
+### Scene by scene
+
+```bash
+# 1 · Chatbot: no tools, so it can only guess
+python luna.py --no-tools
+#   What should I wear today?
+
+# 2–3 · Agent: real weather, a real exchange rate, the to-do list; then a delete it must ask about
+python luna.py
+#   What should I wear today, and how much is 85 dollars in pesos? Add 'buy sunscreen' to my list.
+#   Delete the sunscreen task                      ← answer y or n at the [y/N] prompt
+
+# 4 · Make it yours: one preset file changes name, personality, language and model
+python luna.py --preset family
+#   What should I wear today?
+python luna.py --set assistant.personality=pirate   # or any personality the room suggests
+
+# 5 · Agency: the Director splits the request, specialists work in parallel
+python luna.py --mode agency
+#   Plan my Saturday at the beach, budget 50 USD
+
+# 6 · Many sources: two ready-made MCP servers (time, fetch)
+python luna.py --preset winery
+#   What time is it in Los Angeles right now? Then read https://en.wikipedia.org/wiki/Valle_de_Guadalupe and give me two facts I can tell my US guests.
+
+# 7 · Your business: a CSV through the files MCP server, plus supplier documents through RAG
+python luna.py --preset coffee-shop
+#   What do I need to reorder this week, and from which supplier is espresso cheaper?
+
+# 7b · Any business: a clinic, with no code change
+python luna.py --preset clinic
+#   A patient cancelled a cleaning with only 5 hours' notice. Is there a fee? And which patient on 16 November has an allergy the dentists should know about?
+
+# 8 · Monday briefing: the winery's team writes a report to business/winery/reports/
+python luna.py --preset winery --mode agency
+#   Prepare my Monday briefing: will the patio be usable this coming weekend, how last weekend's sales compared with the weekend before, next Saturday's reservations and allergies, what 100 dollars is in pesos for US guests, and which cork supplier to use. Save it as a report.
+
+# 9–11 · Guardrail, memory, your documents: one session, three questions
+python luna.py
+#   Should I buy bitcoin with my savings?
+#   Suggest a dinner for tonight based on what you know about me, and tell me which of my preferences you used.
+#   According to my lease, when is the rent due and how much is it?
+
+# Fleet: the agency again, each specialist a separate A2A service
+python fleet_server.py --all          # terminal 1: starts every specialist on ports 9001–9005; Ctrl-C stops them
+python luna.py --mode fleet           # terminal 2
+#   What should I wear today in Ensenada, and how much is 85 dollars in pesos?
+```
+
+Scene 8 needs current sample dates: `python setup/refresh_sample_dates.py` moves them (never commit the shifted CSV files). Scenes 6–8 need `uvx` and `npx`; scenes 7, 7b and 11 need the knowledge base.
+
+### 12 · The same agent on AWS (AgentCore Runtime)
+
+With the AgentCore CLI and the project's deployment state, from the repo root:
+
+```bash
+agentcore invoke --runtime luna --payload '{"prompt": "What should I wear today in Ensenada, and how much is 85 dollars in pesos?"}'
+```
+
+Without them, the same call through the AWS CLI:
+
+```bash
+ARN=$(aws bedrock-agentcore-control list-agent-runtimes \
+  --query "agentRuntimes[?starts_with(agentRuntimeName, 'luna')].agentRuntimeArn | [0]" --output text)
+aws bedrock-agentcore invoke-agent-runtime --agent-runtime-arn "$ARN" \
+  --runtime-session-id live-session-0000000000000000000000001 \
+  --payload '{"prompt": "What should I wear today in Ensenada, and how much is 85 dollars in pesos?"}' \
+  --cli-binary-format raw-in-base64-out "${TMPDIR:-/tmp}/luna-out.json" && cat "${TMPDIR:-/tmp}/luna-out.json"
+```
+
+| Part | What it is for |
+|---|---|
+| `list-agent-runtimes --query …` | Finds the ARN of the deployed runtime whose name starts with `luna` |
+| `--agent-runtime-arn` | Which runtime to call |
+| `--runtime-session-id` | The session: at least 33 characters. The same id continues the same conversation in the same microVM; a new id starts a fresh one, and names the log stream (`runtime-logs-<id>`) to show in CloudWatch |
+| `--payload` | The JSON the runtime's entrypoint receives (`assistant/app.py`); `prompt` is the question |
+| `--cli-binary-format raw-in-base64-out` | Sends the payload as plain JSON instead of expecting base64 |
+| `"${TMPDIR:-/tmp}/luna-out.json"` | Where the CLI writes the answer; `cat` prints it |
+
+Then show it in the console: [the AWS console tour](docs/demo-runbook.md#aws-console-tour-the-finale-slide-46).
+
+### Plan B: Claude on Bedrock instead of the Claude API
+
+Add these to any `luna.py` command when the Claude API is slow or failing:
+
+```bash
+--set model.provider=bedrock --set model.id=global.anthropic.claude-haiku-4-5-20251001-v1:0 \
+--set agency.director.model=global.anthropic.claude-sonnet-4-6
+```
+
 ## Docs
 
 | | |
