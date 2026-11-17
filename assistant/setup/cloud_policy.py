@@ -23,6 +23,7 @@ OUT = pathlib.Path(__file__).parent.parent.parent / "agentcore" / "luna.policy.j
 
 
 def main() -> None:
+    """Write agentcore/luna.policy.json with one least-privilege statement per resource in config.local.yaml (level 8)."""
     local, region = _local.read(), _local.REGION
     account = boto3.client("sts", region_name=region).get_caller_identity()["Account"]
     statements = []

@@ -30,6 +30,8 @@ DIMENSIONS = 1024
 
 
 def main() -> None:
+    """Create the bucket, vector index, IAM role, knowledge base and data source in order, then index my_documents/ (level 5).
+    Each step is skipped when config.local.yaml already has it, so a failed run resumes. --sync only re-uploads and re-indexes."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--sync", action="store_true", help="re-upload my_documents/ and re-index")
     args = parser.parse_args()
@@ -54,6 +56,7 @@ def main() -> None:
     agent = boto3.client("bedrock-agent", region_name=region)
 
     def save(**values) -> None:
+        """Record what was just created in config.local.yaml."""
         # Saved after every step, so cleanup.py can find what exists even if a later step fails.
         kb.update(values)
         _local.write(local)
@@ -140,6 +143,7 @@ def main() -> None:
 
 
 def upload(bucket: str) -> None:
+    """Upload every file in my_documents/ to the knowledge base's S3 bucket (same name overwrites)."""
     s3 = boto3.client("s3", region_name=_local.REGION)
     files = sorted(f for f in DOCS.iterdir() if f.is_file() and not f.name.startswith("."))
     for f in files:
@@ -148,11 +152,13 @@ def upload(bucket: str) -> None:
 
 
 def ingest(kb_id: str, data_source_id: str) -> None:
+    """Start a Bedrock ingestion job (chunk, embed, write to the vector index), wait for it, and print the counts."""
     agent = boto3.client("bedrock-agent", region_name=_local.REGION)
     job = agent.start_ingestion_job(knowledgeBaseId=kb_id, dataSourceId=data_source_id)["ingestionJob"]
     print("Indexing documents…")
 
     def status() -> str:
+        """Refresh the ingestion job and return its status, for wait_for to poll."""
         nonlocal job
         job = agent.get_ingestion_job(knowledgeBaseId=kb_id, dataSourceId=data_source_id, ingestionJobId=job["ingestionJobId"])[
             "ingestionJob"
@@ -169,6 +175,7 @@ def ingest(kb_id: str, data_source_id: str) -> None:
 
 
 def trust_policy(account: str, region: str) -> dict:
+    """IAM trust policy: only Bedrock knowledge bases in this account and region may assume the role (confused-deputy guard)."""
     return {
         "Version": "2012-10-17",
         "Statement": [
@@ -238,6 +245,7 @@ def retry_until_role_ready(call, attempts: int = 10):
 
 
 def wait_for(get_status, done: str, every: int = 5) -> None:
+    """Poll get_status every few seconds until it returns done; exit on a failed status."""
     while (status := get_status()) != done:
         if status in ("FAILED", "STOPPED", "DELETE_UNSUCCESSFUL"):
             raise SystemExit(f"❌ Status {status}. Check the Bedrock console, then run setup/cleanup.py.")

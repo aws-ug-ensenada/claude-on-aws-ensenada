@@ -12,6 +12,7 @@ NAME = "luna-docs"  # keep in step with setup/create_knowledge_base.py
 
 
 def _try(fn, default=None):
+    """Call fn and return its result, or default when AWS raises a ClientError (usually: the resource does not exist)."""
     try:
         return fn()
     except ClientError:
@@ -19,6 +20,7 @@ def _try(fn, default=None):
 
 
 def guardrail_id() -> str | None:
+    """Id of the Bedrock Guardrail named luna-assistant (level 2), or None."""
     client = boto3.client("bedrock", region_name=_local.REGION)
     for g in client.list_guardrails().get("guardrails", []):
         if g["name"] == "luna-assistant":
@@ -27,6 +29,7 @@ def guardrail_id() -> str | None:
 
 
 def memory_id() -> str | None:
+    """Id of the AgentCore Memory created by setup/create_memory.py (level 3), or None."""
     client = boto3.client("bedrock-agentcore-control", region_name=_local.REGION)
     for m in client.list_memories().get("memories", []):
         if m["id"].startswith("luna_assistant-"):
@@ -35,6 +38,7 @@ def memory_id() -> str | None:
 
 
 def knowledge_base() -> dict:
+    """Whichever level 5 pieces exist: S3 bucket, vector bucket and index, IAM role, knowledge base and data source."""
     region = _local.REGION
     account = boto3.client("sts", region_name=region).get_caller_identity()["Account"]
     kb: dict = {}

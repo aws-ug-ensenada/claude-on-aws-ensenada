@@ -14,6 +14,7 @@ import _local
 
 
 def main() -> None:
+    """Create the AgentCore Memory with a user-preference strategy and enable it in config.local.yaml (level 3)."""
     local = _local.read()
     if (local.get("memory") or {}).get("id"):
         print(f'Already created: {local["memory"]["id"]}. Run setup/cleanup.py first to recreate.')

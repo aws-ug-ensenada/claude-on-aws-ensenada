@@ -32,22 +32,26 @@ PAIRS = [
 
 
 def colors() -> dict[str, str]:
+    """The deck palette (name to hex) parsed from the COLOR object in build.js."""
     block = re.search(r"const COLOR = \{(.*?)\};", (HERE / "build.js").read_text(), re.S).group(1)
     return dict(re.findall(r'(\w+):\s*"([0-9A-Fa-f]{6})"', block))
 
 
 def luminance(hex_color: str) -> float:
+    """WCAG relative luminance of a hex colour, from 0 (black) to 1 (white)."""
     channels = [int(hex_color[i : i + 2], 16) / 255 for i in (0, 2, 4)]
     lin = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
     return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
 
 
 def contrast(a: str, b: str) -> float:
+    """WCAG contrast ratio between two hex colours, from 1 to 21."""
     hi, lo = sorted((luminance(a), luminance(b)), reverse=True)
     return (hi + 0.05) / (lo + 0.05)
 
 
 def main() -> int:
+    """Check palette contrast, text size and speaker-note time cues in the built .pptx; returns 1 if anything fails."""
     bad = 0
     palette = colors()
     print("Contrast (WCAG: 4.5 for body text, 3 for large text and icons):")
@@ -62,6 +66,7 @@ def main() -> int:
     small = []
     for n in slides:
         number = int(re.findall(r"\d+", n)[0])
+        # Each run's font size (sz, in hundredths of a point) paired with its text.
         for size, text in re.findall(r'<a:rPr[^>]*\bsz="(\d+)"[^>]*>(?:(?!</a:r>).)*?<a:t>(.*?)</a:t>', z.read(n).decode(), re.S):
             if int(size) < MIN_PT * 100 and text.strip() and not re.fullmatch(r"\d+", text.strip()):
                 small.append((number, int(size) / 100, text[:50]))

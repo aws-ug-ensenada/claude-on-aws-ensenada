@@ -20,7 +20,9 @@ CALLS = {
 
 
 def main() -> None:
+    """Start every MCP server in config.yaml, list its tools, and make one real call to time and fetch (level 4)."""
     servers = list(load_config()["mcp_servers"])
+    # Switch every server on for this check, whatever config.yaml says.
     cfg = load_config(overrides=[f"mcp_servers.{name}.enabled=true" for name in servers])
     for name in servers:
         missing = [var for var in cfg["mcp_servers"][name].get("pass_env", []) if var not in os.environ]

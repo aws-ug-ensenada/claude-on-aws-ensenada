@@ -21,6 +21,7 @@ import _local
 
 
 def main() -> None:
+    """Delete the guardrail, memory and knowledge base (from config.local.yaml or found by name) and drop them from config.local.yaml."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dry-run", action="store_true", help="show what would be deleted and delete nothing")
     args = parser.parse_args()

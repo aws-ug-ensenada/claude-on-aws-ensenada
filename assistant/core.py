@@ -23,6 +23,7 @@ LENGTHS = {
 
 
 def _merge(base: dict, override: dict) -> dict:
+    """Deep-merge override into a copy of base: nested dicts merge key by key, anything else is replaced."""
     out = copy.deepcopy(base)
     for key, value in (override or {}).items():
         out[key] = _merge(out[key], value) if isinstance(value, dict) and isinstance(out.get(key), dict) else value
@@ -37,6 +38,7 @@ def load_config(preset: str | None = None, overrides: list[str] = ()) -> dict:
         cfg = _merge(cfg, yaml.safe_load(local.read_text()) or {})
     if preset:
         cfg = _merge(cfg, yaml.safe_load((HERE / "presets" / f"{preset}.yaml").read_text()))
+    # Each --set key.path=value creates nested keys as needed; the value is parsed as YAML so true, 3 and lists keep their types.
     for item in overrides:
         path, _, raw = item.partition("=")
         *parents, leaf = path.split(".")
@@ -48,6 +50,7 @@ def load_config(preset: str | None = None, overrides: list[str] = ()) -> dict:
 
 
 def system_prompt(cfg: dict, role: str = "", instructions: str = "") -> str:
+    """Build the system prompt from config: name, personality, answer length, the user, today's date and the reply language."""
     a, u = cfg["assistant"], cfg["user"]
     language = (
         "Reply in the language of the user's latest message, even if their city, currency or the tool results use another language."
@@ -72,6 +75,8 @@ def system_prompt(cfg: dict, role: str = "", instructions: str = "") -> str:
 
 
 def build_model(cfg: dict, model_id: str | None = None):
+    """The model (the brain): Claude on Amazon Bedrock by default, or the Claude API when model.provider is anthropic.
+    On Bedrock the guardrail (level 2) is attached here, to the model itself."""
     m = cfg["model"]
     model_id = model_id or m["id"]
     # Claude 5.x models reject `temperature`, so it's only sent to older ones.
@@ -148,6 +153,7 @@ def _gateway_client(url: str, target: str, region: str):
 
 
 def _mcp_client(server: dict):
+    """One MCP server's tools (level 4): a remote server by URL, or a local one started over stdio with a minimal environment."""
     from mcp import StdioServerParameters, stdio_client
     from mcp.client.stdio import get_default_environment
     from strands.tools.mcp import MCPClient
@@ -183,10 +189,13 @@ def input_guardrail(cfg: dict) -> list:
     client = boto3.client("bedrock-runtime", region_name=cfg["model"]["region"])
 
     class InputGuardrail(HookProvider):
+        """Strands hook that runs ApplyGuardrail on what the user typed before each invocation."""
         def register_hooks(self, registry, **kwargs):
+            """Run check() before every agent invocation."""
             registry.add_callback(BeforeInvocationEvent, self.check)
 
         def check(self, event):
+            """Send what the user typed to ApplyGuardrail; if it intervenes, cancel the turn with the guardrail's message."""
             typed = " ".join(c["text"] for m in event.messages or [] if m["role"] == "user" for c in m["content"] if "text" in c)
             if not typed.strip():
                 return
@@ -202,6 +211,7 @@ def input_guardrail(cfg: dict) -> list:
 
 
 def memory_session(cfg: dict, session_id: str):
+    """AgentCore Memory session manager (level 3), so the agent remembers this user's preferences across sessions; None when memory is off."""
     mem = cfg.get("memory") or {}
     if not mem.get("enabled"):
         return None
@@ -222,6 +232,7 @@ def memory_session(cfg: dict, session_id: str):
 
 
 def build_solo(cfg: dict, use_tools: bool = True, session_id: str = "cli", quiet: bool = False) -> Agent:
+    """The solo assistant: one agent with the model, tools, memory and guardrail from config (levels 1-5, and the cloud runtime)."""
     return Agent(
         name=cfg["assistant"]["name"],
         model=build_model(cfg),
@@ -237,6 +248,7 @@ def active_agents(cfg: dict) -> list[dict]:
     """The agency roster, minus specialists whose tools aren't switched on yet (e.g. no MCP servers enabled)."""
 
     def ready(spec: dict) -> bool:
+        """True when a specialist needs no tools, or at least one of its MCP servers or Python tool groups is available."""
         if not (spec.get("tools") or spec.get("mcp")):
             return True  # a thinking-only agent needs no tools
         servers = cfg.get("mcp_servers") or {}
@@ -284,6 +296,7 @@ def build_agency(cfg: dict, session_id: str = "cli", remote: bool = False, quiet
     team = active_agents(cfg)
     members = {}
     for spec in team:
+        # Fleet mode (level 7): each specialist is a separate A2A server, reached at its url from config.yaml.
         if remote:
             from strands.agent.a2a_agent import A2AAgent
 
@@ -311,6 +324,7 @@ def build_agency(cfg: dict, session_id: str = "cli", remote: bool = False, quiet
 
 
 def _default_handler():
+    """Streams the answer and the tool calls to the terminal (the 'Tool #' lines the audience sees)."""
     from strands.handlers.callback_handler import PrintingCallbackHandler
 
     return PrintingCallbackHandler()
@@ -320,6 +334,7 @@ def _default_handler():
 
 
 def usage_of(agent) -> tuple[int, int]:
+    """(input tokens, output tokens) the agent has used so far; (0, 0) for agents without metrics, e.g. remote A2A ones."""
     metrics = getattr(agent, "event_loop_metrics", None)
     if not metrics:
         return 0, 0
@@ -328,6 +343,7 @@ def usage_of(agent) -> tuple[int, int]:
 
 
 def cost(cfg: dict, model_id: str, tokens_in: int, tokens_out: int) -> float:
+    """Dollars for a number of tokens, from pricing.yaml; the tier depends on the provider and on a global or regional Bedrock model id."""
     prices = yaml.safe_load((HERE / "pricing.yaml").read_text())["models"].get(short_model_name(model_id))
     if not prices:
         return 0.0

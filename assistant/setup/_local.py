@@ -9,8 +9,10 @@ REGION = yaml.safe_load((FILE.parent / "config.yaml").read_text())["model"]["reg
 
 
 def read() -> dict:
+    """The current config.local.yaml as a dict, or {} if it does not exist yet."""
     return (yaml.safe_load(FILE.read_text()) or {}) if FILE.exists() else {}
 
 
 def write(data: dict) -> None:
+    """Overwrite config.local.yaml with data, keeping the do-not-commit header."""
     FILE.write_text("# Written by setup/ scripts. Your account-specific IDs — do not commit.\n" + yaml.safe_dump(data, sort_keys=False))

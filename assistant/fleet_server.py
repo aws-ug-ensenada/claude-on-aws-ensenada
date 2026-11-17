@@ -15,6 +15,7 @@ from core import active_agents, build_specialist, load_config
 
 
 def main() -> None:
+    """Serve one specialist over A2A on the port in its url, or with --all start one process per specialist (level 7)."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("name", nargs="?", help="specialist name from config.yaml agency.agents")
     parser.add_argument("--all", action="store_true", help="start every specialist")

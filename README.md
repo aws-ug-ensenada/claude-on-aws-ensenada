@@ -97,6 +97,7 @@ Everything is a parameter in [`assistant/config.yaml`](assistant/config.yaml). S
 | [docs/prerequisites.md](docs/prerequisites.md) | What to install and turn on before you start, per level |
 | [docs/levels.md](docs/levels.md) | Step-by-step guide to all levels, with diagrams |
 | [docs/extend.md](docs/extend.md) | **Start here to make it yours:** what Strands Agents is, how to use it, and the five changes that adapt Luna to any business |
+| [docs/code-tour.md](docs/code-tour.md) | Where each idea from the talk lives in the code: which function, in which file, and what to say about it |
 | [docs/customize.md](docs/customize.md) | Parameters, presets, adding tools and agents |
 | [docs/costs.md](docs/costs.md) | Full cost breakdown: under a cent per answer on Haiku, about $10 for the whole talk |
 | [docs/comparison.md](docs/comparison.md) | Chat app vs local dev vs a fleet of agents: pros and cons |

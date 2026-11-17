@@ -16,10 +16,12 @@ def ask_human(question: str) -> bool:
 
 
 def _load() -> list[dict]:
+    """All tasks from the to-do file, or [] when it does not exist yet."""
     return json.loads(FILE.read_text()) if FILE.exists() else []
 
 
 def _save(tasks: list[dict]) -> None:
+    """Write the tasks back to the to-do file, creating its folder if needed."""
     FILE.parent.mkdir(parents=True, exist_ok=True)
     FILE.write_text(json.dumps(tasks, indent=2, ensure_ascii=False))
 
