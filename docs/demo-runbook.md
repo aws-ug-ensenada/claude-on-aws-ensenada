@@ -115,10 +115,10 @@ Each scene has a slide in [the deck](slides/claude-on-aws-ensenada.pptx) with th
 | 7 | 30–32 | Your business | `python luna.py --preset coffee-shop`, then *"What do I need to reorder this week, and from which supplier is espresso cheaper?"* | The `files` server reads `inventory.csv`; RAG finds the supplier prices; one answer from both | — |
 | 7b | 32–33 | Any business (a clinic) | `python luna.py --preset clinic`, then *"A patient cancelled a cleaning with only 5 hours' notice. Is there a fee? And which patient on 16 November has an allergy the dentists should know about?"* | The same agent, a third kind of business: it reads `appointments.csv` and searches the clinic's policies (20% fee, penicillin allergy). Nothing in the code changed, only a preset and data | Run `python luna.py --preset clinic` once beforehand; the documents must be synced (`create_knowledge_base.py --sync`) |
 | 8 | 32–35 | Monday briefing (advanced) | `python luna.py --preset winery --mode agency`, then *"Prepare my Monday briefing: will the patio be usable this coming weekend, how last weekend's sales compared with the weekend before, next Saturday's reservations and allergies, what 100 dollars is in pesos for US guests, and which cork supplier to use. Save it as a report."* | Orders to six specialists; then open `business/winery/reports/` and show the saved file | About 45 s: narrate the orders; or show a report saved in rehearsal |
-| 9 | 38–42 | Guardrail | *"Should I buy bitcoin with my savings?"* | The guardrail's refusal, before Claude sees it | — |
-| 10 | 38–42 | Memory | *"Suggest a dinner for tonight based on what you know about me, and tell me which of my preferences you used."* | It knows you're vegetarian, from an earlier session | Not seeded → skip, or show the clip |
-| 11 | 38–42 | Your documents | *"According to my lease, when is the rent due and how much is it?"* | `search_my_documents`, then 9,500 MXN by the 5th: an English question answered from a Spanish contract | — |
-| 12 | 38–42 | Cloud | From the repo root: `agentcore invoke --runtime luna --payload '{"prompt": "What should I wear today in Ensenada?"}'` | The same agent answering from AgentCore Runtime, with weather through the Gateway | Show the clip or the CloudWatch trace |
+| 9 | 29 | Guardrail | *"Should I buy bitcoin with my savings?"* | The guardrail's refusal, before Claude sees it | — |
+| 10 | 31 | Memory | *"Suggest a dinner for tonight based on what you know about me, and tell me which of my preferences you used."* | It knows you're vegetarian, from an earlier session | Not seeded → skip, or show the clip |
+| 11 | 32 | Your documents | *"According to my lease, when is the rent due and how much is it?"* | `search_my_documents`, then 9,500 MXN by the 5th: an English question answered from a Spanish contract | — |
+| 12 | 34, 48 | Cloud | From the repo root: `agentcore invoke --runtime luna --payload '{"prompt": "What should I wear today in Ensenada?"}'` | The same agent answering from AgentCore Runtime, with weather through the Gateway | Show the clip or the CloudWatch trace |
 
 Scenes 6 to 8, with 7b, are the business block: the part most people will want to copy, so give it time. Scenes 9–12 are about 30 seconds each; pick the ones the room cares about most.
 
@@ -178,15 +178,18 @@ The best proof that Luna works for any business is to build one for someone in t
 
 Keep it to one question. If anything goes wrong, say *"this is why we check it"*, show the `--check` output, and switch to one of the two spare presets (see [talk-checklist.md](talk-checklist.md#2-the-day-before)). Small models can miscount rows, so ask for a list or a lookup, not a total.
 
-## AWS console tour
+## AWS console tour (the finale, slide 48)
 
-If the room has time, a 3-minute tour of the console makes the cloud part concrete. All of these exist in the personal account, us-east-1, and were checked READY or ACTIVE on 2026-11-14.
+The talk ends on the deployed Luna. Everything below exists in the personal account, us-east-1, and was checked READY or ACTIVE on 2026-11-16 (runtime `luna_default_luna`, gateway `luna-default-lunatools` with targets `weather` and `currency`, memory `luna_assistant`). Budget: about 5 minutes. Open these tabs before the talk, in this order, and keep the Region on **N. Virginia**.
 
-1. **Bedrock → Guardrails → `luna-assistant`:** the denied topic and the prompt-attack filter. Goes with scene 9.
-2. **AgentCore → Memory → `luna_assistant`:** the records it learned (*vegetarian*, *hates cold*). Goes with scene 10.
-3. **Bedrock → Knowledge Bases:** the data source and its sync status. Goes with scenes 7 and 11.
-4. **AgentCore → Runtime and Gateway:** the targets `weather` and `currency`, and the runtime's CloudWatch logs and traces. Goes with scene 12.
-5. **Billing or Budgets:** the monthly budget, to answer "what does it cost".
+1. **Invoke first** (terminal), so there is a fresh trace to look at: `agentcore invoke --runtime luna --payload '{"prompt": "What should I wear today in Ensenada, and how much is 85 dollars in pesos?"}'`, or the direct boto3 call from the section above. Warm it with `setup/prewarm.py` beforehand; a cold start adds a few seconds.
+2. **AgentCore → Runtime → `luna_default_luna`:** status READY, the DEFAULT endpoint, the version, and the IAM role it runs as. Say: "one microVM per session, no server to manage".
+3. **CloudWatch → GenAI Observability → Bedrock AgentCore:** the session, the trace, a span for each tool call, tokens and latency. If the dashboard is empty, open **CloudWatch → Log groups → `/aws/bedrock-agentcore/runtimes/luna_default_luna-…-DEFAULT`** instead: the `runtime-logs` streams hold the logs and the `spans` stream holds the OpenTelemetry spans (service type `gen_ai_agent`). *Checked 2026-11-16: spans reach the runtime log group; the account-level `aws/spans` group was empty, so confirm the GenAI dashboard on your own screen before the talk.*
+4. **AgentCore → Gateway → `lunatools`:** the two targets (`weather`, `currency`), the tools they became (`weather___getForecast`, …) and the IAM authorizer. Say: "one shared tool endpoint for every agent".
+5. **AgentCore → Memory → `luna_assistant`:** the `preferences` strategy and the stored records (*vegetarian*, *hates cold*). Goes with scene 10.
+6. **AgentCore → Identity:** the workload identity and the credential provider (the placeholder key). Say: "this is where a real API key would go, instead of an environment variable".
+7. **Bedrock → Guardrails → `luna-assistant`** (the denied topic, the prompt-attack filter) and **Bedrock → Knowledge Bases** (the data source and its sync status). Goes with scenes 9 and 11.
+8. **Budgets → `personal-monthly-10usd`:** the answer to "what does it cost". The limit is currently $20 even though the name says 10; say "a monthly budget alarm" and don't read the name aloud.
 
 ## Plan B for the model
 

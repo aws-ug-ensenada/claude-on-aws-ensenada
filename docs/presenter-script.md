@@ -1,6 +1,6 @@
 # Presenter script
 
-What to say and do, slide by slide, with the transitions. Slide numbers are for the 46-slide deck; the timing for each slide is in its speaker notes (`⏱`), and the ones marked *optional* are the first to skip. Demo commands and fallbacks are in [demo-runbook.md](demo-runbook.md). The slides are in English and the speaker notes are in Spanish; speak in whichever language the room prefers.
+What to say and do, slide by slide, with the transitions. Slide numbers are for the 50-slide deck; the timing for each slide is in its speaker notes (`⏱`), and the ones marked *optional* are the first to skip. Demo commands and fallbacks are in [demo-runbook.md](demo-runbook.md). The slides are in English and the speaker notes are in Spanish; speak in whichever language the room prefers.
 
 **The one sentence to land:** *An agent is a brain, hands and rules, and the same small agent works for any business: you change who it works for, what it can see and what it can do.*
 
@@ -44,7 +44,7 @@ What to say and do, slide by slide, with the transitions. Slide numbers are for 
 - **30 The model has no memory.** Say it plainly: the model forgets everything; memory is the app putting text back in front of it. Short-term is this conversation in the context window; long-term is stored outside, extracted in the background and fetched next session.
 - **31 Memory, 32 Your documents (optional, live or clip).** "It knows you're vegetarian from an earlier session"; the lease answered from a Spanish contract. On 32, in one breath: documents are cut into chunks, each chunk becomes a vector (numbers for meaning), and the search returns the chunks closest in meaning to your question.
 - **33 MCP and A2A (optional).**
-- **34 The cloud (live).** `agentcore invoke` or the direct call in the runbook. Option: the 3-minute AWS console tour.
+- **34 The cloud (short).** Introduce the idea: the same folder, deployed. The full live tour is at the end (slides 45 to 48), so keep this one to a minute and play clip 12 if you want to show an answer here.
 - **35 Laptop to production, 36 Safe with real data.** "Start read-only; give write access one tool at a time."
 - **37 What broke.** The honest slide. Tell the memory story: leftover memory made the guardrail refuse a fair question.
 
@@ -55,9 +55,13 @@ What to say and do, slide by slide, with the transitions. Slide numbers are for 
 - **41 Six ways to extend an agent (optional).** CLAUDE.md, skill, MCP server, subagent, hook, plugin, one line each. "A rule that must always hold goes in a hook, not in a prompt."
 - **42 My own setup.** Seven read-only subagents, hooks that enforce (ask before risky commands, no secrets in commits), rules and permissions, one memory per context. "You don't need all of it: start with a rules file, read-only access and one subagent."
 - **43 and 44 Quiz (optional).** Five questions on Kahoot ([kahoot-quiz.md](kahoot-quiz.md)); these slides are the fallback (show of hands). The top score on the leaderboard wins a surprise prize, announced at the event. About 4 minutes; skip both when short. If the room gets three or more right, say they have the core ideas.
-- **45 Your turn.** Three steps: PartyRock, Skill Builder, this repo.
-- **46 Questions.** Leave it up. The QR opens the repo; the first command is `python luna.py`; the one-page handout is [cheatsheet.md](cheatsheet.md). Likely questions, with short answers: [audience-questions.md](audience-questions.md).
+- **45 Luna on AWS: every service, one picture.** The finale starts here. Left to right: you, AgentCore Runtime running Luna, then the five services it uses (Claude on Bedrock, Guardrails, Memory, the Knowledge Base, the Gateway), and what surrounds it (IAM role, Identity, CloudWatch). "We did not change the agent. We changed where it runs."
+- **46 Local demo vs AWS.** Five rows: where it runs, tools, access, seeing it, deploying. Land on the strip at the bottom: the model, guardrails, memory and documents were already AWS services in the local demo.
+- **47 What the AWS version costs.** "About a penny an answer, about $9 per thousand, under a dollar a month when idle." Most of it is the model. Point to the budget alarm.
+- **48 Live: Luna deployed, in the AWS console.** Run `agentcore invoke` (or the direct call in [demo-runbook.md](demo-runbook.md)), then do the console tour in the order on the slide. Plan B: clip 12, or the runtime's log group in CloudWatch Logs if the GenAI dashboard is empty. End on the deployed agent, then go to the last two slides.
+- **49 Your turn.** Three steps: PartyRock, Skill Builder, this repo.
+- **50 Questions.** Leave it up. The QR opens the repo; the first command is `python luna.py`; the one-page handout is [cheatsheet.md](cheatsheet.md). Likely questions, with short answers: [audience-questions.md](audience-questions.md).
 
 ## If you are running long
 
-Skip in this order: 43 and 44 (the quiz), 41, 9, 10, 17, 38, 25, 33, 21, 31, 15, 24. Everything else is the story.
+Never skip 45 to 48: they are the finale. Skip in this order: 43 and 44 (the quiz), 41, 9, 10, 17, 38, 25, 33, 21, 31, 15, 24. Everything else is the story.

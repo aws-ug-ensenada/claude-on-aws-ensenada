@@ -71,6 +71,23 @@ Luna defaults to the 4.x models because the 5.5 models often start with a 0 quot
 
 **Why not OpenSearch Serverless?** It's the vector store the console suggests by default, but it bills compute at **$0.24 per OCU-hour** even when idle. The smallest setup is 1–2 OCUs, about **$175–350 a month**. For a personal knowledge base with occasional questions, S3 Vectors costs cents.
 
+### Luna on AWS in one table (the finale slides)
+
+What the deployed version costs, service by service, for one answer that calls a tool on Claude Haiku 4.5 (list prices, us-east-1, checked 2026-11-16; the per-answer figures are the estimates above, not new measurements):
+
+| Service | What it does in the deployed Luna | ≈ Per answer | Idle |
+|---|---|---|---|
+| Claude Haiku 4.5 on Bedrock | the brain | $0.007 | $0 |
+| Bedrock Guardrails | rules outside the prompt | $0.0008 | $0 |
+| AgentCore Memory | remembers each person | $0.0006 | records stored: $0.75 per 1,000 a month |
+| AgentCore Runtime | runs Luna, one microVM per session | $0.0002 | $0 |
+| AgentCore Gateway | weather and currency as shared tools | $0.00001 | $0 |
+| Knowledge Base + S3 Vectors | searches your documents | $0.00012 for the passages Claude reads | cents a month |
+| AgentCore Identity (placeholder key), CloudWatch, S3 | secrets, logs, traces, deploy files | pennies | about $0.40 a month for the secret, plus pennies |
+| **Total** | | **≈ $0.009** (about $9 per 1,000 answers; about 80% is the model) | **under $1 a month** |
+
+Compared with the laptop demo, the cloud adds only the Runtime, the Gateway, Identity and the logs: about $0.0002 per answer plus the monthly pennies. The other services were already in use locally.
+
 ## 4. Free and open-source parts
 
 | Component | Cost |
