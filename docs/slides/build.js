@@ -142,7 +142,7 @@ const TIMING = [
   [1.5, true], [2], // 10-11 what the model reads, where its knowledge comes from
   [0.2], [1.5], [3], [2, true], [3], [1, true], [1.5], // 12-18 meet Luna
   [0.2], [1], [1.5, true], [2.5], [2], [2, true], [1, true], [1], [1.5], // 19-27 any business
-  [0.2], [1.5], [2], [1.5, true], [1.5, true], [1, true], [2.5], [1.5], [1], [1.5], [0.5, true], [1], [2], [2, true], [2.5], [2.5, true], [1.5, true], [0.7], [0], // 28-46 the rest (30 = the model has no memory, 40-42 = your own workday, 43-44 = the quiz)
+  [0.2], [1.5], [2], [1.5, true], [1.5, true], [1, true], [2.5], [1.5], [1], [1.5], [0.5, true], [1], [2], [2, true], [2.5], [1.5], [2.5], [1.5], [5], [0.7], [0], // 28-48 the rest (30 = the model has no memory, 40-42 = your own workday, 43-46 = Luna on AWS: the picture, local vs AWS, cost, live)
 ];
 // The speaker notes of each slide, in Spanish, in deck order.
 const SPANISH = [
@@ -188,8 +188,10 @@ const SPANISH = [
 "Agentes para tu propio día de trabajo. Es el mismo ciclo de Luna apuntado a la jornada de un ingeniero. Servidores MCP verificados el 16 de noviembre de 2026: el AWS MCP Server y el AWS Knowledge MCP Server (documentación actual), el servidor MCP de GitHub (con la URL de solo lectura primero), Context7 para documentación al día de librerías, Playwright MCP para pruebas en el navegador, el Terraform MCP Server de HashiCorp y Sentry MCP. Los servidores antiguos de awslabs se están integrando al Agent Toolkit for AWS. Seguridad: un servidor ejecuta código y ve lo que el agente le envía; lo que trae (una página, un issue, un error) es texto no confiable que puede intentar darle órdenes. Empieza en solo lectura.",
  "Seis formas de extender un agente. CLAUDE.md es contexto persistente. Un skill es un procedimiento escrito que se carga solo cuando hace falta. Un servidor MCP conecta al agente con un servicio. Un subagente trabaja en su propio contexto y devuelve solo un resumen. Un hook es un script que siempre se ejecuta ante un evento: las reglas que deben cumplirse siempre van ahí, no en un prompt. Un plugin empaqueta todo lo anterior y se comparte en un marketplace (/plugin install nombre@marketplace). Un plugin corre con tus privilegios: léelo antes de instalarlo.",
  "Mi propio setup: un equipo de agentes para el trabajo. Trabajo con varios clientes y entornos, así que la primera regla es no mezclarlos: cada contexto tiene su memoria, sus plugins y sus servidores MCP de solo lectura. Un archivo de reglas global dice que pregunte si algo no está claro y que planee antes de cambiar nada. Un hook sobre los comandos de shell me pregunta antes de lo destructivo, impide que los subagentes los ejecuten y busca secretos en cada commit; otro hook revisa el estilo después de cada edición. Siete subagentes de solo lectura (investigador de clúster, revisor de planes de infraestructura, revisor de seguridad, analista de logs, redactor de documentos, constructor de diagramas e investigador). El contexto fijo bajó de unos 42k tokens a 26–36k (medido el 11 de octubre de 2026) porque las herramientas se cargan solo al usarse. No necesitas todo esto: empieza con un archivo de reglas, acceso de solo lectura y un subagente.",
- "Mini quiz de 5 preguntas (opcional). Se juega en Kahoot (preguntas en docs/kahoot-quiz.md): inicia el juego, comparte el PIN y deja que jueguen desde el celular. Estas diapositivas son el respaldo si falla Kahoot o el Wi-Fi: lee cada pregunta y pide levantar la mano para A, B, C o D sin revelar la respuesta. El premio es una sorpresa que se anuncia en el evento.",
- "Respuestas del quiz (opcional). Lee cada respuesta con su razón: 1 C (el modelo no recuerda nada por sí solo), 2 B (una herramienta trae el clima), 3 A (una herramienta que cuenta: los números exactos van en código), 4 C (A2A es agentes hablando con agentes; MCP es para herramientas) y 5 B (RAG busca los fragmentos más cercanos en significado y los pone en el prompt). Si acertaron tres o más, ya entendieron lo esencial.",
+ "Luna en AWS, todo junto. Aquí termina la charla: el mismo agente que vieron en la laptop, ahora corriendo en AWS. Lee el dibujo de izquierda a derecha: tú le escribes a AgentCore Runtime, que corre a Luna en su propia microVM por sesión. Luna usa cinco servicios: Claude en Bedrock (el cerebro), Guardrails (las reglas fuera del prompt), AgentCore Memory (te recuerda), la Knowledge Base con S3 Vectors (tus documentos) y el AgentCore Gateway, que le presta el clima y el tipo de cambio como herramientas compartidas. Alrededor: un rol de IAM sin secretos, AgentCore Identity para llaves de APIs y CloudWatch para ver qué pasó. Frase clave: no cambiamos el agente, cambiamos dónde corre.",
+ "Local contra AWS: qué cambia y qué no. Lo importante es la franja de abajo: Claude en Bedrock, Guardrails, Memory y la Knowledge Base ya eran servicios de AWS desde el demo local; no hay que migrarlos. Lo que cambia son cinco cosas. Dónde corre: de python luna.py en tu laptop a AgentCore Runtime. Las herramientas: de archivos Python a un Gateway que las comparte con cualquier agente. El acceso: de tu perfil de AWS a un rol de IAM e Identity, sin secretos en el código. Cómo lo ves: de la terminal a trazas en CloudWatch. Y el despliegue: un comando, agentcore deploy, que empaqueta la misma carpeta assistant/.",
+ "Cuánto cuesta la versión en AWS. Todo es pago por uso: apagada cuesta menos de un dólar al mes (el secreto del Gateway, $0.40, y centavos de logs y almacenamiento). Una respuesta cuesta unos $0.009, o unos 9 dólares por mil respuestas, y cerca de 80% es el modelo; el Runtime, el Gateway, Memory y Guardrails juntos suman menos de dos milésimas de dólar por respuesta. El Runtime no cobra CPU mientras espera al modelo. Precios de lista de us-east-1, revisados el 16 de noviembre; el desglose completo está en docs/costs.md. Recuerda poner una alarma de presupuesto.",
+ "Cierre en vivo: Luna en la consola de AWS. Primero invoca al runtime desde la terminal con la pregunta del clima y el cambio, y mientras responde abre la consola en este orden: Runtime (estado, endpoint, rol de IAM), CloudWatch (trazas y logs de esa invocación: cada herramienta es un tramo), Gateway (los dos destinos y sus herramientas), Memory (los registros que aprendió), Identity, Guardrails y Knowledge Base, y por último Budgets para contestar cuánto cuesta. Si la red falla, reproduce el clip 12-cloud. Si el panel de GenAI Observability sale vacío, muestra el grupo de logs del runtime en CloudWatch Logs: ahí están los tramos. Termina con la frase: el mismo agente, ahora en tu cuenta de AWS, y se puede apagar con un comando.",
  "Tu turno. Un camino gratis de cero a tu propio agente: PartyRock no necesita código ni cuenta de AWS; Skill Builder tiene cursos gratuitos de Bedrock e IA generativa; y el repo tiene un quickstart que pone a Luna a funcionar en unos 15 minutos con tu propia cuenta de AWS.",
  "Preguntas. Deja esta diapositiva en pantalla durante las preguntas. El código QR abre el repositorio y el primer comando es python luna.py. Hay una hoja de referencia en inglés y español en docs/cheatsheet.md, y respuestas cortas a las preguntas probables en docs/audience-questions.md. Gracias a AWS User Group Ensenada."
 ];
@@ -1027,36 +1029,128 @@ async function build() {
   ], { x: 0.95, y: 5.5, w: 11.4, h: 1.3, fontSize: 17, valign: "middle" });
   s.addNotes("My own working setup, as an example of what these pieces add up to. Say it as a story: I work across several clients and environments, so the first rule is never to mix them: each context has its own memory, its own plugins and its own read-only MCP servers. A global rules file tells the agent to ask when something is unclear and to plan before it changes anything. The permission lists decide what runs without asking, what asks, and what is denied. A hook on shell commands prompts me before anything destructive, blocks the subagents from running those commands at all, and scans for secrets on every commit; another hook lints each file after an edit. Seven subagents, all read-only: a cluster investigator, an infrastructure plan reviewer, a security reviewer, a log analyst, a doc writer, a diagram builder and a researcher; the main agent delegates a question to one and gets back a short summary instead of a pile of output. Plugins group the skills by topic. The measured number is from my own check on 2026-10-11: the fixed context before the harness was about 42k tokens and is now between 26k and 36k, because MCP tools are loaded only when used. The point for the audience: you don't need all of this; start with a rules file, read-only access and one subagent. It is the same brain, hands and rules as Luna, applied to your own job.");
 
-  // 22a · Quiz and answers
-  const PRIZE = "a surprise prize"; // kept secret on purpose: announced at the event
-  const QUIZ = [
-    ["Between two separate chats, what does the model remember by itself?", "A  Your preferences     B  Last week's chat     C  Nothing     D  Everything you typed", "C", "Nothing. The model is stateless; memory is something the agent adds (slide 30)."],
-    ["How can Luna know today's weather?", "A  Its training data     B  A tool fetches it     C  The guardrail     D  Memory", "B", "A tool call. The model decides to use the tool; the Python function does the fetching."],
-    ["You need an exact count from a CSV. What do you use?", "A  A tool that counts     B  The model estimates     C  A bigger context window     D  A longer prompt", "A", "A tool. Models read text; they are not calculators, so exact sums belong in code."],
-    ["What is A2A for?", "A  Giving an agent tools     B  Storing memory     C  Agents asking agents     D  Blocking topics", "C", "Agents asking agents. MCP is for tools; A2A is for agent to agent."],
-    ["What does RAG do?", "A  Retrains Claude     B  Finds matching chunks for the prompt     C  Makes answers faster     D  Deletes memory", "B", "It finds the chunks closest in meaning and puts them in front of the model."],
+  // 22-A · Luna on AWS: the whole picture
+  s = addSlide("Luna on AWS", "Content");
+  s.addText("Luna on AWS: every service, one picture", { placeholder: "title" });
+  await badge(s, fa.FaUser, 0.7, 3.85, 0.8, COLOR.teal, "you");
+  text(s, "You", { x: 0.6, y: 4.7, w: 1.0, h: 0.4, fontSize: 15, bold: true, align: "center" });
+  s.addShape(pres.shapes.RIGHT_ARROW, { x: 1.7, y: 4.0, w: 0.4, h: 0.35, fill: { color: COLOR.coral }, line: { color: COLOR.coral }, objectName: "arrow" });
+  card(s, 2.2, 1.75, 3.0, 4.95, COLOR.mist, "runtime box");
+  await badge(s, fa.FaRobot, 3.1, 3.05, 1.0, COLOR.coral, "luna");
+  text(s, [{ text: "Luna", options: { bold: true, fontSize: 20, breakLine: true } }, { text: "Strands agent in", options: { fontSize: 13, color: COLOR.muted, breakLine: true } }, { text: "AgentCore Runtime", options: { fontSize: 15, bold: true, color: COLOR.teal, breakLine: true } }, { text: "one microVM per session", options: { fontSize: 13, color: COLOR.muted } }], { x: 2.3, y: 4.2, w: 2.8, h: 1.4, align: "center" });
+  const svc = [
+    ["Claude on Amazon Bedrock", "the brain"],
+    ["Bedrock Guardrails", "rules outside the prompt"],
+    ["AgentCore Memory", "remembers each person"],
+    ["Knowledge Base + S3 Vectors", "searches your documents"],
+    ["AgentCore Gateway", "weather and currency tools"],
   ];
-  for (const answers of [false, true]) {
-    s = addSlide("Your turn", "Content");
-    s.addText(answers ? "Quiz: the answers" : "Quick quiz: 5 questions", { placeholder: "title" });
-    text(s, answers ? `Kahoot leaderboard: the top score wins ${PRIZE}` : `Play on Kahoot: the top score wins ${PRIZE}`,
-      { x: 6.6, y: 0.55, w: 6.1, h: 0.7, fontSize: 16, bold: true, color: COLOR.teal, align: "right", valign: "middle", objectName: "prize" });
-    for (let i = 0; i < QUIZ.length; i++) {
-      const [q, opts, letter, why] = QUIZ[i];
-      const y = 1.55 + i * 1.02;
-      card(s, 0.6, y, 12.1, 0.92, COLOR.white, "quiz row");
-      text(s, `${i + 1}`, { x: 0.75, y, w: 0.6, h: 0.92, fontFace: FONT.head, fontSize: 30, bold: true, color: COLOR.coral, align: "center", valign: "middle" });
-      text(s, q, { x: 1.5, y: y + 0.06, w: 11.0, h: 0.42, fontSize: 17, bold: true, valign: "middle" });
-      if (answers) {
-        text(s, [{ text: `${letter}  `, options: { bold: true, color: COLOR.coral } }, { text: why, options: { color: COLOR.muted } }], { x: 1.5, y: y + 0.48, w: 11.0, h: 0.4, fontSize: 15, valign: "middle" });
-      } else {
-        text(s, opts, { x: 1.5, y: y + 0.48, w: 11.0, h: 0.4, fontSize: 15, color: COLOR.muted, valign: "middle" });
-      }
-    }
-    s.addNotes(answers
-      ? "Read each answer with its reason. 1 C, 2 B, 3 A, 4 C, 5 B. Kahoot shows the correct answer after each question; use this slide to explain the reason for each one, or as the fallback with a show of hands. If the room got three or more right, they have the core ideas: the model has no memory, tools do the real work, exact numbers belong in code, A2A links agents, and RAG finds chunks."
-      : "Optional, about 3 minutes. Read each question, ask for a show of hands for A, B or C (or ask them to answer in the chat). Do not reveal the answers yet; the next slide has them. Hosted on Kahoot (questions in docs/kahoot-quiz.md): start the game, share the join PIN, and let people play on their phones; these slides are the fallback if Kahoot or the Wi-Fi fails, with a show of hands. The prize is a surprise: announce it at the event, then reveal the winner from the leaderboard. Skip both slides if you are running long.");
+  svc.forEach(([head, sub], i) => {
+    const py = 1.75 + i * 1.0;
+    s.addShape(pres.shapes.RIGHT_ARROW, { x: 5.3, y: py + 0.3, w: 0.35, h: 0.3, fill: { color: COLOR.line }, line: { color: COLOR.line }, objectName: "arrow" });
+    card(s, 5.75, py, 3.55, 0.88, COLOR.white, `${head} box`);
+    text(s, [{ text: head, options: { bold: true, fontSize: 16, breakLine: true } }, { text: sub, options: { fontSize: 13, color: COLOR.muted } }], { x: 5.9, y: py, w: 3.3, h: 0.88, valign: "middle" });
+  });
+  text(s, "Around it", { x: 9.7, y: 1.75, w: 3.0, h: 0.4, fontSize: 16, bold: true, color: COLOR.teal });
+  const around = [
+    [fa.FaKey, "IAM role", "least privilege, no secrets in code"],
+    [fa.FaIdCard, "AgentCore Identity", "keys for outside APIs"],
+    [fa.FaChartLine, "CloudWatch", "traces, logs, tokens"],
+  ];
+  let ay = 2.25;
+  for (const [Ic, head, sub] of around) {
+    card(s, 9.7, ay, 3.03, 1.3, COLOR.white, `${head} box`);
+    await badge(s, Ic, 9.85, ay + 0.37, 0.55, COLOR.teal, head);
+    text(s, [{ text: head, options: { bold: true, fontSize: 16, breakLine: true } }, { text: sub, options: { fontSize: 13, color: COLOR.muted } }], { x: 10.55, y: ay, w: 2.1, h: 1.3, valign: "middle" });
+    ay += 1.45;
   }
+  s.addNotes("The whole stack on one slide. You talk to AgentCore Runtime, which runs Luna in its own microVM per session. Luna uses Claude on Bedrock, Guardrails, AgentCore Memory, a Knowledge Base on S3 Vectors, and the AgentCore Gateway for weather and currency. Around it: an IAM role with no secrets, AgentCore Identity for outside API keys, and CloudWatch to see what happened. The agent did not change; where it runs did.");
+
+  // 22-B · Local demo vs AWS
+  s = addSlide("Luna on AWS", "Content");
+  s.addText("Local demo vs AWS: what changes", { placeholder: "title" });
+  const cols = [[0.6, 1.8, "Piece"], [2.45, 3.15, "On your laptop"], [6.2, 3.0, "On AWS"], [9.3, 3.45, "What it is for"]];
+  for (const [cx, cw, head] of cols) text(s, head, { x: cx, y: 1.7, w: cw, h: 0.4, fontSize: 15, bold: true, color: COLOR.teal });
+  const diff = [
+    ["Where it runs", "python luna.py", "AgentCore Runtime", "an isolated microVM per session; no server to manage"],
+    ["Tools", "Python files in tools/", "AgentCore Gateway", "weather and currency as shared MCP tools for any agent"],
+    ["Access", "your AWS profile", "IAM role + AgentCore Identity", "no secrets in code; a key store for outside APIs"],
+    ["Seeing it", "terminal and a cost line", "CloudWatch + GenAI Observability", "traces, logs and tokens per session"],
+    ["Deploying", "git clone, run", "agentcore deploy", "packages the same assistant/ folder with CDK"],
+  ];
+  let dy = 2.15;
+  for (const [piece, local, aws, why] of diff) {
+    card(s, 0.6, dy, 12.15, 0.72, COLOR.white, "diff row");
+    text(s, piece, { x: 0.75, y: dy, w: 1.65, h: 0.72, fontSize: 15, bold: true, valign: "middle" });
+    text(s, local, { x: 2.6, y: dy, w: 2.9, h: 0.72, fontSize: 15, color: COLOR.muted, valign: "middle", fontFace: FONT.code });
+    s.addShape(pres.shapes.RIGHT_ARROW, { x: 5.62, y: dy + 0.21, w: 0.4, h: 0.3, fill: { color: COLOR.coral }, line: { color: COLOR.coral }, objectName: "arrow" });
+    text(s, aws, { x: 6.2, y: dy, w: 3.0, h: 0.72, fontSize: 15, bold: true, color: COLOR.teal, valign: "middle" });
+    text(s, why, { x: 9.3, y: dy, w: 3.35, h: 0.72, fontSize: 14, valign: "middle" });
+    dy += 0.79;
+  }
+  card(s, 0.6, 6.15, 12.15, 0.6, COLOR.ocean, "same strip");
+  text(s, [{ text: "The same in both: ", options: { bold: true, color: COLOR.coral } }, { text: "Claude on Bedrock · Guardrails · AgentCore Memory · Knowledge Base. Already AWS services in the local demo.", options: { color: COLOR.white } }], { x: 0.8, y: 6.15, w: 11.8, h: 0.6, fontSize: 14, valign: "middle" });
+  s.addNotes("The bottom strip is the point: the model, guardrails, memory and documents were already AWS services in the local demo, so nothing to migrate. Five things change: where it runs (Runtime), the tools (Gateway), access (IAM role and Identity), how you see it (CloudWatch) and how you deploy it (agentcore deploy).");
+
+  // 22-C · What the AWS version costs
+  s = addSlide("Luna on AWS", "Content");
+  s.addText("What the AWS version costs", { placeholder: "title" });
+  const awsCosts = [
+    ["$0.009", "per answer", "model plus every service below"],
+    ["~$9", "per 1,000 answers", "about 80% of it is the model"],
+    ["< $1", "a month when idle", "the Gateway secret is $0.40; the rest is pennies"],
+  ];
+  x = 0.6;
+  for (const [n, label, sub] of awsCosts) {
+    card(s, x, 1.7, 3.85, 1.95, COLOR.ocean, "cost card");
+    text(s, n, { x: x + 0.2, y: 1.8, w: 3.45, h: 0.9, fontFace: FONT.head, fontSize: 44, bold: true, color: COLOR.coral, align: "center", valign: "middle" });
+    text(s, label, { x: x + 0.2, y: 2.7, w: 3.45, h: 0.4, fontSize: 17, bold: true, color: COLOR.white, align: "center" });
+    text(s, sub, { x: x + 0.2, y: 3.1, w: 3.45, h: 0.5, fontSize: 13, color: COLOR.foam, align: "center" });
+    x += 4.15;
+  }
+  const awsRows = [
+    ["Claude Haiku 4.5 on Bedrock", "$1 / $5 per million tokens in / out", "$0.007"],
+    ["Bedrock Guardrails", "$0.10 to $0.15 per 1,000 text units, per filter", "$0.0008"],
+    ["AgentCore Memory", "$0.75 per 1,000 records a month; $0.50 per 1,000 retrievals", "$0.0006"],
+    ["AgentCore Runtime", "per second of CPU and memory; none while waiting on the model", "$0.0002"],
+    ["AgentCore Gateway", "$0.005 per 1,000 tool calls", "$0.00001"],
+    ["Knowledge Base + S3 Vectors", "no fee for the KB; Titan embeddings and vector storage in cents", "cents a month"],
+    ["Identity, CloudWatch, S3", "$0.40 secret; logs and traces at CloudWatch rates", "pennies a month"],
+  ];
+  let ry = 3.8;
+  for (const [svcName, price, per] of awsRows) {
+    text(s, svcName, { x: 0.6, y: ry, w: 3.6, h: 0.4, fontSize: 14, bold: true, valign: "middle" });
+    text(s, price, { x: 4.25, y: ry, w: 6.6, h: 0.4, fontSize: 13, color: COLOR.muted, valign: "middle" });
+    text(s, per, { x: 10.9, y: ry, w: 1.85, h: 0.4, fontSize: 14, bold: true, color: COLOR.teal, align: "right", valign: "middle" });
+    ry += 0.41;
+  }
+  s.addNotes("List prices for us-east-1, checked 2026-11-16; full breakdown in docs/costs.md. Everything is pay per use. Idle it costs under a dollar a month. One answer is about nine thousandths of a dollar, about 80% of it the model; Runtime, Gateway, Memory and Guardrails together are under two thousandths. Set an AWS Budget alarm.");
+
+  // 22-D · Live: the deployed Luna in the AWS console
+  s = addSlide("Luna on AWS", "Demo");
+  s.addText("Live: Luna deployed, in the AWS console", { placeholder: "title" });
+  text(s, "Level 8 · AgentCore Runtime, Gateway, Memory, Identity and CloudWatch", { x: 0.6, y: 1.38, w: 10.4, h: 0.4, fontSize: 16, italic: true, color: COLOR.teal });
+  terminal(s, { command: "agentcore invoke --runtime luna \\\n  --payload '{\"prompt\": \"<question>\"}'", question: "What should I wear today in Ensenada, and how much is 85 dollars in pesos?" }, 0.6, 1.95, 6.2, 2.6);
+  await badge(s, fa.FaLifeRing, 0.6, 4.85, 0.62, COLOR.teal, "plan b icon");
+  text(s, "Plan B: play clips/12-cloud. If the GenAI dashboard is empty, open the runtime's log group in CloudWatch Logs.", { x: 1.4, y: 4.8, w: 5.4, h: 1.0, fontSize: 15, valign: "middle" });
+  card(s, 7.1, 1.95, 5.63, 4.85, COLOR.white, "console card");
+  text(s, "Console tour, in this order", { x: 7.35, y: 2.1, w: 5.1, h: 0.45, fontSize: 19, bold: true, color: COLOR.teal });
+  const stops = [
+    ["AgentCore → Runtime", "status, endpoint, IAM role"],
+    ["CloudWatch", "traces and logs of that call"],
+    ["AgentCore → Gateway", "two targets, their tools"],
+    ["AgentCore → Memory", "what it learned about you"],
+    ["AgentCore → Identity", "workload identity, key store"],
+    ["Guardrails · Knowledge Base", "rules and documents"],
+    ["Budgets", "the answer to \"what does it cost\""],
+  ];
+  let sy = 2.7;
+  stops.forEach(([where, what], i) => {
+    text(s, `${i + 1}`, { x: 7.35, y: sy, w: 0.4, h: 0.55, fontFace: FONT.head, fontSize: 20, bold: true, color: COLOR.coral, valign: "middle" });
+    text(s, [{ text: where, options: { bold: true, breakLine: true } }, { text: what, options: { fontSize: 13, color: COLOR.muted } }], { x: 7.8, y: sy, w: 4.8, h: 0.55, fontSize: 15, valign: "middle" });
+    sy += 0.58;
+  });
+  s.addNotes("Close the talk here. Invoke the deployed runtime, then walk the console in this order: Runtime, CloudWatch traces and logs, Gateway targets, Memory records, Identity, Guardrails and Knowledge Base, Budgets. Fallback clip: clips/12-cloud.");
 
   // 22 · Your turn
   s = addSlide("Your turn", "Content");
