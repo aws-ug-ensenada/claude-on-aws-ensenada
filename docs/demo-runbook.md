@@ -10,14 +10,14 @@ The same steps work for anyone who clones the repo. Do them in one terminal, in 
    ```bash
    cd claude-on-aws-ensenada/assistant
    source .venv/bin/activate
-   export AWS_PROFILE=<your-profile> AWS_REGION=us-east-1     # the account that holds the guardrail, memory and knowledge base
+   export AWS_PROFILE=<your-profile> AWS_REGION=us-east-1 AWS_PAGER=""   # the account that holds the guardrail, memory and knowledge base; AWS_PAGER="" stops the CLI paging (and hiding) short output
    ```
 2. **Put your Claude API key in the environment** (only if you use Claude 5.5 through the API; skip it for Bedrock). Create the key in the [Claude Console](https://platform.claude.com) under **API keys** (choose *Somewhere else* if it asks where your code runs, because Luna reads a key from the environment), with an expiry after the talk, and copy it when it is shown: it is shown once. Keep a copy in your password manager, then load it without echoing it:
    ```bash
    read -rs ANTHROPIC_API_KEY && export ANTHROPIC_API_KEY      # paste the key; it isn't shown
    [ -n "$ANTHROPIC_API_KEY" ] && echo "key set (${#ANTHROPIC_API_KEY} chars)"
    ```
-   If you use the 1Password CLI, let `op run` hand the key to a single command instead of exporting it: put `ANTHROPIC_API_KEY=op://<vault>/<item>/credential` in a file outside the repo, then run `op run --env-file <that file> -- python rehearse.py`. Never put the key in `config.local.yaml`, the repo or your shell profile, and don't share screenshots of the terminal while it is on screen. If your shell loads a key automatically (for example with direnv), the line above shows whether one is set.
+   If you use the 1Password CLI, let `op run` hand the key to a single command instead of exporting it: put `ANTHROPIC_API_KEY=op://<vault>/<item>/credential` in a file outside the repo, then run `op run --env-file <that file> -- python rehearse.py`. To load it for an interactive session instead: `export ANTHROPIC_API_KEY="$(op read 'op://<vault>/<item>/credential')"`. If `op account list` shows more than one account (say work and personal), add `--account <sign-in address>` to `op run` and `op read`, so the key comes from the right one. Never put the key in `config.local.yaml`, the repo or your shell profile, and don't share screenshots of the terminal while it is on screen. If your shell loads a key automatically (for example with direnv), the line above shows whether one is set.
 3. **Choose the model.** `rehearse.py` has no `--set` flag, so it reads the model from `config.local.yaml`. For Claude 5.5 through the API, set (keep your other keys in that file):
    ```yaml
    model:
@@ -98,7 +98,7 @@ Video is the simplest fallback: no extra software on the presenting machine, and
 | `11-documents` | `python luna.py` | *According to my lease, when is the rent due and how much is it?* |
 | `12-cloud` | from the repo root: `agentcore invoke --runtime luna --payload '{"prompt": "What should I wear today in Ensenada?"}'` | nothing |
 
-The exact questions for scenes 6, 7b and 8 are in the [scenes table](#scenes) below; copy them from there.
+The exact questions for scenes 6, 7b and 8 are in the [scenes table](#scenes) below; copy them from there. What to say over each clip, and how to read the cost line, is in [clip-notes.md](clip-notes.md).
 
 ## Scenes
 
@@ -130,14 +130,15 @@ Checked on a second, low-power Linux machine on 2026-11-14 (Claude 4.x on Bedroc
 
 - **`config.local.yaml` is git-ignored,** so rebuild it on the new machine from the account: `python setup/_discover.py --write` (it finds the guardrail, memory and knowledge base by name, read-only, and writes the file; run it with the personal AWS credentials loaded). Or copy the file across. Without it the guardrail, memory and documents scenes silently run without those features.
 - **The first run of scene 6 (MCP) is slow, about 3 minutes.** `uvx` downloads the `time` and `fetch` servers, and `fetch` runs `npm install` for its Readability dependencies on first use. Run the scene once the day before; killing it half-way throws the install away. Later runs take about 40 seconds.
-- **`agentcore invoke` needs the project's deployment state,** which is git-ignored and lives on the machine that ran `agentcore deploy`. On another machine it says *No deployment targets are configured*. Do not run `agentcore deploy` to fix that; call the runtime directly instead:
+- **`agentcore invoke` needs the project's deployment state,** which is git-ignored and lives on the machine that ran `agentcore deploy`. On another machine it says *No deployment targets are configured*. Do not run `agentcore deploy` to fix that. Either copy the state from the deploying machine (from the repo root there: `tar czf agentcore-state.tgz agentcore/.cli agentcore/aws-targets.json`, then `tar xzf` it in the repo root here; it stays git-ignored, and keep it with your `config.local.yaml` backup), or call the runtime directly:
   ```bash
-  ARN=$(aws bedrock-agentcore-control list-agent-runtimes --query "agentRuntimes[0].agentRuntimeArn" --output text)
-  aws bedrock-agentcore invoke-agent-runtime --agent-runtime-arn $ARN \
+  ARN=$(aws bedrock-agentcore-control list-agent-runtimes --query "agentRuntimes[?starts_with(agentRuntimeName, 'luna')].agentRuntimeArn | [0]" --output text)
+  aws bedrock-agentcore invoke-agent-runtime --agent-runtime-arn "$ARN" \
     --runtime-session-id rehearsal-session-0000000000000000001 \
     --payload '{"prompt": "What should I wear today in Ensenada?"}' \
-    --cli-binary-format raw-in-base64-out out.json && cat out.json
+    --cli-binary-format raw-in-base64-out "${TMPDIR:-/tmp}/luna-out.json" && cat "${TMPDIR:-/tmp}/luna-out.json"
   ```
+  `rehearse.py` and `setup/prewarm.py` make the same direct call when the CLI or its state is missing, so they pass on any machine with the account's credentials.
 - **Refresh the winery's sample dates before the briefing scene:** `python setup/refresh_sample_dates.py` slides its sales and reservations (in whole weeks) so "last weekend" and "next Saturday" have data, and `setup/prewarm.py` warns when they are stale. Without it the briefing reports a data gap, and the rehearsal now fails on that. Put the original dates back with `git checkout -- assistant/business/winery` and never commit the shifted files.
 - **The sample data has fixed dates (16 to 18 November 2026) for the clinic.** Luna's prompt says what today is, so a question that says "Monday" or "this week" changes meaning with the real date, and the answer can pick the wrong day. The demo questions name the date ("16 November"). Keep that when you write your own.
 - **A small model can misread a rule.** Haiku once answered that a 5-hour cancellation is free, against a policy that says under 24 hours is charged. The policy now includes a worked example, which made the answer stable. When an answer has to be right on stage, put an example next to the rule in the document.

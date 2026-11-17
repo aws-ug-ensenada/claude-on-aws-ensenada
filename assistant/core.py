@@ -50,20 +50,20 @@ def load_config(preset: str | None = None, overrides: list[str] = ()) -> dict:
 def system_prompt(cfg: dict, role: str = "", instructions: str = "") -> str:
     a, u = cfg["assistant"], cfg["user"]
     language = (
-        "Reply in the same language the user writes in."
+        "Reply in the language of the user's latest message, even if their city, currency or the tool results use another language."
         if a["language"] == "auto"
         else f'Always reply in {a["language"]}.'
     )
     lines = [
         f'You are {a["name"]}, a personal assistant. Personality: {a["personality"]}.',
         role,
-        language,
         LENGTHS.get(a["answer_length"], a["answer_length"]),
         f'The user is {u["name"]}, based in {u["city"]}. Their currency is {u["currency"]}. {u.get("about") or ""}',
         f"Today is {datetime.date.today():%A, %Y-%m-%d}.",
         "Use your tools to get real data instead of guessing. If you can't find out, say so.",
         a.get("extra_instructions") or "",
         instructions,
+        language,  # last: Sonnet 5.5 otherwise answers in the language of the user's city
     ]
     return "\n".join(line.strip() for line in lines if line and line.strip())
 
