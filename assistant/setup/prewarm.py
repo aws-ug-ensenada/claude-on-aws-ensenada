@@ -24,6 +24,7 @@ MCP_PROMPT = "What time is it in Los Angeles right now? Then read https://en.wik
 
 
 def step(label: str, fn) -> bool:
+    """Run one check and print pass or fail with its time; fn fails by returning False or raising."""
     start = time.time()
     try:
         detail = fn()
@@ -35,11 +36,13 @@ def step(label: str, fn) -> bool:
 
 
 def luna(args: list[str], timeout: int = 280) -> str:
+    """Run luna.py with these arguments as a subprocess and return everything it printed."""
     out = subprocess.run([sys.executable, str(HERE / "luna.py"), *args], capture_output=True, text=True, timeout=timeout, cwd=HERE)
     return out.stdout + out.stderr
 
 
 def main() -> int:
+    """Run every warm-up step (presets, sample data, model, MCP, guardrail, memory, cloud runtime); exit code 1 if any failed."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--no-cloud", action="store_true", help="skip the AgentCore runtime call")
     args = parser.parse_args()
@@ -49,9 +52,11 @@ def main() -> int:
     results = []
 
     for preset in PRESETS:
+        # p=preset binds each preset now; a plain closure would see only the last one.
         results.append(step(f"preset {preset} passes the checker", lambda p=preset: not any(lv == "error" for lv, _ in check.problems(p)) or False))
 
     def sample_dates() -> object:
+        """Pass when the newest winery sales row is at most 14 days old, so the Monday briefing has data."""
         import csv
         import datetime
 
@@ -68,6 +73,7 @@ def main() -> int:
 
     # The slow first run of scene 6: downloads the time and fetch servers, installs the fetch dependencies.
     def mcp() -> object:
+        """Ask the winery question that uses the time and fetch MCP servers; pass when both tools were called."""
         out = luna(["--preset", "winery", "--set", "memory.enabled=false", "--ask", MCP_PROMPT])
         return "" if re.search(r"get_current_time(?s:.*)fetch", out) else out[-200:]
 
@@ -79,6 +85,7 @@ def main() -> int:
         import clean_memory
 
         def memory() -> object:
+            """Pass when memory holds 1 to 3 records: seeded for the memory scene, with no stray ones."""
             found = clean_memory.records(cfg)
             if not found:
                 print("   no records yet: seed with 'Remember this about me: I am vegetarian and I hate cold weather.'")
@@ -93,6 +100,7 @@ def main() -> int:
         import boto3
 
         def cloud() -> object:
+            """Invoke the deployed luna runtime on AgentCore once, which also warms its microVM."""
             client = boto3.client("bedrock-agentcore-control", region_name=m["region"])
             arn = next(r["agentRuntimeArn"] for r in client.list_agent_runtimes()["agentRuntimes"] if r["agentRuntimeName"].startswith("luna"))
             reply = boto3.client("bedrock-agentcore", region_name=m["region"]).invoke_agent_runtime(

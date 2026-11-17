@@ -20,6 +20,7 @@ CFG = load_config(os.environ.get("LUNA_PRESET"), [f"mode={m}"] if (m := os.envir
 
 @app.entrypoint
 def invoke(payload: dict, context) -> dict:
+    """AgentCore Runtime calls this for every request (level 8): build the configured agent for the session and return its answer."""
     session_id = getattr(context, "session_id", None) or "default-session"
     if CFG.get("mode", "solo") == "solo":
         agent = build_solo(CFG, session_id=session_id, quiet=True)

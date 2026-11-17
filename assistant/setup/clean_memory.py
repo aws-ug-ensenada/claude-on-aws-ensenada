@@ -44,6 +44,7 @@ def records(cfg: dict) -> list[tuple[str, str]]:
 
 
 def main() -> None:
+    """List the user's memory records; with --keep, delete those that match no pattern (only with --yes)."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--keep", action="append", default=[], metavar="REGEX", help="keep records matching this; delete the rest")
     parser.add_argument("--yes", action="store_true", help="actually delete (otherwise only show what would go)")

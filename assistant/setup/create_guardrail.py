@@ -55,6 +55,7 @@ GUARDRAIL = dict(
 
 
 def main() -> None:
+    """Create the Bedrock Guardrail from GUARDRAIL and enable it in config.local.yaml, or with --update apply GUARDRAIL to the existing one."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--update", action="store_true", help="apply GUARDRAIL to the existing guardrail")
     args = parser.parse_args()

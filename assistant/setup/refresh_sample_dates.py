@@ -20,14 +20,17 @@ FOLDER = HERE / "business" / "winery"
 
 
 def last_sunday_before(today: datetime.date) -> datetime.date:
+    """The most recent Sunday strictly before today (on a Sunday, the one a week earlier)."""
     return today - datetime.timedelta(days=(today.weekday() + 1) % 7 or 7)
 
 
 def next_thursday_from(today: datetime.date) -> datetime.date:
+    """The next Thursday, counting today if it is one."""
     return today + datetime.timedelta(days=(3 - today.weekday()) % 7)
 
 
 def shift(path: pathlib.Path, rows: list[dict], target: datetime.date, anchor: str) -> tuple[int, list[dict]]:
+    """Move every row's date by the same whole number of weeks so the last (or first) date lands on target; returns (days, rows)."""
     dates = [datetime.date.fromisoformat(r["date"]) for r in rows]
     current = max(dates) if anchor == "last" else min(dates)
     days = (target - current).days
@@ -37,6 +40,7 @@ def shift(path: pathlib.Path, rows: list[dict], target: datetime.date, anchor: s
 
 
 def main() -> None:
+    """Shift sales.csv to end last Sunday and reservations.csv to start this Thursday, in place unless --dry-run."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--today", type=datetime.date.fromisoformat, metavar="YYYY-MM-DD", help="pretend this is today's date (to rehearse before the day of the talk)")

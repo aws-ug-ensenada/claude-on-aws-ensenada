@@ -89,6 +89,7 @@ def fleet_running(cfg: dict, env: dict):
     try:
         deadline = time.time() + 90
         pending = list(urls)
+        # Poll each specialist's port until it accepts connections, for up to 90 seconds.
         while pending and time.time() < deadline:
             pending = [u for u in pending if socket.socket().connect_ex((u.hostname, u.port)) != 0]
             if pending:
@@ -119,6 +120,7 @@ def needs(name: str, cfg: dict) -> str | None:
 
 
 def run(args: list[str] | None, question: str, env: dict, stdin: str | None = None) -> str:
+    """Run one scene as on stage (luna.py --ask, or agentcore invoke for the cloud scene) and return everything it printed."""
     if args is None and not shutil.which("agentcore"):  # no CLI on this machine: the runtime answers the same direct call
         return invoke_runtime_directly(question)
     if args is None:  # the cloud scene
@@ -166,6 +168,7 @@ def warn_stray_memory(cfg: dict) -> None:
 
 
 def main() -> None:
+    """Run the chosen scenes in talk order, check each output against its patterns, and print a pass/fail summary."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("scenes", nargs="*", help="scene names (default: all)")
     parser.add_argument("--list", action="store_true", help="list the scenes and exit")
@@ -198,12 +201,14 @@ def main() -> None:
         except RuntimeError as err:
             output = f"ERROR {err}"
         took = time.time() - start
+        # A scene passes when the output shows what the audience should see and nothing it must not.
         ok = bool(re.search(must, output)) and not (must_not and re.search(must_not, output))
         if name == "briefing":
             saved = [f for f in (Path(HERE) / "business" / "winery" / "reports").glob("*.md") if f.stat().st_mtime >= start]
             print(f"   report: {saved[0].relative_to(HERE) if saved else 'none saved'}")
             ok = ok and bool(saved)
         cost = sum(float(c) for c in re.findall(r"this answer \$([0-9.]+)", output))
+        # The answer is the last line that is not the banner, a cost line, a tool call or indented output.
         answer = [line for line in output.splitlines() if line.strip() and not line.startswith(("🌙", "   ", "💲", "Tool #", "  📨", "  ✅"))]
         print("   " + (answer[-1][:200] if answer else output[-200:]).strip())
         print(f"   {'✅ pass' if ok else '❌ FAIL'} · {took:.0f} s" + (f" · ${cost:.4f}" if cost else ""))

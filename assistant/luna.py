@@ -22,6 +22,7 @@ EXIT_WORDS = {"", "exit", "quit", "salir", "adios", "adiós"}
 
 
 def main() -> None:
+    """The terminal chat: build the solo agent or the agency from config, then answer questions until the user says exit."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--preset", help="profile from presets/ (student, professional, family)")
     parser.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", help="override any config value")
@@ -45,6 +46,7 @@ def main() -> None:
     else:
         agent, members = build_agency(cfg, session_id=session_id, remote=mode == "fleet")
         billed = [("director", agent, cfg["agency"]["director"].get("model") or cfg["model"]["id"])]
+        # Local specialists bill in this process; in fleet mode they bill on their own servers, so only the Director is counted.
         if mode == "agency":
             billed += [(s["name"], members[s["name"]], s.get("model") or cfg["model"]["id"]) for s in active_agents(cfg)]
 
@@ -55,6 +57,7 @@ def main() -> None:
         question = questions.pop(0) if questions else (None if args.ask else ask())
         if question is None or question.strip().lower() in EXIT_WORDS:
             break
+        # Token counts before the question, so the cost line shows only this answer's usage.
         before = {label: usage_of(a) for label, a, _ in billed}
         try:
             result = agent(question)
@@ -70,6 +73,7 @@ def main() -> None:
 
 
 def ask() -> str | None:
+    """Read one question from the terminal; None on Ctrl-D or Ctrl-C, which ends the chat."""
     try:
         return input("\nyou › ")
     except (EOFError, KeyboardInterrupt):
@@ -77,6 +81,7 @@ def ask() -> str | None:
 
 
 def print_banner(cfg: dict, mode: str, no_tools: bool) -> None:
+    """Print the summary at the top of the chat: mode, model, tools, and which levels (guardrail, memory, RAG, MCP) are on."""
     a, m = cfg["assistant"], cfg["model"]
     extras = [name for name in ("guardrail", "memory", "knowledge_base") if (cfg.get(name) or {}).get("enabled")]
     if "guardrail" in extras and m.get("provider", "bedrock") != "bedrock":
@@ -94,6 +99,7 @@ def print_banner(cfg: dict, mode: str, no_tools: bool) -> None:
 
 
 def print_cost(cfg, billed, before, session_total, fleet) -> float:
+    """Print what this answer cost per agent (tokens and dollars) and the session total; returns this answer's cost."""
     turn, parts = 0.0, []
     for label, agent, model_id in billed:
         (in0, out0), (in1, out1) = before[label], usage_of(agent)

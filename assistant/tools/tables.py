@@ -14,7 +14,9 @@ MAX_ROWS = 25
 
 
 def _read(root: pathlib.Path, file: str) -> list[dict]:
+    """Rows of a CSV file inside the business folder; refuses paths outside it and non-CSV files."""
     path = (root / file).resolve()
+    # Resolved first, so a ../ path can't escape the one folder the model may read.
     if root.resolve() not in path.parents or path.suffix.lower() != ".csv":
         raise ValueError(f"{file}: only .csv files inside the business folder can be read")
     with path.open(newline="", encoding="utf-8") as f:
@@ -22,6 +24,7 @@ def _read(root: pathlib.Path, file: str) -> list[dict]:
 
 
 def _matching(rows: list[dict], column: str, equals: str) -> list[dict]:
+    """Rows where column equals the value (trimmed, case-insensitive); all rows when no column is given."""
     if not column:
         return rows
     if rows and column not in rows[0]:
@@ -30,6 +33,7 @@ def _matching(rows: list[dict], column: str, equals: str) -> list[dict]:
 
 
 def tools(cfg: dict) -> list:
+    """Return the count_rows and sum_column tools for the files server's folder, or [] when that server is off."""
     files = (cfg.get("mcp_servers") or {}).get("files") or {}
     if not (files.get("enabled") and files.get("root")):
         return []

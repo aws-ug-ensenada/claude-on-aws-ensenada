@@ -8,6 +8,7 @@ from strands import tool
 
 
 def _get(url: str, **params) -> dict:
+    """GET an Open-Meteo URL with query parameters and return the JSON (10 second timeout)."""
     with urllib.request.urlopen(f"{url}?{urllib.parse.urlencode(params)}", timeout=10) as resp:
         return json.load(resp)
 
@@ -28,6 +29,7 @@ def get_weather(place: str, days: int = 3) -> dict:
     # Many places share a name (there are seven Valle de Guadalupes in Mexico):
     # prefer the one whose state, municipality or country matches the rest of what was asked.
     def matches(r: dict) -> int:
+        """How many of the extra hints in the place (state, country) appear in this geocoder result."""
         where = " ".join(str(r.get(k, "")) for k in ("admin1", "admin2", "country")).lower()
         return sum(hint in where for hint in hints)
 

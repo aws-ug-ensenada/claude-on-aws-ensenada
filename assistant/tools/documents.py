@@ -8,6 +8,7 @@ from strands import tool
 
 
 def tools(cfg: dict) -> list:
+    """Return the knowledge base search tool (level 5), or [] until setup/create_knowledge_base.py has run."""
     kb = cfg.get("knowledge_base") or {}
     if not kb.get("enabled"):
         return []

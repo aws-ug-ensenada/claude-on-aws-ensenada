@@ -38,6 +38,7 @@ DATA = "date,item,quantity,notes\n2026-11-16,example item,10,replace these rows 
 
 
 def main() -> int:
+    """Write presets/<slug>.yaml and business/<slug>/, then run the preset checker; returns its exit code."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("slug", help="short name, e.g. bakery (lowercase letters, digits, hyphens)")
     parser.add_argument("--business", help="the business's name, e.g. 'Panadería Sol' (default: the slug)")
