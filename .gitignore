@@ -3,7 +3,7 @@
 *.pem
 .venv/
 __pycache__/
-node_modules/
+node_modules
 .terraform/
 .terragrunt-cache/
 *.tfstate*
