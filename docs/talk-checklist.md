@@ -20,7 +20,6 @@ Tick each box when the check passes; write the date next to it. Commands run fro
 - [ ] **Time the talk once**, out loud, with the real slides and the demo. Write the total here: ____ min. If it is over 40 minutes, drop scenes from the "if time allows" list in [demo-runbook.md](demo-runbook.md#time-budget).
 - [ ] **Clips recorded**, one per scene that is live, named as on the slides (`clips/01-chatbot` … `clips/07b-clinic` …), and they play from the presenting laptop with no network.
 - [ ] **Prices re-checked** ([costs.md](costs.md)) and the budget alarm is set.
-- [ ] **The Kahoot quiz is created** from [kahoot-quiz.md](kahoot-quiz.md) (5 questions, 20 seconds each) and tested once from a phone; the prize is a surprise, so bring it. The deck has no quiz slides; the quiz is run separately from Kahoot.
 - [ ] **A person outside the project followed the README quickstart** and reached the first answer.
 
 ## 2. The day before
