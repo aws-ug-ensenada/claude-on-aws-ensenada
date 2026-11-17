@@ -20,7 +20,7 @@ Tick each box when the check passes; write the date next to it. Commands run fro
 - [ ] **Time the talk once**, out loud, with the real slides and the demo. Write the total here: ____ min. If it is over 40 minutes, drop scenes from the "if time allows" list in [demo-runbook.md](demo-runbook.md#time-budget).
 - [ ] **Clips recorded**, one per scene that is live, named as on the slides (`clips/01-chatbot` … `clips/07b-clinic` …), and they play from the presenting laptop with no network.
 - [ ] **Prices re-checked** ([costs.md](costs.md)) and the budget alarm is set.
-- [ ] **The Kahoot quiz is created** from [kahoot-quiz.md](kahoot-quiz.md) (5 questions, 20 seconds each) and tested once from a phone; the prize is a surprise, so bring it. The quiz slides 43 and 44 are the fallback if Kahoot or the Wi-Fi fails.
+- [ ] **The Kahoot quiz is created** from [kahoot-quiz.md](kahoot-quiz.md) (5 questions, 20 seconds each) and tested once from a phone; the prize is a surprise, so bring it. The deck has no quiz slides; the quiz is run separately from Kahoot.
 - [ ] **A person outside the project followed the README quickstart** and reached the first answer.
 
 ## 2. The day before
@@ -39,7 +39,7 @@ Tick each box when the check passes; write the date next to it. Commands run fro
 - [ ] `python setup/prewarm.py` ends with `✅ Warm and ready`. It checks the three business presets, the model, the MCP servers (the first run downloads packages and can take 3 minutes), the guardrail, the memory records and the AgentCore runtime.
 - [ ] Network: open one web page; if the venue Wi-Fi blocks anything, switch to the phone's hotspot now, not during the demo. A VPN or Zero Trust client (Cloudflare WARP, a corporate VPN) can make DNS lookups for AWS endpoints fail for a few minutes (`Could not connect to the endpoint URL`): turn it off for the talk if you can. If your organisation locks it on, rerun `python setup/prewarm.py` just before you start and keep the clips open.
 - [ ] Terminal in the right folder, virtual environment active, `AWS_PROFILE=personal AWS_REGION=us-east-1`.
-- [ ] AWS console tabs open and logged in, in the finale order (see [demo-runbook.md](demo-runbook.md#aws-console-tour-the-finale-slide-48)).
+- [ ] AWS console tabs open and logged in, in the finale order (see [demo-runbook.md](demo-runbook.md#aws-console-tour-the-finale-slide-46)).
 - [ ] Invoke the deployed runtime once, then confirm the trace shows in CloudWatch → GenAI Observability. If it does not, use the runtime log group instead (the runbook says where).
 - [ ] Clips open in a player, one tab or playlist entry per scene.
 

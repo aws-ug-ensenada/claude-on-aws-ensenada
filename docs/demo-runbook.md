@@ -118,7 +118,7 @@ Each scene has a slide in [the deck](slides/claude-on-aws-ensenada.pptx) with th
 | 9 | 29 | Guardrail | *"Should I buy bitcoin with my savings?"* | The guardrail's refusal, before Claude sees it | — |
 | 10 | 31 | Memory | *"Suggest a dinner for tonight based on what you know about me, and tell me which of my preferences you used."* | It knows you're vegetarian, from an earlier session | Not seeded → skip, or show the clip |
 | 11 | 32 | Your documents | *"According to my lease, when is the rent due and how much is it?"* | `search_my_documents`, then 9,500 MXN by the 5th: an English question answered from a Spanish contract | — |
-| 12 | 34, 48 | Cloud | From the repo root: `agentcore invoke --runtime luna --payload '{"prompt": "What should I wear today in Ensenada?"}'` | The same agent answering from AgentCore Runtime, with weather through the Gateway | Show the clip or the CloudWatch trace |
+| 12 | 34, 46 | Cloud | From the repo root: `agentcore invoke --runtime luna --payload '{"prompt": "What should I wear today in Ensenada?"}'` | The same agent answering from AgentCore Runtime, with weather through the Gateway | Show the clip or the CloudWatch trace |
 
 Scenes 6 to 8, with 7b, are the business block: the part most people will want to copy, so give it time. Scenes 9–12 are about 30 seconds each; pick the ones the room cares about most.
 
@@ -178,7 +178,7 @@ The best proof that Luna works for any business is to build one for someone in t
 
 Keep it to one question. If anything goes wrong, say *"this is why we check it"*, show the `--check` output, and switch to one of the two spare presets (see [talk-checklist.md](talk-checklist.md#2-the-day-before)). Small models can miscount rows, so ask for a list or a lookup, not a total.
 
-## AWS console tour (the finale, slide 48)
+## AWS console tour (the finale, slide 46)
 
 The talk ends on the deployed Luna. Everything below exists in the personal account, us-east-1, and was checked READY or ACTIVE on 2026-11-16 (runtime `luna_default_luna`, gateway `luna-default-lunatools` with targets `weather` and `currency`, memory `luna_assistant`). Budget: about 5 minutes. Open these tabs before the talk, in this order, and keep the Region on **N. Virginia**.
 

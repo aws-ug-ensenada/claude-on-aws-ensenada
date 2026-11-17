@@ -1,6 +1,6 @@
 # Kahoot quiz: five questions
 
-For the optional quiz near the end of the talk (slides 43 and 44 are the same questions, as a fallback). Create a **Quiz** in Kahoot, add these five questions with four answers each, mark the correct one, and set **20 seconds** per question. Kahoot limits: a question up to 120 characters, an answer up to 75; all of these fit.
+For the optional quiz, run separately from the slide deck (the deck has no quiz slides). Create a **Quiz** in Kahoot, add these five questions with four answers each, mark the correct one, and set **20 seconds** per question. Kahoot limits: a question up to 120 characters, an answer up to 75; all of these fit.
 
 The prize is a surprise: announce it at the event and give it to the top of the leaderboard.
 
@@ -24,4 +24,4 @@ The prize is a surprise: announce it at the event and give it to the top of the 
 
 - Create the quiz on your Kahoot account and play it once from a phone, so you know where the join PIN appears and how to show the leaderboard.
 - Open it on the presenting laptop in a second browser tab; you start the game when you reach slide 43, share the screen with the PIN, then come back to the deck.
-- If Kahoot or the Wi-Fi fails, run the same questions from slide 43 as a show of hands, and give the answers from slide 44.
+- If Kahoot or the Wi-Fi fails, read the same questions aloud as a show of hands, and give the answers from the list above.
