@@ -71,6 +71,17 @@ def test_rehearsal_scenes_use_real_presets():
             assert args[args.index("--preset") + 1] in PRESETS, name
 
 
+def test_rehearsal_scene_names_and_scripted_answers():
+    import rehearse
+
+    names = [scene[0] for scene in rehearse.SCENES]
+    assert len(names) == len(set(names))
+    assert {"approval", "fleet"} <= set(names)
+    assert set(rehearse.STDIN) <= set(names)
+    assert rehearse.STDIN["approval"] == "n\n"  # the rehearsal must never approve a delete
+    assert dict((n, a) for n, _w, a, *_ in rehearse.SCENES)["fleet"] == ["--mode", "fleet"]
+
+
 def test_cloud_scene_runs_without_agentcore_cli(monkeypatch):
     import rehearse
 
