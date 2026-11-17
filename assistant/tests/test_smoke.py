@@ -71,6 +71,15 @@ def test_rehearsal_scenes_use_real_presets():
             assert args[args.index("--preset") + 1] in PRESETS, name
 
 
+def test_cloud_scene_runs_without_agentcore_cli(monkeypatch):
+    import rehearse
+
+    monkeypatch.setattr(rehearse.shutil, "which", lambda _: None)
+    monkeypatch.setattr(rehearse, "invoke_runtime_directly", lambda q: "direct: " + q)
+    assert rehearse.needs("cloud", {}) is None
+    assert rehearse.run(None, "hi", {}) == "direct: hi"
+
+
 def test_documents_referenced_by_presets_exist():
     for preset in PRESETS:
         text = (HERE / "presets" / f"{preset}.yaml").read_text()

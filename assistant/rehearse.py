@@ -8,7 +8,8 @@ Each scene runs luna.py --ask (or agentcore invoke for the cloud scene) exactly 
 checks the output for what the audience should see. The to-do list goes to a scratch folder, so
 your real list isn't touched; the briefing scene saves a report in business/winery/reports/ (git-ignored).
 A full run costs about 15 cents and takes about 5 minutes.
-Scenes whose setup is missing (no knowledge base, no agentcore CLI…) are skipped, not failed.
+Scenes whose setup is missing (no knowledge base, no uvx…) are skipped, not failed. Without the agentcore CLI
+or its deployment state, the cloud scene calls the runtime directly.
 """
 
 import argparse
@@ -79,12 +80,12 @@ def needs(name: str, cfg: dict) -> str | None:
         return "npx not installed (Node.js), needed by the files server"
     if name in ("business", "clinic", "spanish", "briefing") and not (cfg.get("knowledge_base") or {}).get("enabled"):
         return "no knowledge base (python setup/create_knowledge_base.py)"
-    if name == "cloud" and not shutil.which("agentcore"):
-        return "agentcore CLI not installed (npm install -g @aws/agentcore)"
     return None
 
 
 def run(args: list[str] | None, question: str, env: dict) -> str:
+    if args is None and not shutil.which("agentcore"):  # no CLI on this machine: the runtime answers the same direct call
+        return invoke_runtime_directly(question)
     if args is None:  # the cloud scene
         cmd = ["agentcore", "invoke", "--runtime", "luna", "--payload", json.dumps({"prompt": question})]
         cwd = os.path.dirname(HERE)

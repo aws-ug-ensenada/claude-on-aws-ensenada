@@ -13,7 +13,9 @@ What you need before you start, per level. Level 1 needs only the first block. A
 | Node.js | 20.12 or newer | Level 4 and up: the `files` MCP server (`npx`), and `fetch` uses it to clean up web pages. Level 8: the AgentCore CLI and CDK | [nodejs.org](https://nodejs.org/) (LTS) |
 | AgentCore CLI | 1.0.1 (tested) | Level 8: deploys to AgentCore Runtime | `npm install -g @aws/agentcore` |
 
-Tested on 2026-11-01 on Linux (WSL2) with Python 3.15, uv 0.13, Node.js 24, AWS CLI 2.34 and AgentCore CLI 1.0.1. macOS works the same way. On Windows, use WSL.
+Tested on 2026-11-01 on Linux (WSL2) with Python 3.15, uv 0.13, Node.js 24, AWS CLI 2.34 and AgentCore CLI 1.0.1, and on 2026-11-16 on macOS (Apple Silicon) with Python 3.13, uv 0.13, Node.js 26 and AWS CLI 2.37. On Windows, use WSL.
+
+On macOS with [Homebrew](https://brew.sh): `brew install python@3.13 git uv node awscli`, then `npm install -g @aws/agentcore`. macOS has `python3` but no `python` command until you activate the virtual environment, so create it with `python3 -m venv .venv` and run everything else inside it.
 
 Only to rebuild the slides or diagrams, not to run Luna:
 
