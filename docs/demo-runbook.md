@@ -184,7 +184,17 @@ The talk ends on the deployed Luna. Everything below exists in the personal acco
 
 1. **Invoke first** (terminal), so there is a fresh trace to look at: `agentcore invoke --runtime luna --payload '{"prompt": "What should I wear today in Ensenada, and how much is 85 dollars in pesos?"}'`, or the direct boto3 call from the section above. Warm it with `setup/prewarm.py` beforehand; a cold start adds a few seconds.
 2. **AgentCore → Runtime → `luna_default_luna`:** status READY, the DEFAULT endpoint, the version, and the IAM role it runs as. Say: "one microVM per session, no server to manage".
-3. **CloudWatch → GenAI Observability → Bedrock AgentCore:** the session, the trace, a span for each tool call, tokens and latency. **This view may be empty.** Checked 2026-11-17 with a fresh invocation: Transaction Search is ACTIVE and the runtime exports spans (its log group has a `spans` stream with the OpenTelemetry spans, service type `gen_ai_agent`, and X-Ray shows traces), but the account-level `aws/spans` log group stayed empty. Look at the dashboard on your own screen before the talk. If it is empty, use one of these instead: **CloudWatch → X-Ray traces** (service `luna_default_luna.DEFAULT`), or **CloudWatch → Log groups → `/aws/bedrock-agentcore/runtimes/luna_default_luna-…-DEFAULT`**: the `runtime-logs` streams hold the logs and the `spans` stream holds the spans (one record per step, with its duration). A Logs Insights query on that group, `filter @logStream = "spans" | stats count(*) by name`, makes a clean table of the steps.
+3. **CloudWatch → GenAI Observability → Bedrock AgentCore:** the session, the trace, a span for each tool call, tokens and latency. **This view may be empty, and so may the trace fallbacks.** Checked 2026-11-17: Transaction Search is ACTIVE, but the account-level `aws/spans` log group stayed empty. The runtime's own `spans` stream and X-Ray had spans in the morning, then stopped (an invocation at 14:03 PST added none). The runtime logs were always there. Look at the dashboard on your own screen before the talk. If it is empty, show the logs instead:
+   - **CloudWatch → Log groups → `/aws/bedrock-agentcore/runtimes/luna_default_luna-…-DEFAULT`**, then the newest `runtime-logs-<session id>` stream (it is named after the `--runtime-session-id` you invoked with). Every line carries the same `trace_id`, plus a `span_id` per step: credentials, memory, the Gateway calls signed with SigV4, the HTTP requests, the Strands metrics.
+   - **View in Logs Insights** on that group (last hour) for one clean table of the steps:
+     ```
+     filter @logStream like "runtime-logs"
+     | parse @message /(INFO|WARNING|ERROR) \[(?<component>[^\]]+)\]/
+     | filter ispresent(component)
+     | stats count(*) as calls, min(@timestamp) as first by component
+     | sort first asc
+     ```
+   - Say: "the full trace dashboard needs extra setup; these are the same signals as raw logs, every line tied to one trace ID". If the spans come back, **CloudWatch → X-Ray traces** (service `luna_default_luna.DEFAULT`) or the `spans` stream (`filter @logStream = "spans" | stats count(*) by name`) show the steps with durations.
 4. **AgentCore → Gateway → `lunatools`:** the two targets (`weather`, `currency`), the tools they became (`weather___getForecast`, …) and the IAM authorizer. Say: "one shared tool endpoint for every agent".
 5. **AgentCore → Memory → `luna_assistant`:** the `preferences` strategy and the stored records (*vegetarian*, *hates cold*). Goes with scene 10.
 6. **AgentCore → Identity:** the workload identity and the credential provider (the placeholder key). Say: "this is where a real API key would go, instead of an environment variable".
